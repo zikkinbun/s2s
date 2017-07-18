@@ -16,6 +16,7 @@ import json
 from advertise_handler import *
 from channel_handler import *
 from offer_handler import *
+from click_handler import *
 
 from tornado.options import define, options
 define("port", default=8000, help="run on the given port", type=int)
@@ -25,10 +26,15 @@ class Application(tornado.web.Application):
 
     def __init__(self):
         handlers = [
-            (r"/v1/offline", OfferHandler),
+            (r"/v1/click", AdvertiseCallback),
             (r"/v1/signup", signupChaneler),
             (r"/v1/token", setToken),
-            (r"/v1/ad", Advertises)
+            (r"/v1/ader", Advertiser),
+            (r"/v1/track", ClickUrlHandler),
+            (r"/v1/app", createApplication),
+            (r"/v1/offline", OfferHandler),
+            (r"/v1/am", AMsetup),
+            (r"/v1/callback", OfferCallback)
         ]
         settings = {
             "cookie_secret": "bZJc2sWbQLKos6GkHn/VB9oXwQt8S0R0kRvJ5/xJ89E=",

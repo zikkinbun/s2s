@@ -3,7 +3,7 @@ from urlparse import urlparse
 from urllib import unquote_plus
 from hashlib import md5
 
-from db import POOL
+from pools import POOL
 
 def verifySinature(callback_url, callback_token):
     sign = None
@@ -54,13 +54,3 @@ def sign_url(url, app_secret):
     sign = m.hexdigest()
 
     return '%s&sign=%s' % (url, sign)
-
-def ReverifySign(sign):
-    query = 'select callback_url, callback_token from channeler where sign="%s"' % sign
-    cursor = yield POOL.execute(query)
-    data = cursor.fetchall()
-    if data:
-    # print sign_data[0][0]
-        verify = verifySinature(sign_data[0][0], sign_data[0][1])
-    yield verify
-    return
