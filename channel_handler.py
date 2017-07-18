@@ -71,9 +71,9 @@ class setToken(tornado.web.RequestHandler):
         offer_type = self.get_argument('offer_type', None)
         base_url = self.get_argument('base_url', None)
         callback_token = base64.b64encode(os.urandom(24)) # 包括 app_secret和用户 token
-        callback_url = base_url + 'callback?type=%s&channeler_id=%s' % (offer_type, channeler_id)
+        # callback_url = base_url + 'callback?type=%s&channeler_id=%s' % (offer_type, channeler_id)
         # print callback_url
-        url = sign_api.sign_url(callback_url, callback_token)
+        url = sign_api.sign_url(base_url, callback_token)
         # print url
         url_parse = urlparse(url)
         query = url_parse.query
@@ -83,7 +83,7 @@ class setToken(tornado.web.RequestHandler):
             if k == 'sign':
                 sign = v
 
-        query = 'update channeler set base_url="%s", callback_url="%s", callback_token="%s", sign="%s" where channeler_id="%s"' % (base_url, url, callback_token, sign, channeler_id)
+        query = 'update channeler set base_url="%s", callback_url="%s", callback_token="%s", sign="%s" where channeler_id="%s"' % (base_url, base_url, callback_token, sign, channeler_id)
         # print query
         cursor = yield POOL.execute(query)
         if cursor:

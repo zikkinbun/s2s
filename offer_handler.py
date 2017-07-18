@@ -32,11 +32,14 @@ class OfferHandler(tornado.web.RequestHandler):
         app_id = self.get_argument('app_id', None)
         sign = self.get_argument('sign', None)
         try:
-            query = 'select callback_url, callback_token, base_url from channeler where sign="%s"' % sign
+            query = 'select callback_url, callback_token from channeler where sign="%s"' % sign
             cursor = yield POOL.execute(query)
             data = cursor.fetchall()
-            verify = sign_api.verifySinature(data[0][0], data[0][1])
-            base_url = data[0][2]
+            sign_url = data[0][0] + '&sign=%s' % sign
+            # print data
+            verify = sign_api.verifySinature(sign_url, data[0][1])
+            # print verify
+            # base_url = data[0][2]
         except Exception as e:
             msg = {
                 'errcode': -1,
@@ -48,6 +51,7 @@ class OfferHandler(tornado.web.RequestHandler):
             query = 'select `offer_id`,`tittle`,`app_id`,`advertise_id`,`pkgname`,`category`,\
                 `icon_url`,`preview_url`,`click_url`,`os`,`os_version`,`payout`,`payout_currency`,\
                 `payout_type`,`creatives` from offer where app_id="%s"' % app_id
+            # print query
             cursor = yield POOL.execute(query)
             data = cursor.fetchall()
             serializers = OfferSerializer(data)
@@ -141,7 +145,7 @@ class OfferCallback(tornado.web.RequestHandler):
         cursor = connection.cursor()
         cursor.execute(valid_click_query)
         valid_datas = cursor.fetchall()
-        for data in valid_datas:    ``
+        for data in valid_datas:
             callback_url_query = 'select callback_url,sign from channeler where channeler_id=(select channeler_id from application where app_id="%s")' % (data['app_id'])
             cursor.execute(callback_url_query)
             dataset = cursor.fetchall()
