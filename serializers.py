@@ -16,10 +16,11 @@ def OfferSerializer(offers):
             'click_url': offer[8],
             'os': offer[9],
             'os_version': offer[10],
-            'payout': offer[11],
-            'payout_currency': offer[12],
-            'payout_type': offer[13],
-            'creatives': offer[14],
+            'region': offer[11],
+            'payout': offer[12],
+            'payout_currency': offer[13],
+            'payout_type': offer[14],
+            'creatives': offer[15],
         }
         _offers.append(json.dumps(_offer))
     return _offers

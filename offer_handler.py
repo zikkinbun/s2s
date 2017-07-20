@@ -49,7 +49,7 @@ class OfferHandler(tornado.web.RequestHandler):
 
         if verify:
             query = 'select `offer_id`,`tittle`,`app_id`,`advertise_id`,`pkgname`,`category`,\
-                `icon_url`,`preview_url`,`click_url`,`os`,`os_version`,`payout`,`payout_currency`,\
+                `icon_url`,`preview_url`,`click_url`,`os`,`os_version`,`region`,`payout`,`payout_currency`,\
                 `payout_type`,`creatives` from offer where app_id="%s"' % app_id
             # print query
             cursor = yield POOL.execute(query)
