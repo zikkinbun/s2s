@@ -19,7 +19,7 @@ class AdvertiseCallback(tornado.web.RequestHandler):
         http://api.bensonzhi.co/v1/click?click_id={user_id}&chn={chn}&order={order}&app_id={app}&ad_id={ad_id}&revenue={revenue}
 
         [I 170719 18:23:55 web:2063] 302 GET /v1/track?ad_id=7h2k1zHd&app_id=EUIXgvfdSFShEk6TchD7Ug==&pid=7&click_id=NdiYASAdi9Teqq6h (127.0.0.1) 7.56ms
-        [I 170719 18:24:16 web:2063] 200 GET /v1/click?click_id=1JGsLC4QNb81K26J&chn=&order=YM170719oRjBpVNEd1&app_id=294daae457e8e335&ad_id={ad_id}&revenue=0.56&sign=e31981ce951dc14701495e7783c791f8 (127.0.0.1) 0.58ms
+        /v1/click?click_id=/VecSQIFsM/Cqo34&chn=&order=YM1707201-zyBGy647&app_id=294daae457e8e335&ad_id=959130194285696871&revenue=0.98&sign=54ddf707b1520da3cb752a93b2b27eff
         11 | 1JGsLC4QNb81K26J | NdiYASAdi9Teqq6h | 01372486 | EUIXgvfdSFShEk6TchD7Ug== | 7h2k1zHd | NULL | 2017-07-19 10:23:55 |  NULL
     """
 
@@ -35,8 +35,8 @@ class AdvertiseCallback(tornado.web.RequestHandler):
 
         # print click_id
 
-        step_a = 'update track_click set valid=1 where click_id="%s"' % click_id
-        step_b = 'update advertise set click=click+1,income=income+"%f" where ader_offer_id="%s"' % (revenue,ad_id)
+        step_a = 'update track_click set valid=1,num=num+1 where click_id="%s"' % click_id
+        step_b = 'update advertise set click=click+1,income=income+"%f" where ader_offer_id="%s"' % (float(revenue),ad_id)
         #
         cursor_a = yield POOL.execute(step_a)
         cursor_b = yield POOL.execute(step_b)
