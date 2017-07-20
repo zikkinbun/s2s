@@ -34,11 +34,12 @@ class Advertises(object):
         }
         exist = connection.cursor()
         exist.execute('select is_pulled from advertiser where api_name="%s"' % api_name)
-        exist.fetchone()['is_pulled']
+        # print exist.fetchone()['is_pulled']
         if exist.fetchone()['is_pulled'] == 1 or exist.fetchone()['is_pulled'] == '1':
             r = requests.get(url, default_params)
             if r.status_code == '200' or r.status_code == 200:
                 datas = json.loads(r.text)
+                print datas['total']
                 if datas['offers'] == [] or datas['offers'] == '[]':
                     not_pulled = connection.cursor()
                     not_pulled.execute('update advertiser set is_pulled="%d" where api_name="%s"' % (0, api_name))
@@ -58,7 +59,7 @@ class Advertises(object):
                         data[u'id'],data[u'package'],data[u'country'],data[u'payout'],data[u'os'],\
                         data[u'os_version'],data[u'creative'],data[u'payout_type'],data[u'icon_url'],\
                         data[u'preview_url'],data[u'trackinglink'],datetime.utcnow())
-                        
+
                         cursor = connection.cursor()
                         new_record = cursor.execute(advertise)
                     connection.commit()
@@ -66,7 +67,7 @@ class Advertises(object):
                         return self.getAdxmiOffer(app_id, page_size, int(page) + 1)
                     # 递归完成再关闭游标和链接
                     # cursor.close()
-                connection.close()
+                connection.close()        
 
 class Advertiser(tornado.web.RequestHandler):
 

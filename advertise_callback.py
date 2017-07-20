@@ -42,4 +42,4 @@ class AdvertiseCallback(tornado.web.RequestHandler):
         cursor_b = yield POOL.execute(step_b)
         # track = 'http://t.api.yyapi.net/v1/tracking?ad=935696388157612029&app_id=294daae457e8e335&pid=3'
 
-        print self.request.body
+        # print self.request.body

@@ -7,9 +7,9 @@ adxmi = Advertises()
 t = Thread(target=adxmi.getAdxmiOffer, args=('294daae457e8e335', 100, 1,))
 t.start()
 
-offer = AdvertiseTransOffer('EUIXgvfdSFShEk6TchD7Ug==','01372486')
-data = offer.getAdvertise()
-tran = offer.tranOffer()
+# offer = AdvertiseTransOffer('EUIXgvfdSFShEk6TchD7Ug==','01372486')
+# data = offer.getAdvertise()
+# tran = offer.tranOffer()
 
 # callback = OfferCallback()
 # callback.getValidClick()
