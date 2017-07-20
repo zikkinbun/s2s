@@ -35,12 +35,12 @@ class ClickUrlHandler(tornado.web.RequestHandler):
         trackinglink = select_data[0][0]
         adver_id = select_data[0][1]
 
-        insert_query = 'insert into track_click (`click_id`,`ad_id`,`app_id`,`app_click_id`,`offer_id`,`createdate`) values ("%s","%s",\
-        "%s","%s","%s","%s")' % (click_id,adver_id,app_id,app_click_id,offer_id,datetime.utcnow())
+        insert_query = 'insert into track_click (`click_id`,`ad_id`,`app_id`,`app_click_id`,`offer_id`,`num`,`createdate`) values ("%s","%s",\
+        "%s","%s","%s","%d","%s")' % (click_id,adver_id,app_id,app_click_id,offer_id,1,datetime.utcnow())
         insert_cursor = yield POOL.execute(insert_query)
 
         track_link = trackinglink + '&user_id=%s' % click_id
-        print track_link, nsukey
+        # print track_link, nsukey
         self.redirect(track_link)
 
 
