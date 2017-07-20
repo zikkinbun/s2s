@@ -106,12 +106,12 @@ class AdvertiseTransOffer(object):
 
         query = 'insert into offer (`offer_id`,`tittle`,`app_id`,`advertise_id`,`pkgname`,\
             `icon_url`,`preview_url`,`category`,`os`,`os_version`,`payout`,\
-            `payout_type`,`click_url`,`creatives`,`createdate`) values ("%s","%s","%s","%s","%s",\
-            "%s","%s","%s","%s","%s","%f","%s","%s","%s","%s")' % (offer_id,self.data[0]['ad_name'],\
+            `payout_type`,`click_url`,`creatives`,`region`,`createdate`) values ("%s","%s","%s","%s","%s",\
+            "%s","%s","%s","%s","%s","%f","%s","%s","%s","%s","%s")' % (offer_id,self.data[0]['ad_name'],\
             self.app_id,self.adver_id,self.data[0]['pkg_name'],self.data[0]['icon_url'],\
             self.data[0]['preview_url'],self.data[0]['category'],self.data[0]['os'],\
             self.data[0]['os_version'],self.data[0]['get_price'],self.data[0]['payout_type'],\
-            click_url,self.data[0]['creatives'],datetime.utcnow())
+            click_url,self.data[0]['creatives'],self.data[0]['region'],datetime.utcnow())
         # print query
         cursor = connection.cursor()
         cursor.execute(query)
