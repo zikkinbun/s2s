@@ -39,21 +39,22 @@ class ClickUrlHandler(tornado.web.RequestHandler):
         insert_cursor = yield POOL.execute(insert_query)
 
         track_link = trackinglink + '&user_id=%s' % click_id
+        print track_link
         self.redirect(track_link)
 
 
 class createClickUrl(object):
 
     """
-        http://api.bensonzhi.com/track?ad=xxxx&app_id=xxxx&pid=xxxx&click_id=xxxx
+        http://api.bensonzhi.co/track?ad=xxxx&app_id=xxxx&pid=xxxx&click_id=xxxx
     """
 
-    def __init__(self, ad_id, app_id, pid):
+    def __init__(self, app_id, ad_id, pid):
         self.ad_id = ad_id
         self.app_id = app_id
         self.pid = pid
-        self.base_url = 'http://api.bensonzhi.com/v1/track'
+        self.base_url = 'http://api.bensonzhi.co/v1/track'
 
     def createUrl(self):
-        url = self.base_url + '?ad=%s&app_id=%s&pid=%s' % (self.ad_id, self.app_id, self.pid)
+        url = self.base_url + '?ad_id=%s&app_id=%s&pid=%s' % (self.ad_id, self.app_id, self.pid)
         return url
