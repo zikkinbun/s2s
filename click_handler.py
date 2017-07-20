@@ -24,6 +24,7 @@ class ClickUrlHandler(tornado.web.RequestHandler):
         offer_id = self.get_argument('ad_id', None) # offer库发出的offer_id为下游的ad_id
         app_id = self.get_argument('app_id', None)
         app_click_id = self.get_argument('click_id', None)
+        nsukey = self.get_argument('nsukey', None)
 
         click_id = base64.b64encode(os.urandom(12))
 
@@ -39,7 +40,7 @@ class ClickUrlHandler(tornado.web.RequestHandler):
         insert_cursor = yield POOL.execute(insert_query)
 
         track_link = trackinglink + '&user_id=%s' % click_id
-        print track_link
+        print track_link, nsukey
         self.redirect(track_link)
 
 
