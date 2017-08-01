@@ -3,7 +3,7 @@ import tornado.web
 import tornado.httpclient
 
 import sign_api
-from pools import POOL
+from db.pools import POOL
 
 from urlparse import urlparse
 from datetime import datetime

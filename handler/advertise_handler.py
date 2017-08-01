@@ -2,8 +2,8 @@
 import tornado.web
 import tornado.httpclient
 
-from pools import POOL
-from mysql import connection
+from db.pools import POOL
+from db.mysql import connection
 
 import sign_api
 
@@ -22,29 +22,49 @@ class Advertises(object):
         对接上游 API,拉取 OFFER 下的广告信息
     """
 
-    def getAdxmiOffer(self, app_id, page_size, page):
-        datas = None
-        api_name = 'Admix'
-        url = 'http://ad.api.yyapi.net/v2/offline'
-        advertises = []
+    def __init__(self):
+        self.api_name = 'Admix'
+
+    def verifyPullstatus(self):
+        exist = connection.cursor()
+        exist.execute('select is_pulled from advertiser where api_name="%s"' % self.api_name)
+        is_pulled = exist.fetchone()['is_pulled']
+        exist.close()
+        # connection.close()
+        if is_pulled == 1 or is_pulled == '1':
+            return True
+        else:
+            return False
+
+    def ApiMonitor(self, app_id, page_size, page):
         default_params = {
             'app_id': app_id,
             'page_size': page_size,
             'page': page
         }
-        exist = connection.cursor()
-        exist.execute('select is_pulled from advertiser where api_name="%s"' % api_name)
-        # print exist.fetchone()['is_pulled']
-        if exist.fetchone()['is_pulled'] == 1 or exist.fetchone()['is_pulled'] == '1':
+        r = requests.get(url, default_params)
+        if r.status_code == '200' or r.status_code == 200:
+            datas = json.loads(r.text)
+            if datas['offers'] == [] or datas['offers'] == '[]':
+                not_pulled = connection.cursor()
+                not_pulled.execute('update advertiser set is_pulled="%d" where api_name="%s"' % (0, self.api_name))
+                connection.commit()
+                not_pulled.close()
+
+
+    def getAdxmiOffer(self, app_id, page_size, page):
+        datas = None
+        url = 'http://ad.api.yyapi.net/v2/offline'
+        default_params = {
+            'app_id': app_id,
+            'page_size': page_size,
+            'page': page
+        }
+        if self.verifyPullstatus():
             r = requests.get(url, default_params)
             if r.status_code == '200' or r.status_code == 200:
                 datas = json.loads(r.text)
-                print datas['total']
                 if datas['offers'] == [] or datas['offers'] == '[]':
-                    not_pulled = connection.cursor()
-                    not_pulled.execute('update advertiser set is_pulled="%d" where api_name="%s"' % (0, api_name))
-                    connection.commit()
-                    not_pulled.close()
                     connection.close()
                 else:
                     page_range = int(datas['total'])/int(datas['page_size']) + 1
@@ -52,7 +72,7 @@ class Advertises(object):
                         ad_id = ''.join(random.sample(string.digits, 8))
                         ader_id = 1
 
-                        advertise = 'insert into `advertise` (`ad_id`,`ad_name`,`ader_id`,`ader_offer_id`,\
+                        advertise = 'insert IGNORE into `advertise` (`ad_id`,`ad_name`,`ader_id`,`ader_offer_id`,\
                         `pkg_name`,`region`,`get_price`,`os`,`os_version`,`creatives`,`payout_type`,\
                         `icon_url`,`preview_url`,`track_url`,`updatetime`) values ("%s","%s","%d","%s","%s",\
                         "%s","%f","%s","%s","%s","%s","%s","%s","%s","%s")' % (ad_id,data[u'name'],ader_id,\
@@ -65,9 +85,7 @@ class Advertises(object):
                     connection.commit()
                     if int(datas['page']) <= page_range:
                         return self.getAdxmiOffer(app_id, page_size, int(page) + 1)
-                    # 递归完成再关闭游标和链接
-                    # cursor.close()
-                connection.close()        
+
 
 class Advertiser(tornado.web.RequestHandler):
 
@@ -85,7 +103,7 @@ class Advertiser(tornado.web.RequestHandler):
 
         cursor = yield POOL.execute('select callback_token from advertiser where api_name="%s"' % api_name)
         # print (cursor.fetchall())[0][0]
-        if (cursor.fetchall())[0][0]:
+        if cursor.fetchall():
             self.write('广告主已存在')
         else:
             try:

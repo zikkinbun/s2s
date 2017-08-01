@@ -3,7 +3,7 @@ from urlparse import urlparse
 from urllib import unquote_plus
 from hashlib import md5
 
-from pools import POOL
+from db.pools import POOL
 
 def verifySinature(callback_url, callback_token):
     sign = None

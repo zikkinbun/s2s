@@ -13,12 +13,14 @@ import base64
 import os
 import json
 
-from advertise_callback import AdvertiseCallback
-from offer_callback import OfferCallback
-from channel_handler import signupChaneler, setToken, createApplication, AMsetup
-from offer_handler import OfferHandler
-from click_handler import ClickUrlHandler
-from advertise_handler import Advertises, Advertiser
+from callback.advertise_callback import AdvertiseCallback
+from callback.offer_callback import OfferCallback
+from handler.channel_handler import signupChaneler, setToken, createApplication, AMsetup
+from handler.offer_handler import OfferHandler
+from handler.click_handler import ClickUrlHandler
+from handler.advertise_handler import Advertises, Advertiser
+from handler.rule_handler import RuleHandler, selectRule
+
 
 from tornado.options import define, options
 define("port", default=8000, help="run on the given port", type=int)
@@ -36,7 +38,9 @@ class Application(tornado.web.Application):
             (r"/v1/app", createApplication),
             (r"/v1/offline", OfferHandler),
             (r"/v1/am", AMsetup),
-            (r"/v1/callback", OfferCallback)
+            (r"/v1/callback", OfferCallback),
+            (r"/v1/rule", RuleHandler),
+            (r"/v1/rule/detail", selectRule),
         ]
         settings = {
             "cookie_secret": "bZJc2sWbQLKos6GkHn/VB9oXwQt8S0R0kRvJ5/xJ89E=",
