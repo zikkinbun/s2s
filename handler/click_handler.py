@@ -23,7 +23,7 @@ class ClickUrlHandler(tornado.web.RequestHandler):
     def get(self):
         req_os = self.request.headers
         if re.search(ur'(iPhone)', str(req_os)) or re.search(ur'(Android)', str(req_os)):
-            
+
             offer_id = self.get_argument('ad_id', None) # offer库发出的offer_id为下游的ad_id
             if offer_id is None:
                 raise tornado.web.MissingArgumentError
@@ -37,7 +37,7 @@ class ClickUrlHandler(tornado.web.RequestHandler):
                 raise tornado.web.MissingArgumentError
 
             is_existed = self.checkUnique(app_click_id)
-            if is_existed == 200:
+            if is_existed == 200 or is_existed == '200':
                 click_id = base64.b64encode(os.urandom(12))
                 trackinglink, adver_id = self.getTrackUrl(offer_id)
                 self.clickRecord(click_id, adver_id, app_id, app_click_id, offer_id)
@@ -57,9 +57,13 @@ class ClickUrlHandler(tornado.web.RequestHandler):
             cursor.execute(app_click_query)
             data = cursor.fetchone()
             if len(data) > 1:
-                return -200
+                msg = "-200"
+                return msg
             else:
-                return 200
+                msg = "200"
+                return msg
+        except ProgrammingError as e:
+            print e
 
     def getClickId(self, app_click_id):
 
