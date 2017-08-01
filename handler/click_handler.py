@@ -4,6 +4,7 @@ import tornado.httpclient
 
 import sign_api
 from db.pools import POOL
+from db.mysql import connection
 
 from pymysql.err import ProgrammingError
 from datetime import datetime
@@ -56,11 +57,14 @@ class ClickUrlHandler(tornado.web.RequestHandler):
             cursor = connection.cursor()
             cursor.execute(app_click_query)
             data = cursor.fetchone()
-            if len(data) > 1:
+            if data is None or len(data) == 1:
+                msg = "200"
+                return msg
+            elif len(data) > 1:
                 msg = "-200"
                 return msg
             else:
-                msg = "200"
+                msg = "-201"
                 return msg
         except ProgrammingError as e:
             print e
