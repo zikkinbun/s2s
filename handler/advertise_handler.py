@@ -103,29 +103,29 @@ class Advertises(object):
                         # print params
                         r = requests.get(url, params)
                         if r.status_code == '200' or r.status_code == 200:
-                            # datas = json.loads(r.text)
-                            print i
-                            # for data in datas['offers']:
-                            #     ad_id = ''.join(random.sample(string.digits, 8))
-                            #     ader_id = 1
-                            #     device = data[u'mandatory_device']
-                            #     device_query = 'insert IGNORE into `device` (`ad_id`,`imei`,`mac`,`andid`,\
-                            #     `idfa`,`udid`) values ("%s","%s","%s","%s","%s","%s")' % (ad_id,device['imei'],\
-                            #     device['mac'],device['andid'],device['idfa'],device['udid'])
-                            #
-                            #     new_device = cursor.execute(device_query)
-                            #
-                            #     advertise_query = 'insert IGNORE into `advertise` (`ad_id`,`ad_name`,`ader_id`,`ader_offer_id`,\
-                            #     `pkg_name`,`region`,`get_price`,`os`,`os_version`,`creatives`,`payout_type`,\
-                            #     `icon_url`,`preview_url`,`track_url`,`click`,`installed`,`income`,`access_price`,`put_price`,`updatetime`) values ("%s","%s","%d","%s","%s",\
-                            #     "%s","%f","%s","%s","%s","%s","%s","%s","%s","%d","%f","%f","%f","%f","%s")' % (ad_id,data[u'name'],ader_id,\
-                            #     data[u'id'],data[u'package'],data[u'country'],data[u'payout'],data[u'os'],\
-                            #     data[u'os_version'],data[u'creative'],data[u'payout_type'],data[u'icon_url'],\
-                            #     data[u'preview_url'],data[u'trackinglink'],0,0.0,0.0,0.0,0.0,datetime.utcnow())
-                            #
-                            #     new_advertise = cursor.execute(advertise_query)
-                    # connection.commit()
-                    # connection.close()
+                            datas = json.loads(r.text)
+                            # print i
+                            for data in datas['offers']:
+                                ad_id = ''.join(random.sample(string.digits, 8))
+                                ader_id = 1
+                                device = data[u'mandatory_device']
+                                device_query = 'insert IGNORE into `device` (`ad_id`,`imei`,`mac`,`andid`,\
+                                `idfa`,`udid`) values ("%s","%s","%s","%s","%s","%s")' % (ad_id,device['imei'],\
+                                device['mac'],device['andid'],device['idfa'],device['udid'])
+
+                                new_device = cursor.execute(device_query)
+
+                                advertise_query = 'insert IGNORE into `advertise` (`ad_id`,`ad_name`,`ader_id`,`ader_offer_id`,\
+                                `pkg_name`,`region`,`get_price`,`os`,`os_version`,`creatives`,`payout_type`,\
+                                `icon_url`,`preview_url`,`track_url`,`click`,`installed`,`income`,`access_price`,`put_price`,`updatetime`) values ("%s","%s","%d","%s","%s",\
+                                "%s","%f","%s","%s","%s","%s","%s","%s","%s","%d","%f","%f","%f","%f","%s")' % (ad_id,data[u'name'],ader_id,\
+                                data[u'id'],data[u'package'],data[u'country'],data[u'payout'],data[u'os'],\
+                                data[u'os_version'],data[u'creative'],data[u'payout_type'],data[u'icon_url'],\
+                                data[u'preview_url'],data[u'trackinglink'],0,0.0,0.0,0.0,0.0,datetime.utcnow())
+
+                                new_advertise = cursor.execute(advertise_query)
+                    connection.commit()
+                    connection.close()
 
 class AdvertiseStatus(object):
 
