@@ -3,9 +3,9 @@ from __future__ import absolute_import
 from celery import Celery
 from celery.schedules import crontab
 
-from advertise_handler import Advertises
-from rule_handler import specailRule
-from offer_handler import AdvertiseTransOffer
+from handler.advertise_handler import Advertises
+from handler.rule_handler import specailRule
+from handler.offer_handler import AdvertiseTransOffer
 
 from threading import Thread
 
@@ -16,9 +16,9 @@ app.conf.update(
     CELERY_ACCEPT_CONTENT=['json'],
     CELERY_RESULT_SERIALIZER='json',
     CELERYBEAT_SCHEDULE = {
-        "every_15minutes_run":{
+        "every_30minutes_run":{
             "task":"tasks.getOffer",
-            "schedule":crontab(minute='*/15'),
+            "schedule":crontab(minute='*/30'),
             },
         },
 )
@@ -26,7 +26,7 @@ app.conf.update(
 @app.task
 def getOffer():
     adxmi = Advertises()
-    t = Thread(target=adxmi.getAdxmiOffer, args=('294daae457e8e335', 100, 1,))
+    t = Thread(target=adxmi.getAdxmiOffer, args=('294daae457e8e335', 100))
     t.start()
 
 def getRule():

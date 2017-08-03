@@ -1,19 +1,25 @@
 # _*_ coding:utf-8_*_
-from advertise_handler import Advertises
-from offer_handler import AdvertiseTransOffer, OfferHandler
+from handler.advertise_handler import Advertises, Advertiser, AdvertiseStatus
+from handler.offer_handler import AdvertiseTransOffer, OfferHandler
+from handler.rule_handler import RuleHandler, selectRule, specailRule
 from threading import Thread
 
-# from tasks import getOffer
 import tasks
+
+
 
 if __name__ == '__main__':
     # test = getOffer.delay()
-    tasks.getOffer()
-    # adxmi = Advertises()
+    # tasks.getOffer()
+    adxmi = Advertises()
     # adxmi.verifyPullstatus()
-    # adxmi.getAdxmiOffer('294daae457e8e335', 100, 1)
-    # t = Thread(target=adxmi.getAdxmiOffer, args=('294daae457e8e335', 100, 1,))
+    adxmi.getAdxmiOffer('294daae457e8e335', 100)
+    # t = Thread(target=adxmi.getAdxmiOffer, args=('294daae457e8e335', 100))
     # t.start()
+    # test = AdvertiseStatus()
+    # msg = test.getDeviceInfo('2125151')
+    # print msg
+
 
 # offer = AdvertiseTransOffer('EUIXgvfdSFShEk6TchD7Ug==','01372486')
 # data = offer.getAdvertise()

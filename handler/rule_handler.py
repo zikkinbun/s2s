@@ -2,10 +2,10 @@
 import tornado.web
 import tornado.httpclient
 
-from db.pools import POOL
 from db.mysql import connection
 
 from datetime import datetime
+from pymysql import err
 import base64
 import os
 import json
@@ -21,15 +21,22 @@ class RuleHandler(tornado.web.RequestHandler):
         rule_value = self.get_argument('rule_value', None)
         rule_comment = self.get_argument('rule_comment', None)
 
-        query = 'insert into rule (name,type,value,comment) values ("%s","%s","%s","%s")' % (rule_name,rule_type,rule_value,rule_comment)
-
-        cursor = yield POOL.execute(query)
-        if cursor:
-            msg = {
-                'ruleName': rule_name,
-                'ruleStatus': '规则创建成功'
-            }
-            self.write(msg)
+        try:
+            query = 'insert into rule (name,type,value,comment) values ("%s","%s","%s","%s")' % (rule_name,rule_type,rule_value,rule_comment)
+            cursor = connection.cursor()
+            row = cursor.execute(query)
+            connection.commit()
+            if row:
+                msg = {
+                    'code': 1000,
+                    'ruleName': rule_name,
+                    'ruleStatus': '规则创建成功'
+                }
+                self.write(msg)
+        except err.ProgrammingError as e:
+            print e
+        finally:
+            connection.close()
 
 class selectRule(tornado.web.RequestHandler):
 
@@ -37,25 +44,36 @@ class selectRule(tornado.web.RequestHandler):
     def post(self):
         rule_id = self.get_argument('rule_id', None)
 
-        query = 'select name,type,value,comment from rule where id="%d"' % int(rule_id)
-        cursor = yield POOL.execute(query)
-        if cursor:
-            data = cursor.fetchone()
-            response = {
-                'ruleName': data[0],
-                'ruleValue': data[2],
-                'ruleComment': data[3]
-                }
-            self.write(response)
+        try:
+            query = 'select name,type,value,comment from rule where id="%d"' % int(rule_id)
+            cursor = connection.cursor()
+            cursor.execute(query)
+            datas = cursor.fetchone()
+            if datas:
+                response = {
+                    'code': 1000,
+                    'ruleName': data['name'],
+                    'ruleValue': data['value'],
+                    'ruleComment': data['comment']
+                    }
+                self.write(response)
+        except err.ProgrammingError as e:
+            print e
+        # finally:
+        #     connection.close()
 
 
 class specailRule(object):
 
     def getRule(self, rule_id):
-        query = 'select value from rule where id="%d"' % int(rule_id)
-        cursor = connection.cursor()
-        cursor.execute(query)
-        value = cursor.fetchone()
-        # connection.close()
-        if value:
-            return value['value'][2:]
+        try:
+            query = 'select value from rule where id="%d"' % int(rule_id)
+            cursor = connection.cursor()
+            cursor.execute(query)
+            value = cursor.fetchone()
+            if value:
+                return value['value']
+        except err.ProgrammingError as e:
+            print e
+        # finally:
+        #     connection.close()

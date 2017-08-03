@@ -3,7 +3,6 @@ import tornado.web
 import tornado.httpclient
 
 import sign_api
-from db.pools import POOL
 from db.mysql import connection
 
 from pymysql.err import ProgrammingError
@@ -24,18 +23,22 @@ class ClickUrlHandler(tornado.web.RequestHandler):
     def get(self):
         req_os = self.request.headers
         if re.search(ur'(iPhone)', str(req_os)) or re.search(ur'(Android)', str(req_os)):
-
-            offer_id = self.get_argument('ad_id', None) # offer库发出的offer_id为下游的ad_id
+            # offer库发出的offer_id为下游的ad_id
+            offer_id = self.get_argument('ad_id', None)
             if offer_id is None:
-                raise tornado.web.MissingArgumentError
+                raise tornado.web.MissingArgumentError('offer_id')
 
             app_id = self.get_argument('app_id', None)
             if app_id is None:
-                raise tornado.web.MissingArgumentError
+                raise tornado.web.MissingArgumentError('app_id')
 
             app_click_id = self.get_argument('click_id', None)
             if app_click_id is None:
-                raise tornado.web.MissingArgumentError
+                raise tornado.web.MissingArgumentError('click_id')
+
+            pid = self.get_argument('pid', None)
+            if pid is None:
+                raise tornado.web.MissingArgumentError('pid')
 
             is_existed = self.checkUnique(app_click_id)
             if is_existed == 200 or is_existed == '200':
@@ -113,7 +116,6 @@ class ClickUrlHandler(tornado.web.RequestHandler):
             print e
         finally:
             connection.close()
-
 
 
 class createClickUrl(object):

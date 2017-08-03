@@ -3,10 +3,11 @@ import tornado.web
 import tornado.httpclient
 
 import sign_api
-from db.pools import POOL
+from db.mysql import connection
 
 from urlparse import urlparse
 from datetime import datetime
+from pymysql import err
 import base64
 import os
 import json
@@ -32,14 +33,16 @@ class AdvertiseCallback(tornado.web.RequestHandler):
         ad_id = self.get_argument('ad_id', None)
         ad_name = self.get_argument('ad_name', None)
         revenue = self.get_argument('revenue', None)
-
         # print click_id
+        try:
+            step_a = 'update track_click set valid=1,num=num+1 where click_id="%s"' % click_id
+            step_b = 'update advertise set click=click+1,income=income+"%f" where ader_offer_id="%s"' % (float(revenue),ad_id)
 
-        step_a = 'update track_click set valid=1,num=num+1 where click_id="%s"' % click_id
-        step_b = 'update advertise set click=click+1,income=income+"%f" where ader_offer_id="%s"' % (float(revenue),ad_id)
-        #
-        cursor_a = yield POOL.execute(step_a)
-        cursor_b = yield POOL.execute(step_b)
-        # track = 'http://t.api.yyapi.net/v1/tracking?ad=935696388157612029&app_id=294daae457e8e335&pid=3'
-
-        # print self.request.body
+            cursor = connection.cursor()
+            cursor.execute(step_a)
+            cursor.execute(step_b)
+            connection.commit()
+        except err.ProgrammingError as e:
+            print e
+        # finally:
+        #     connection.close()

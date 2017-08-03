@@ -3,10 +3,11 @@ import tornado.web
 import tornado.httpclient
 
 import sign_api
-from db.pools import POOL
+from db.mysql import connection
 
 from urlparse import urlparse
 from datetime import datetime
+from pymysql import err
 import base64
 import os
 import json
@@ -31,32 +32,19 @@ class signupChaneler(tornado.web.RequestHandler):
             query = 'insert into channeler (name, passwd, contact, email, am_id, status, channeler_id, sign_up_date  \
                 ) values ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s" )' % (username, passwd, contact, email, \
                 am_id, status, channeler_id, datetime.now())
-            print query
-            cursor = yield POOL.execute(query)
-            if cursor:
-                self.write('Your ID is %s' % channeler_id)
-        except Exception as e:
+            cursor = connection.cursor()
+            cursor.execute(query)
+            connection.commit()
+            self.write('Your ID is %s' % channeler_id)
+        except err.ProgrammingError as e:
             msg = {
-                'errcode': -2,
-                'errmode': '/signup/',
-                'errmsg': '数据库插入出错'
+                'code': 6001,
+                'mode': '/signup/',
+                'msg': e
             }
-            self.write(msg)
-
-class AMsetup(tornado.web.RequestHandler):
-
-    @tornado.gen.coroutine
-    def post(self):
-        am_name = self.get_argument('am_name', None)
-        income = self.get_argument('income', None)
-        output = self.get_argument('output', None)
-        total = self.get_argument('total', None)
-
-        query = 'insert into am (`name`,`income`,`output`,`total`,`createdate`) values ("%s","%f","%f","%f","%s")' % (am_name,float(income),float(output),float(total),datetime.utcnow())
-        cursor = yield POOL.execute(query)
-        if cursor:
-            self.write('AM account created successfully')
-
+            return msg
+        finally:
+            connection.close()
 
 class setToken(tornado.web.RequestHandler):
 
@@ -85,9 +73,18 @@ class setToken(tornado.web.RequestHandler):
 
         query = 'update channeler set base_url="%s", callback_url="%s", callback_token="%s", sign="%s" where channeler_id="%s"' % (base_url, base_url, callback_token, sign, channeler_id)
         # print query
-        cursor = yield POOL.execute(query)
-        if cursor:
-            self.write('Your Signature is %s' % sign)
+        try:
+            cursor = connection.cursor()
+            cursor.execute(query)
+            connection.commit()
+            message = {
+                'code': 6000,
+                'msg': 'Your Signature is %s' % sign
+            }
+            self.write(message)
+        except err.ProgrammingError as e:
+            print e
+
 
 class createApplication(tornado.web.RequestHandler):
 
@@ -105,22 +102,80 @@ class createApplication(tornado.web.RequestHandler):
         app_id = base64.b64encode(os.urandom(16))
         app_secret = base64.b64encode(os.urandom(16))
 
-        query = 'insert into application (app_id,app_name,app_secret,pkg_name,platform,category,\
-            url,is_stored,description,channeler_id,createdate) values ("%s","%s","%s","%s","%s","%s",\
-            "%s","%s","%s","%s","%s")' % (app_id,app_name,app_secret,pkg_name,platform,category,url,is_stored,\
-            description,channeler_id,datetime.utcnow())
+        try:
+            query = 'insert into application (app_id,app_name,app_secret,pkg_name,platform,category,\
+                url,is_stored,description,channeler_id,createdate) values ("%s","%s","%s","%s","%s","%s",\
+                "%s","%s","%s","%s","%s")' % (app_id,app_name,app_secret,pkg_name,platform,category,url,is_stored,\
+                description,channeler_id,datetime.utcnow())
 
-        cursor = yield POOL.execute(query)
-        if cursor:
-            msg = {
-                'msgcode': 0,
-                'msgdata': 'APP创建成功',
-                'App_id': app_id,
-                'App_secret': app_secret
-            }
-            self.write(msg)
-        else:
-            msg = {
-                'msgcode': -1,
-                'msgdata': 'APP创建失败'
-            }
+            cursor = connection.cursor()
+            row = cursor.execute(query)
+            connection.commit()
+
+            if row:
+                msg = {
+                    'msgcode': 6000,
+                    'msgdata': 'APP创建成功',
+                    'App_id': app_id,
+                    'App_secret': app_secret
+                    }
+                self.write(msg)
+            else:
+                msg = {
+                    'msgcode': 6002,
+                    'msgdata': 'APP创建失败'
+                }
+                self.write(msg)
+        except err.ProgrammingError as e:
+            print e
+        finally:
+            connection.close()
+
+class channelStatus(object):
+
+    def getStatus(self, channeler_id):
+        try:
+            query = 'select status from channeler where channeler_id="%s"' % channeler_id
+            cursor = connection.cursor()
+            cursor.execute(query)
+            data = cursor.fetchone()
+            if data:
+                return data['status']
+        except err.ProgrammingError as e:
+            print e
+
+    def setStatus(self, status, channeler_id):
+        try:
+            query = 'update channeler set status=%d where channeler_id=%s' % (int(status), channeler_id)
+            cursor = connection.cursor()
+            row = cursor.execute(query)
+            connection.commit()
+            if row:
+                msg = {
+                    'msgcode': 6000,
+                }
+                return msg
+        except err.ProgrammingError as e:
+            return e
+        # finally:
+        #     connection.close()
+
+    def verifyStatusApp(self, channeler_id, app_id):
+        """
+            验证当前下游的状态和 APP 是否可用
+        """
+        try:
+            status_query = 'select a.status,b.app_id from channeler a, application b where a.channeler_id="%s" and b.channeler_id="%s"' % (channeler_id, channeler_id)
+            cursor = connection.cursor()
+            cursor.execute(status_query)
+            data = cursor.fetchone()
+
+            if int(data['status']) == 1 and data['app_id'] == app_id:
+                return True
+            else:
+                return False
+        except err.ProgrammingError as e:
+            print e
+        # finally:
+        #     cursor.close()
+        #     connection.close()

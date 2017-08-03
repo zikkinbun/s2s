@@ -4,8 +4,6 @@ import tornado.httpclient
 from tornado import gen
 
 # import pymongo
-# from tornado_mysql import pools
-from db.pools import POOL
 from db.mysql import connection
 from handler.click_handler import createClickUrl
 
@@ -36,8 +34,8 @@ class OfferCallback(tornado.web.RequestHandler):
             callback_url_query = 'select callback_url,sign from channeler where channeler_id=(select channeler_id from application where app_id="%s")' % (data['app_id'])
             cursor.execute(callback_url_query)
             dataset = cursor.fetchall()
-            callback_url = dataset[0]['callback_url']
-            sign = dataset[0]['sign']
+            callback_url = dataset['callback_url']
+            sign = dataset['sign']
             app_click_id = data['app_click_id']
             # print callback_url, sign
         return callback_url, sign, app_click_id
