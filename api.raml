@@ -1,5 +1,5 @@
 #%RAML 1.0
-title: 黑脸
+title: dogdog_API
 version: v1
 baseUri: http://api.bensonzhi.co
 
@@ -160,7 +160,7 @@ traits:
                             type: result
                             example: !include examples/success.res.json
     /app/create:
-        description: 获取openId
+        description: 下游提交创建 APP
         post:
             queryParameters:
                 channeler_id:
@@ -244,7 +244,7 @@ traits:
                                     "msg": "APP active successfully",
                                 }
     /am/login:
-        description: 激活下游APP
+        description: AM登录验证
         post:
             queryParameters:
                 username:
@@ -309,7 +309,7 @@ traits:
                                     "msg": "Offer create successfully",
                                 }
     /am/connchn:
-        description: 为下游创建OFFER
+        description:  更改下游账号状态
         post:
             queryParameters:
                 status:
