@@ -255,4 +255,4 @@ class channelerLogout(BaseHandler):
 
 	def get(self):
 		self.clear_current_user()
-        self.redirect(self.get_argument("next", "/v1/chn/login"))
+        # self.redirect(self.get_argument("next", "/v1/chn/login"))
