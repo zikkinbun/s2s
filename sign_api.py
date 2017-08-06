@@ -46,7 +46,7 @@ def sign_url(url, app_secret):
         str += '%s=%s' % (k, v)
     str += app_secret
 
-    print str
+    # print str
     m = md5()
     m.update(str)
     sign = m.hexdigest()

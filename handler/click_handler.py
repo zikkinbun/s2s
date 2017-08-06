@@ -48,10 +48,16 @@ class ClickUrlHandler(tornado.web.RequestHandler):
                 track_link = trackinglink + '&user_id=%s' % click_id
                 self.redirect(track_link)
             else:
-                msg = 'please do not commit the same click_id again'
+                message = {
+                    'code': 5001,
+                    'msg': 'please do not commit the same click_id again'
+                }
                 self.write(msg)
         else:
-            msg = 'You are not using the mobile broswer'
+            message = {
+                'code': 5002,
+                'msg': 'You are not using the mobile broswer'
+            }
             self.write(msg)
 
     def checkUnique(self, app_click_id):

@@ -27,16 +27,28 @@ class AdvertiseCallback(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def get(self):
         click_id = self.get_argument('click_id', None)
+        if click_id is None:
+            raise tornado.web.MissingArgumentError('click_id')
         chn = self.get_argument('chn', None)
+        if chn is None:
+            raise tornado.web.MissingArgumentError('chn')
         order = self.get_argument('order', None)
+        if order is None:
+            raise tornado.web.MissingArgumentError('order')
         app_id = self.get_argument('app', None)
+        if app_id is None:
+            raise tornado.web.MissingArgumentError('app')
         ad_id = self.get_argument('ad_id', None)
-        ad_name = self.get_argument('ad_name', None)
+        if ad_id is None:
+            raise tornado.web.MissingArgumentError('ad_id')
+        # ad_name = self.get_argument('ad_name', None)
         revenue = self.get_argument('revenue', None)
+        if revenue is None:
+            raise tornado.web.MissingArgumentError('revenue')
         # print click_id
         try:
-            step_a = 'update track_click set valid=1,num=num+1 where click_id="%s"' % click_id
-            step_b = 'update advertise set click=click+1,income=income+"%f" where ader_offer_id="%s"' % (float(revenue),ad_id)
+            step_a = 'update track_click set valid="%d",updatetime="%s" where click_id="%s"' % (int(1), datetime.utcnow(), click_id)
+            step_b = 'update advertise set click=click+1,income=income+"%f" where ader_offer_id="%s"' % (float(revenue), ad_id)
 
             cursor = connection.cursor()
             cursor.execute(step_a)

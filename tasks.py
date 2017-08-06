@@ -6,6 +6,7 @@ from celery.schedules import crontab
 from handler.advertise_handler import Advertises
 from handler.rule_handler import specailRule
 from handler.offer_handler import AdvertiseTransOffer
+from callback.offer_callback import searchValidClick
 
 from threading import Thread
 
@@ -28,6 +29,9 @@ def getOffer():
     adxmi = Advertises()
     t = Thread(target=adxmi.getAdxmiOffer, args=('294daae457e8e335', 100))
     t.start()
+
+def getValidClick():
+    pass
 
 def getRule():
     sp_rule = specailRule()

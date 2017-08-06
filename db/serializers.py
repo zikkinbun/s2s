@@ -5,22 +5,22 @@ def OfferSerializer(offers):
     _offers = []
     for offer in offers:
         _offer = {
-            'offer_id': offer[0],
-            'tittle': offer[1],
-            'app_id': offer[2],
-            'advertise_id': offer[3],
-            'pkgname': offer[4],
-            'category': offer[5],
-            'icon_url': offer[6],
-            'preview_url': offer[7],
-            'click_url': offer[8],
-            'os': offer[9],
-            'os_version': offer[10],
-            'region': offer[11],
-            'payout': offer[12],
-            'payout_currency': offer[13],
-            'payout_type': offer[14],
-            'creatives': offer[15],
+            'offer_id': offer['offer_id'],
+            'tittle': offer['tittle'],
+            'app_id': offer['app_id'],
+            'advertise_id': offer['advertise_id'],
+            'pkgname': offer['pkgname'],
+            'category': offer['category'],
+            'icon_url': offer['icon_url'],
+            'preview_url': offer['preview_url'],
+            'click_url': offer['click_url'],
+            'os': offer['os'],
+            'os_version': offer['os_version'],
+            'region': offer['region'],
+            'payout': offer['payout'],
+            'payout_currency': offer['payout_currency'],
+            'payout_type': offer['payout_type'],
+            'creatives': offer['creatives'],
         }
         _offers.append(json.dumps(_offer))
     return _offers

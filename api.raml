@@ -1,0 +1,339 @@
+#%RAML 1.0
+title: 黑脸
+version: v1
+baseUri: http://api.bensonzhi.co
+
+uses:
+
+types:
+    baseId:
+        type: integer
+        required: true
+        description: 唯一标识Id
+    baseName:
+        type: string
+        required: true
+        description: 名称
+    basePhone:
+        type: string
+        required: true
+        description: 手机号码
+    baseDesc:
+        type: string
+        required: false
+        description: 备注
+    baseDate:
+        type: datetime
+        format: rfc3339
+        description: 日期
+    retdata:
+        type: object
+        required: true
+        description: 返回的数据
+    result:
+        type: object
+        description: 服务器返回的JSON对象
+        properties:
+            retcode:
+                type: integer
+                required: true
+                description: 0是正常码，其他是非正常
+            retmsg:
+                type: string
+                required: true
+                description: 操作信息/错误信息
+    exist:
+        type: result
+        additionalProperties: true
+        properties:
+            retdata:
+                type: integer
+                description: 是否，1 - 是，0 - 否
+    successId:
+        type: result
+        additionalProperties: true
+        properties:
+            retdata:
+                type: integer
+                required: true
+                description: 新增的Id
+
+traits:
+
+/v1:
+    description: v1.0
+    displayName: v1.0
+    /chn/signup:
+        description: 下游注册
+        post:
+            queryParameters:
+                username:
+                    type        : string
+                    description : 用户名
+                    required    : true
+                passwd:
+                    type        : string
+                    description : 密码
+                    required    : true
+                email:
+                    type        : string
+                    description : 邮箱
+                    required    : true
+                contact:
+                    type        : string
+                    description : 联系方式
+                    required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "username": "mao",
+                            "passwd": "mao",
+                            "email": "mao@mao.com",
+                            "contact": "15988888888"
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            example: |
+                                {
+                                    "code": 0,
+                                    "msg": "xxxxx"
+                                }
+    /chn/login:
+        description: 下游登录验证
+        post:
+            queryParameters:
+                username:
+                    type        : string
+                    description : 用户名
+                    required    : true
+                passwd:
+                    type        : string
+                    description : 密码
+                    required    : true
+
+            body:
+              application/json:
+                  example: |
+                      {
+                          "username": "mao",
+                          "passwd": "mao",
+                      }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            example: |
+                                {
+                                    "code": 0,
+                                    'channeler_id': "xxxxxx"
+                                    "msg": "success"
+                                }
+    /chn/settoken:
+        description: 下游录入 callback_url后自动获取 token
+        post:
+            queryParameters:
+                channeler_id:
+                    type        : string
+                    description : 下游ID
+                    required    : true
+                offer_type:
+                    type        : string
+                    description : OFFER接收类型
+                    required    : true
+                base_url:
+                      type        : string
+                      description : 回调地址
+                      required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "phone" : "15822223333"
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: result
+                            example: !include examples/success.res.json
+    /app/create:
+        description: 获取openId
+        post:
+            queryParameters:
+                channeler_id:
+                  type        : string
+                  description : 下游唯一ID
+                  required    : true
+                app_name:
+                    type        : string
+                    description : app名称
+                    required    : true
+                pkg_name:
+                    type        : string
+                    description : 包名称
+                    required    : true
+                category:
+                    type        : string
+                    description : 类型
+                    required    : true
+                platform:
+                    type        : string
+                    description : 平台
+                    required    : true
+                url:
+                    type        : string
+                    description : url
+                    required    : true
+                description:
+                    type        : string
+                    description : url
+                    required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "channeler_id": "DbcMXzmk",
+                            "app_name": "test",
+                            "pkg_name": "com.test.com",
+                            "category": "xxxx",
+                            "platform": "xxxx",
+                            "url": "['xxxxx']",
+                            "description": "xxxxx"
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                          example: |
+                            {
+                                "code": 0,
+                                "msg": "APP is created,please contract your account manager to active your APP",
+                                "App_id": "xxxx",
+                                "App_secret": "xxxx"
+                            }
+    /app/active:
+        description: 激活下游APP
+        post:
+            queryParameters:
+                app_id:
+                    type        : string
+                    description : app_id
+                    required    : true
+                channeler_id:
+                    type        : string
+                    description : channeler_id
+                    required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "app_id": "xxxxx",
+                            "channeler_id": "xxxxx"
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "code": 0,
+                                    "msg": "APP active successfully",
+                                }
+    /am/login:
+        description: 激活下游APP
+        post:
+            queryParameters:
+                username:
+                    type        : string
+                    description : username
+                    required    : true
+                password:
+                    type        : string
+                    description : password
+                    required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "username": "xxxxx",
+                            "password": "xxxxx"
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "code": 0,
+                                    'is_actived': 1,
+                                    "msg": "success",
+                                }
+
+    /am/multioffer:
+        description: 为下游创建OFFER
+        post:
+            queryParameters:
+                app_id:
+                    type        : string
+                    description : app_id
+                    required    : true
+                channeler_id:
+                    type        : string
+                    description : channeler_id
+                    required    : true
+                rule_id:
+                    type        : string
+                    description : rule_id
+                    required    : true
+            body:
+                application/json:
+                example: |
+                    {
+                        "app_id": "xxxxx",
+                        "channeler_id": "xxxxx",
+                        "rule_id": 2
+                    }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "code": 0,
+                                    "msg": "Offer create successfully",
+                                }
+    /am/connchn:
+        description: 为下游创建OFFER
+        post:
+            queryParameters:
+                status:
+                    type        : string
+                    description : app_id
+                    required    : true
+                channeler_id:
+                    type        : string
+                    description : channeler_id
+                    required    : true
+            body:
+                application/json:
+                example: |
+                    {
+                        "status": 1,
+                        "channeler_id": "xxxxx",
+                    }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "code": 0,
+                                    "msg": "channeler status update successfully",
+                                }

@@ -128,6 +128,9 @@ class Advertises(object):
                     connection.close()
 
 class AdvertiseStatus(object):
+    """
+        广告状态操作
+    """
 
     def getAdvertise(self, ad_id):
         try:
