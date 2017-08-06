@@ -242,7 +242,7 @@ class channelerLogin(BaseHandler):
                     'msg': 'success'
                  }
                  self.write(message)
-            else:
+             else:
                  message = {
                     'code': 6003,
                     'msg': 'login fail'
