@@ -63,6 +63,17 @@ traits:
 /v1:
     description: v1.0
     displayName: v1.0
+    /v1/token:
+        description: 获取 XSRF_COOKIES,用于 POST 提交
+        get:
+            responses:
+                200:
+                    body:
+                        application/json:
+                            example: |
+                                {
+                                    "xxxxxxxxxxx"
+                                }
     /chn/signup:
         description: 下游注册
         post:
