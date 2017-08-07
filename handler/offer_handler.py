@@ -236,7 +236,8 @@ class ListRunningOffer(BaseHandler):
     pass
 
 class ListAllOffer(BaseHandler):
+    pass
 
-    def post(self):
-        try:
-            query = 'select '
+    # def post(self):
+    #     try:
+    #         query = 'select '
