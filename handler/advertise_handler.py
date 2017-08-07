@@ -29,7 +29,7 @@ class Advertises(object):
         exist = connection.cursor()
         exist.execute('select is_pulled from advertiser where api_name="%s"' % self.api_name)
         is_pulled = exist.fetchone()['is_pulled']
-        exist.close()
+        # exist.close()
         # connection.close()
         if is_pulled == 1 or is_pulled == '1':
             return True
@@ -44,8 +44,8 @@ class Advertises(object):
             connection.commit()
         except err.ProgrammingError as e:
             print e
-        finally:
-            connection.close()
+        # finally:
+        #     connection.close()
 
     def getAdxmiOffer(self, app_id, page_size):
         datas = None
@@ -188,7 +188,7 @@ class Advertiser(tornado.web.RequestHandler):
             if data:
                 msg = {
                     'code': 1005,
-                    'msg': '广告主已存在'
+                    'msg': 'Advertiser is existed'
                 }
                 self.write(msg)
             else:
@@ -200,7 +200,7 @@ class Advertiser(tornado.web.RequestHandler):
                     if row:
                         msg = {
                             'code': 1000,
-                            'msg': '广告主添加成功'
+                            'msg': 'Advertiser commit successfully'
                             }
                         self.write(msg)
                 except err.ProgrammingError as e:

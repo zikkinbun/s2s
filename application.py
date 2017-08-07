@@ -15,13 +15,14 @@ import json
 
 from callback.advertise_callback import AdvertiseCallback
 from callback.offer_callback import OfferCallback
-from handler.channel_handler import signupChaneler, setToken, createApplication, channelerLogin
+from handler.channel_handler import SignupChaneler, ChannelerLogin
 from handler.am_handler import AMsetup, AMtoMultiOffer, AMtoOneOffer, AMChanneler, AMChannelOper, AMAppOper, AMLogin
 from handler.offer_handler import OfferHandler
 from handler.click_handler import ClickUrlHandler
 from handler.advertise_handler import Advertises, Advertiser
-from handler.rule_handler import RuleHandler, selectRule
+from handler.rule_handler import RuleHandler, SelectRule
 from handler.cookietoken_handler import XSRFTokenHandler
+from handler.applicaiton_handler import CreateApplication, ListApplication, DetailSetting
 
 
 from tornado.options import define, options
@@ -32,12 +33,13 @@ class Application(tornado.web.Application):
 
     def __init__(self):
         handlers = [
-            (r"/v1/chn/signup", signupChaneler),
-            (r"/v1/chn/settoken", setToken),
-            (r"/v1/chn/login", channelerLogin),
+            (r"/v1/chn/signup", SignupChaneler),
+            (r"/v1/chn/login", ChannelerLogin),
             (r"/v1/chn/callback", OfferCallback),
-            (r"/v1/app/create", createApplication),
+            (r"/v1/app/create", CreateApplication),
             (r"/v1/app/active", AMAppOper),
+            (r"/v1/app/list", ListApplication),
+            (r"/v1/app/setting", DetailSetting),
             (r"/v1/am/setup", AMsetup),
             (r"/v1/am/login", AMLogin),
             (r"/v1/am/createader", Advertiser),
@@ -46,7 +48,7 @@ class Application(tornado.web.Application):
             (r"/v1/am/connchn", AMChanneler),
             (r"/v1/am/setstatus", AMChannelOper),
             (r"/v1/am/rule/create", RuleHandler),
-            (r"/v1/am/rule/detail", selectRule),
+            (r"/v1/am/rule/detail", SelectRule),
             (r"/v1/offline", OfferHandler),
             (r"/v1/click", AdvertiseCallback),
             (r"/v1/track", ClickUrlHandler),

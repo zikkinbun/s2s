@@ -5,6 +5,7 @@ import tornado.escape
 
 import sign_api
 from base import BaseHandler
+from cookietoken_handler import EncryptPassword
 from db.mysql import connection
 
 from urlparse import urlparse
@@ -17,7 +18,7 @@ import random
 import string
 
 
-class signupChaneler(tornado.web.RequestHandler):
+class SignupChaneler(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def post(self):
@@ -37,8 +38,13 @@ class signupChaneler(tornado.web.RequestHandler):
         status = 0 # verifing
         channeler_id = ''.join(random.sample(string.ascii_letters + string.digits, 8))
 
+        _passwd = EncryptPassword(passwd)._hash_password(passwd)
+        # print _passwd
+
+        # verify = EncryptPassword('$p5k2$2537$.DgQhf0T$n1Inm0WuCOz23Y5FishcJe83NuXcUVpK').auth_password('test123')
+        # print verify
         try:
-            query = 'insert IGNORE into `channeler` (`name`, `passwd`, `contact`, `email`, `status`,`channeler_id`, `sign_up_date`) values ("%s", "%s", "%s", "%s", "%s", "%s", "%s")' % (username, passwd, contact, email, status, channeler_id, datetime.now())
+            query = 'insert IGNORE into `channeler` (`name`, `passwd`, `contact`, `email`, `status`,`channeler_id`, `sign_up_date`) values ("%s", "%s", "%s", "%s", "%s", "%s", "%s")' % (username, _passwd, contact, email, status, channeler_id, datetime.now())
             cursor = connection.cursor()
             cursor.execute(query)
             connection.commit()
@@ -55,120 +61,8 @@ class signupChaneler(tornado.web.RequestHandler):
             }
             return msg
 
-class setToken(tornado.web.RequestHandler):
 
-    """
-        callback_url = http://your_host/your_script?click_id={user_id}&sub_source_id={chn}&ip={ip}
-    """
-
-    @tornado.gen.coroutine
-    def post(self):
-        sign = None
-        channeler_id = self.get_argument('channeler_id', None)
-        if channeler_id is None:
-            raise tornado.web.MissingArgumentError('channeler_id')
-
-        # channeler_id = self.get_cookie('user_id', None)
-        # if channeler_id is None:
-        #     raise tornado.web.MissingArgumentError('channeler_id')
-
-        offer_type = self.get_argument('offer_type', None)
-        if offer_type is None:
-            raise tornado.web.MissingArgumentError('offer_type')
-        base_url = self.get_argument('base_url', None)
-        if base_url is None:
-            raise tornado.web.MissingArgumentError('base_url')
-        callback_token = base64.b64encode(os.urandom(24)) # 包括 app_secret和用户 token
-        # callback_url = base_url + 'callback?type=%s&channeler_id=%s' % (offer_type, channeler_id)
-        # print callback_url
-        url = sign_api.sign_url(base_url, callback_token)
-        # print url
-        url_parse = urlparse(url)
-        query = url_parse.query
-        query_array = query.split('&')
-        for group in query_array:
-            k, v = group.split('=')
-            if k == 'sign':
-                sign = v
-
-        query = 'update channeler set base_url="%s", callback_url="%s", callback_token="%s", sign="%s" where channeler_id="%s"' % (base_url, base_url, callback_token, sign, channeler_id)
-        # print query
-        try:
-            cursor = connection.cursor()
-            cursor.execute(query)
-            connection.commit()
-            message = {
-                'code': 0,
-                'msg': 'Your Signature is %s' % sign
-            }
-            self.write(message)
-        except err.ProgrammingError as e:
-            print e
-
-
-class createApplication(tornado.web.RequestHandler):
-
-    @tornado.gen.coroutine
-    def post(self):
-        app_name = self.get_argument('app_name', None)
-        if app_name is None:
-            raise tornado.web.MissingArgumentError('app_name')
-        pkg_name = self.get_argument('pkg_name', None)
-        if pkg_name is None:
-            raise tornado.web.MissingArgumentError('pkg_name')
-        category = self.get_argument('category', None)
-        if category is None:
-            raise tornado.web.MissingArgumentError('category')
-        platform = self.get_argument('os', None)
-        if platform is None:
-            raise tornado.web.MissingArgumentError('platform')
-        url = self.get_argument('url', [])
-        if url is None:
-            raise tornado.web.MissingArgumentError('url')
-        description = self.get_argument('description', None)
-        if description is None:
-            raise tornado.web.MissingArgumentError('description')
-        channeler_id = self.get_argument('channeler_id', None)
-        if channeler_id is None:
-            raise tornado.web.MissingArgumentError('channeler_id')
-
-        # channeler_id = self.get_argument('channeler_id', None)
-        # if channeler_id is None:
-        #     raise tornado.web.MissingArgumentError('channeler_id')
-
-        app_id = base64.b64encode(os.urandom(16))
-        app_secret = base64.b64encode(os.urandom(16))
-
-        try:
-            query = 'insert into application (app_id,app_name,app_secret,pkg_name,platform,category,\
-                url,is_stored,description,channeler_id,createdate) values ("%s","%s","%s","%s","%s","%s",\
-                "%s","%s","%s","%s","%s")' % (app_id,app_name,app_secret,pkg_name,platform,category,url,is_stored,\
-                description,channeler_id,datetime.utcnow())
-
-            cursor = connection.cursor()
-            row = cursor.execute(query)
-            connection.commit()
-
-            if row:
-                msg = {
-                    'code': 0,
-                    'msg': 'APP is created,please contract your account manager to active your APP',
-                    'App_id': app_id,
-                    'App_secret': app_secret
-                    }
-                self.write(msg)
-            else:
-                msg = {
-                    'msgcode': 6002,
-                    'msgdata': 'APP created failure'
-                }
-                self.write(msg)
-        except err.ProgrammingError as e:
-            print e
-        finally:
-            connection.close()
-
-class channelStatus(object):
+class ChannelStatus(object):
 
     def getStatus(self, channeler_id):
         try:
@@ -217,41 +111,52 @@ class channelStatus(object):
         #     cursor.close()
         #     connection.close()
 
-class channelerLogin(BaseHandler):
+class ChannelerLogin(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
         username = self.get_argument('username', None)
         if username is None:
             raise tornado.web.MissingArgumentError('username')
-        username = tornado.escape.json_decode(self.current_user)
+        # username = tornado.escape.json_decode(self.current_user)
 
-        passwd = self.get_argument('password', None)
+        passwd = self.get_argument('passwd', None)
         if passwd is None:
             raise tornado.web.MissingArgumentError('passwd')
 
         try:
-             query = 'select channeler_id,status from channeler where name="%s" and passwd="%s"' % (username, passwd)
+             query = 'select channeler_id,passwd,status from channeler where name="%s"' % (username)
              cursor = connection.cursor()
              cursor.execute(query)
              data = cursor.fetchone()
-             if data['status'] == 1 or data['status'] == 0:
+            #  verify = EncryptPassword(data['passwd']).auth_password(passwd)
+            #  print verify, type(data['status'])
+             if not EncryptPassword(data['passwd']).auth_password(passwd):
                  message = {
-                    'code': 0,
-                    'channeler_id': data['channeler_id'],
-                    'msg': 'success'
+                    'code': 6002,
+                    'msg': 'wrong password, please check it'
                  }
+                #  print message
                  self.write(message)
              else:
-                 message = {
-                    'code': 6003,
-                    'msg': 'login fail'
-                 }
-                 self.write_error(message)
+                if int(data['status']) == 1 or int(data['status']) == 0:
+                    message = {
+                        'code': 0,
+                        'chn_id': data['channeler_id'],
+                        'msg': 'success'
+                    }
+                    self.write(message)
+                else:
+                    message = {
+                        'code': 6003,
+                        'msg': 'login fail, the account occur some exceptions'
+                    }
+                    # print message
+                    self.write(message)
         except err.ProgrammingError as e:
             print e
 
-class channelerLogout(BaseHandler):
+class ChannelerLogout(BaseHandler):
 
 	def get(self):
 		self.clear_current_user()

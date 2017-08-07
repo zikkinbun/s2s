@@ -48,11 +48,13 @@ class AdvertiseCallback(tornado.web.RequestHandler):
         # print click_id
         try:
             step_a = 'update track_click set valid="%d",updatetime="%s" where click_id="%s"' % (int(1), datetime.utcnow(), click_id)
-            step_b = 'update advertise set click=click+1,income=income+"%f" where ader_offer_id="%s"' % (float(revenue), ad_id)
+            step_b = 'update advertise set click=click+"%d",income=income+"%f" where ader_offer_id="%s"' % (int(1), float(revenue), ad_id)
+            step_c = 'update application set income=income+"%f", click=click+"%d" where offer_id=(select offer_id from track_click where click_id="%s")' % (int(1), click_id)
 
             cursor = connection.cursor()
             cursor.execute(step_a)
             cursor.execute(step_b)
+            cursor.execute(step_c)
             connection.commit()
         except err.ProgrammingError as e:
             print e

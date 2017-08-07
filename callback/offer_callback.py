@@ -6,7 +6,7 @@ from tornado import gen
 # import pymongo
 from db.mysql import connection
 from db.redis_pool import r
-from handler.click_handler import createClickUrl
+from handler.click_handler import CreateClickUrl
 
 import sign_api
 
@@ -57,7 +57,7 @@ class searchValidClick(object):
                 callback_url = dataset['callback_url']
                 sign = dataset['sign']
                 app_click_id = data['app_click_id']
-                
+
             return callback_url, sign, app_click_id
         except err.ProgrammingError as e:
             print e

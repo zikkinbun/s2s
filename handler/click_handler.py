@@ -124,7 +124,7 @@ class ClickUrlHandler(tornado.web.RequestHandler):
             connection.close()
 
 
-class createClickUrl(object):
+class CreateClickUrl(object):
 
     """
         http://api.bensonzhi.co/track?ad=xxxx&app_id=xxxx&pid=xxxx&click_id=xxxx

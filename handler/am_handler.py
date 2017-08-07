@@ -4,8 +4,9 @@ import tornado.httpclient
 
 from db.mysql import connection
 from base import BaseHandler
+from cookietoken_handler import EncryptPassword
 from offer_handler import AdvertiseTransOffer
-from channel_handler import channelStatus
+from channel_handler import ChannelStatus
 
 from pymysql.err import ProgrammingError
 from datetime import datetime
@@ -18,12 +19,14 @@ class AMsetup(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def post(self):
         am_name = self.get_argument('am_name', None)
-        income = self.get_argument('income', None)
-        output = self.get_argument('output', None)
-        total = self.get_argument('total', None)
-
+        if am_name is None:
+            raise tornado.web.MissingArgumentError('am_id')
+        passwd = self.get_argument('passwd', None)
+        if passwd is None:
+            raise tornado.web.MissingArgumentError('passwd')
+        _passwd = EncryptPassword(passwd)._hash_password(passwd)
         try:
-            query = 'insert into am (`name`,`income`,`output`,`total`,`createdate`) values ("%s","%f","%f","%f","%s")' % (am_name,float(income),float(output),float(total),datetime.utcnow())
+            query = 'insert into am (`name`,`passwd`,`income`,`output`,`total`,`createdate`) values ("%s","%s","%f","%f","%f","%s")' % (am_name,_passwd,float(0),float(0),float(0),datetime.utcnow())
             cursor = connection.cursor()
             row = cursor.execute(query)
             connection.commit()
@@ -46,7 +49,7 @@ class AMtoMultiOffer(tornado.web.RequestHandler):
         channeler_id = self.get_argument('channeler_id', None)
         rule_id = self.get_argument('rule_id', None)
 
-        verify_channel = channelStatus()
+        verify_channel = ChannelStatus()
         if verify_channel.verifyStatusApp(channeler_id, app_id):
             tranform = AdvertiseTransOffer()
             getoffer = tranform.getRuleAdvertise(rule_id)
@@ -68,7 +71,7 @@ class AMtoOneOffer(tornado.web.RequestHandler):
         channeler_id = self.get_argument('channeler_id', None)
         rule_id = self.get_argument('rule_id', None)
 
-        verify_channel = channelStatus()
+        verify_channel = ChannelStatus()
         if verify_channel.verifyStatusApp(channeler_id, app_id):
             tranform = AdvertiseTransOffer()
             getoffer = tranform.getONEAdvertise(rule_id)
@@ -93,7 +96,7 @@ class AMChannelOper(tornado.web.RequestHandler):
         if channeler_id is None:
             raise tornado.web.MissingArgumentError('channeler_id')
 
-        channel = channelStatus()
+        channel = ChannelStatus()
         status = channel.setStatus(status, channeler_id)
         if status['code'] == 6000 or status['code'] == '6000':
             message = {
@@ -124,14 +127,15 @@ class AMChanneler(BaseHandler):
             if row != 0 or row != '0':
                 message = {
                     'code': 0,
-                    'msg': 'AM 绑定成功'
+                    'msg': 'getting your channeler'
                 }
                 self.write(message)
             else:
                 message = {
                     'code': 4001,
-                    'msg': '已存在关系'
+                    'msg': 'have been your channeler'
                 }
+                self.write(message)
         except ProgrammingError as e:
             print e
 
@@ -171,19 +175,19 @@ class AMAppOper(tornado.web.RequestHandler):
                             'code': 4002,
                             'msg': 'APP has already actived'
                         }
-                        self.write_error(message)
+                        self.write(message)
                 else:
                     message = {
                         'code': 4002,
-                        'msg': 'APP已经激活过'
+                        'msg': 'APP has already actived'
                     }
-                    self.write_error(message)
+                    self.write(message)
             else:
                 message = {
                         'code': 4003,
-                        'msg': 'APP不存在'
+                        'msg': 'APP is not existed'
                     }
-                self.write_error(message)
+                self.write(message)
 
         except ProgrammingError as e:
             print e
@@ -202,23 +206,32 @@ class AMLogin(BaseHandler):
             raise tornado.web.MissingArgumentError('passwd')
 
         try:
-             query = 'select status from am where name="%s" and passwd="%s"' % (username, passwd)
+             query = 'select passwd,status from am where name="%s"' % (username)
              cursor = connection.cursor()
              cursor.execute(query)
-             status = cursor.fetchone()
-             if status == 1 or status == 0:
-                 message = {
-                    'code': 0,
-                    'is_actived': 1,
-                    'msg': 'success'
-                 }
-                 self.write(message)
-             else:
-                 message = {
+             data = cursor.fetchone()
+
+            if not EncryptPassword(data['passwd']).auth_password(passwd):
+                message = {
                     'code': 4004,
-                    'is_actived': 0,
-                    'msg': 'failure'
-                 }
-                 self.write_error(message)
+                    'msg': 'wrong password, please check it'
+                }
+                #  print message
+                self.write(message)
+            else:
+                if data['status'] == 1 or data['status'] == 0:
+                    message = {
+                        'code': 0,
+                        'is_actived': 1,
+                        'msg': 'success'
+                    }
+                    self.write(message)
+                else:
+                    message = {
+                        'code': 4005,
+                        'is_actived': 0,
+                        'msg': 'failure'
+                        }
+                    self.write(message)
         except err.ProgrammingError as e:
             print e

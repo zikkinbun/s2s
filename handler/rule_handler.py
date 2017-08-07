@@ -38,7 +38,7 @@ class RuleHandler(tornado.web.RequestHandler):
         finally:
             connection.close()
 
-class selectRule(tornado.web.RequestHandler):
+class SelectRule(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def post(self):
@@ -63,7 +63,7 @@ class selectRule(tornado.web.RequestHandler):
         #     connection.close()
 
 
-class specailRule(object):
+class SpecailRule(object):
 
     def getRule(self, rule_id):
         try:

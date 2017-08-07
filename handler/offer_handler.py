@@ -1,15 +1,14 @@
 # _*_ coding:utf-8_*_
 import tornado.web
 import tornado.httpclient
-from tornado import gen
 
 # import pymongo
 # from tornado_mysql import pools
 from base import BaseHandler
 from db.mysql import connection
 from db.serializers import OfferSerializer
-from click_handler import createClickUrl
-from rule_handler import specailRule
+from click_handler import CreateClickUrl
+from rule_handler import SpecailRule
 
 import sign_api
 
@@ -112,24 +111,6 @@ class OfferHandler(BaseHandler):
                 'offer': serializers
             }
             self.write(response)
-
-    @tornado.gen.coroutine
-    def post(self):
-        """
-            创建任务-->通过app_id转化 adver与offer
-        """
-        verify = None
-        app_id = self.get_argument('app_id', None)
-        adver_id = self.get_argument('ad_id', None)
-        tranfer = AdvertiseTransOffer(app_id, adver_id)
-        data = tranfer.getAdvertise()
-        if data:
-            tranfer.tranOffer()
-            msg = {
-                'code': 3000,
-                'msg': 'Offer has successful created'
-            }
-            self.write(msg)
 
 class AdvertiseTransOffer(object):
 
@@ -251,5 +232,5 @@ class AdvertiseTransOffer(object):
         except err.ProgrammingError as e:
             print e
 
-class getRunningOffer(BaseHandler):
+class GetRunningOffer(BaseHandler):
     pass
