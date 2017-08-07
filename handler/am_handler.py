@@ -46,11 +46,11 @@ class AMtoMultiOffer(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def post(self):
         app_id = self.get_argument('app_id', None)
-        channeler_id = self.get_argument('channeler_id', None)
+        chn_id = self.get_argument('chn_id', None)
         rule_id = self.get_argument('rule_id', None)
 
         verify_channel = ChannelStatus()
-        if verify_channel.verifyStatusApp(channeler_id, app_id):
+        if verify_channel.verifyStatusApp(chn_id, app_id):
             tranform = AdvertiseTransOffer()
             getoffer = tranform.getRuleAdvertise(rule_id)
             tranform.tranRuleOffer(app_id)
@@ -115,12 +115,12 @@ class AMChanneler(BaseHandler):
         am_id = self.get_argument('am_id', None)
         if am_id is None:
             raise tornado.web.MissingArgumentError('am_id')
-        channeler_id = self.get_argument('channeler_id', None)
-        if channeler_id is None:
-            raise tornado.web.MissingArgumentError('channeler_id')
+        chn_id = self.get_argument('chn_id', None)
+        if chn_id is None:
+            raise tornado.web.MissingArgumentError('chn_id')
 
         try:
-            query = 'update channeler set am_id="%s" where channeler_id="%s"' % (int(am_id), channeler_id)
+            query = 'update channeler set am_id="%s" where channeler_id="%s"' % (int(am_id), chn_id)
             cursor = connection.cursor()
             row = cursor.execute(query)
             connection.commit()
@@ -146,16 +146,16 @@ class AMAppOper(tornado.web.RequestHandler):
         app_id = self.get_argument('app_id', None)
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
-        channeler_id = self.get_argument('channeler_id', None)
+        chn_id = self.get_argument('chn_id', None)
         if channeler_id is None:
-            raise tornado.web.MissingArgumentError('channeler_id')
+            raise tornado.web.MissingArgumentError('chn_id')
 
         # cookie_secret = self.get_cookie('__cookies_token__')
         # print cookie_secret
 
         # 验证是否该下游存在这个APP
         try:
-            query = 'select app_id, status from application where channeler_id="%s" and app_id="%s"' % (channeler_id,app_id)
+            query = 'select app_id, status from application where channeler_id="%s" and app_id="%s"' % (chn_id,app_id)
             cursor = connection.cursor()
             cursor.execute(query)
             data = cursor.fetchone()

@@ -232,5 +232,11 @@ class AdvertiseTransOffer(object):
         except err.ProgrammingError as e:
             print e
 
-class GetRunningOffer(BaseHandler):
+class ListRunningOffer(BaseHandler):
     pass
+
+class ListAllOffer(BaseHandler):
+
+    def post(self):
+        try:
+            query = 'select '

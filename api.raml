@@ -64,7 +64,7 @@ traits:
     description: v1.0
     displayName: v1.0
     /token:
-        description: 获取 XSRF_COOKIES,用于 POST 提交
+        description: 获取 XSRF_COOKIES, 用于验证POST的跨域请求,在headers加上{"X-XSRFToken": "xxxxxx"}
         get:
             responses:
                 200:
@@ -142,19 +142,19 @@ traits:
                                     'channeler_id': "xxxxxx"
                                     "msg": "success"
                                 }
-    /chn/settoken:
+    /app/setting:
         description: 下游录入 callback_url后自动获取 token
         post:
             queryParameters:
-                channeler_id:
+                chn_id:
                     type        : string
                     description : 下游ID
                     required    : true
-                offer_type:
+                app_id:
                     type        : string
-                    description : OFFER接收类型
+                    description : APPID
                     required    : true
-                base_url:
+                callback_url:
                       type        : string
                       description : 回调地址
                       required    : true
@@ -162,7 +162,9 @@ traits:
                 application/json:
                     example: |
                         {
-                            "phone" : "15822223333"
+                            "chn_id" : "xxxxxx",
+                            "app_id" : "xxxxxx",
+                            "callback_url" : "xxxxxx"
                         }
             responses:
                 200:
@@ -174,7 +176,7 @@ traits:
         description: 下游提交创建 APP
         post:
             queryParameters:
-                channeler_id:
+                chn_id:
                   type        : string
                   description : 下游唯一ID
                   required    : true
@@ -233,7 +235,7 @@ traits:
                     type        : string
                     description : app_id
                     required    : true
-                channeler_id:
+                chn_id:
                     type        : string
                     description : channeler_id
                     required    : true
@@ -242,7 +244,7 @@ traits:
                     example: |
                         {
                             "app_id": "xxxxx",
-                            "channeler_id": "xxxxx"
+                            "chn_id": "xxxxx"
                         }
             responses:
                 200:
@@ -293,7 +295,7 @@ traits:
                     type        : string
                     description : app_id
                     required    : true
-                channeler_id:
+                chn_id:
                     type        : string
                     description : channeler_id
                     required    : true
@@ -306,7 +308,7 @@ traits:
                 example: |
                     {
                         "app_id": "xxxxx",
-                        "channeler_id": "xxxxx",
+                        "chn_id": "xxxxx",
                         "rule_id": 2
                     }
             responses:
@@ -327,16 +329,16 @@ traits:
                     type        : string
                     description : app_id
                     required    : true
-                channeler_id:
+                chn_id:
                     type        : string
-                    description : channeler_id
+                    description : chn_id
                     required    : true
             body:
                 application/json:
                 example: |
                     {
                         "status": 1,
-                        "channeler_id": "xxxxx",
+                        "chn_id": "xxxxx",
                     }
             responses:
                 200:
