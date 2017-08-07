@@ -16,7 +16,7 @@ import json
 from callback.advertise_callback import AdvertiseCallback
 from callback.offer_callback import OfferCallback
 from handler.channel_handler import SignupChaneler, ChannelerLogin
-from handler.am_handler import AMsetup, AMtoMultiOffer, AMtoOneOffer, AMChanneler, AMChannelOper, AMAppOper, AMLogin
+from handler.am_handler import AMSginup, AMtoMultiOffer, AMtoOneOffer, AMChanneler, AMChannelOper, AMAppOper, AMLogin
 from handler.offer_handler import OfferHandler
 from handler.click_handler import ClickUrlHandler
 from handler.advertise_handler import Advertises, Advertiser
@@ -40,7 +40,7 @@ class Application(tornado.web.Application):
             (r"/v1/app/active", AMAppOper),
             (r"/v1/app/list", ListApplication),
             (r"/v1/app/setting", DetailSetting),
-            (r"/v1/am/setup", AMsetup),
+            (r"/v1/am/sginup", AMSginup),
             (r"/v1/am/login", AMLogin),
             (r"/v1/am/createader", Advertiser),
             (r"/v1/am/multioffer", AMtoMultiOffer),

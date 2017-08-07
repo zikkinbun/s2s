@@ -14,7 +14,7 @@ import os
 import json
 
 
-class AMsetup(tornado.web.RequestHandler):
+class AMSginup(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def post(self):
