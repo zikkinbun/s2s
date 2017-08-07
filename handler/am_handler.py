@@ -211,14 +211,14 @@ class AMLogin(BaseHandler):
              cursor.execute(query)
              data = cursor.fetchone()
 
-            if not EncryptPassword(data['passwd']).auth_password(passwd):
+             if not EncryptPassword(data['passwd']).auth_password(passwd):
                 message = {
                     'code': 4004,
                     'msg': 'wrong password, please check it'
                 }
                 #  print message
                 self.write(message)
-            else:
+             else:
                 if data['status'] == 1 or data['status'] == 0:
                     message = {
                         'code': 0,
