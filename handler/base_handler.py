@@ -9,13 +9,13 @@ class BaseHandler(tornado.web.RequestHandler):
     #     print('Token for {}: {}'.format(self.request.uri, force_xsrf_cookie))
 
     def get_current_user(self):
-        return self.get_secure_cookie("user", 0)
+        return self.get_secure_cookie("user_id", 0)
 
-    def set_current_user(self, user):
-        if user:
-            self.set_secure_cookie('user', tornado.escape.json_encode(user))
+    def set_current_user(self, user_id):
+        if user_id:
+            self.set_secure_cookie('user_id', tornado.escape.json_encode(user_id))
         else:
-            self.clear_cookie("user")
+            self.clear_cookie("user_id")
 
     def clear_current_user(self):
-        self.clear_cookie("user")
+        self.clear_cookie("user_id")

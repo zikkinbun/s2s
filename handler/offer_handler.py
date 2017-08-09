@@ -4,15 +4,20 @@ import tornado.httpclient
 
 # import pymongo
 # from tornado_mysql import pools
-from base import BaseHandler
-from db.mysql import connection
-from db.serializers import OfferSerializer
+from base_handler import BaseHandler
+from model.application_model import ApplicationModel
+from model.advertise_model import AdvertiseModel
+from model.offer_model import OfferModel
+from model.channeler_model import ChannelModel
+from model.rule_model import RuleModel
+
 from click_handler import CreateClickUrl
 from rule_handler import SpecailRule
 
+from utils.db_utils import TornDBConnector
+from db import setting
 import sign_api
 
-from pymysql import err
 from datetime import datetime
 import os
 import re
@@ -41,196 +46,180 @@ class OfferHandler(BaseHandler):
         if sign is None:
             raise tornado.web.MissingArgumentError('accesskey')
 
-        # xsrf_token = self.check_xsrf_cookie()
-
+        chn_id = ''
+        db_conns = self.application.db_conns
         # 验证签名
         try:
-            query = 'select callback_url, callback_token from channeler where sign="%s"' % sign
-            cursor = connection.cursor()
-            cursor.execute(query)
-            data = cursor.fetchone()
+            appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
+            data = appmodel.verify_app_sign(app_id, sign)
+            chn_id = data['chn_id']
             sign_url = data['callback_url'] + '&sign=%s' % sign
-            # print data
             verify_sign = sign_api.verifySinature(sign_url, data['callback_token'])
             # base_url = data[0][2]
         except Exception as e:
             msg = {
-                'code': 3001,
-                'msg': '签名错误'
+                'retcode': 3001,
+                'retmsg': 'Sign Error'
             }
             self.write(msg)
 
         # 验证下游的 APP 状态是否可用
         try:
-            query = 'select a.channeler_id,a.status,b.status as channeler_status from application a, channeler b where a.app_id="%s" and b.sign="%s"' % (app_id, sign)
-            cursor = connection.cursor()
-            cursor.execute(query)
-            data = cursor.fetchone()
+            chnermodel = ChannelModel(db_conns['read'], db_conns['write'])
+            data = chnermodel.verify_app_status(chn_id, app_id)
             # print data
             if not data:
                 msg = {
-                    'code': 3002,
-                    'msg': 'app_id not exists, please check your app_id'
+                    'retcode': 3002,
+                    'retmsg': 'app_id not exists, please check your app_id'
                 }
                 self.write(msg)
-            elif data['status'] == 0 or data['status'] is None:
+            elif int(data['app_status']) == 0 and int(data['app_status']) is None:
                 msg = {
-                    'code': 3003,
-                    'msg': "Application didn't pass the verification, please contact your accout manager"
+                    'retcode': 3003,
+                    'retmsg': "Application didn't pass the verification, please contact your accout manager"
                 }
                 self.write(msg)
-            elif data['channeler_status'] == 0 or data['channeler_status'] is None:
+            elif data['chn_status'] == 0 or data['chn_status'] is None:
                 msg = {
-                    'code': 3004,
-                    'msg': "Channeler didn't pass the verification, please contact your accout manager"
+                    'retcode': 3004,
+                    'retmsg': "Channeler didn't pass the verification, please contact your accout manager"
                 }
                 self.write(msg)
-            else:
+            elif int(data['app_status']) == 1 and int(data['chn_status']) == 1:
                 verify_app = True
+            else:
+                self.write_error(500)
         except Exception as e:
             msg = {
-                'code': 3005,
-                'msg': 'Data request Error'
+                'retcode': 3005,
+                'retmsg': 'Data request Error'
             }
             self.write(msg)
 
         # print verify_sign, verify_app
         if verify_sign and verify_app:
-            query = 'select `offer_id`,`tittle`,`app_id`,`advertise_id`,`pkgname`,`category`,\
-                `icon_url`,`preview_url`,`click_url`,`os`,`os_version`,`region`,`payout`,`payout_currency`,\
-                `payout_type`,`creatives` from offer where app_id="%s"' % app_id
-            # print query
-            cursor = connection.cursor()
-            cursor.execute(query)
-            data = cursor.fetchall()
-            serializers = OfferSerializer(data)
+            offermodel = OfferModel(db_conns['read'], db_conns['write'])
+            data = offermodel.get_offer_by_app(app_id, sign)
             # print serializers
             response = {
-                'status': 0,
-                'msg': 'OK',
-                'offer': serializers
+                'retcode': 0,
+                'retmsg': 'OK',
+                'retdata': {
+                    'offers': data
+                }
             }
             self.write(response)
+        else:
+            self.write_error(500)
+
+class ListRunningOffer(BaseHandler):
+    pass
+
+class ListAllOffer(BaseHandler):
+
+    def post(self):
+        try:
+            db_conns = self.application.db_conns
+            offermodel = OfferModel(db_conns['read'], db_conns['write'])
+            data = offermodel.get_all_offer()
+            if data:
+                message = {
+                    'retcode': 0,
+                    'retdata': {
+                        'offers': data
+                    },
+                    'retmsg': 'success'
+                }
+                self.write(message)
+            else:
+                self.write_error(500)
+        except err.Exception as e:
+            print e
 
 class AdvertiseTransOffer(object):
 
     def __init__(self):
         self.data = None
-
-    def getONEAdvertise(self, ad_id):
-        try:
-            query = 'select ad_id,ad_name,pkg_name,region,category,icon_url,preview_url,get_price,payout_type,os,\
-                os_version,creatives,description,status from advertise where ad_id="%s"' % ad_id
-            cursor = connection.cursor()
-            cursor.execute(query)
-            self.data = data = cursor.fetchall()
-            return data
-        except err.ProgrammingError as e:
-            print e
+        self.db_conns = {}
+        self.db_conns['read'] = TornDBConnector(setting.RELEASE['s2s']['read']['host'], setting.RELEASE['s2s']['read']['database'], setting.RELEASE['s2s']['read']['user'], setting.RELEASE['s2s']['read']['password'])
+        self.db_conns['write'] = TornDBConnector(setting.RELEASE['s2s']['write']['host'], setting.RELEASE['s2s']['write']['database'], setting.RELEASE['s2s']['write']['user'], setting.RELEASE['s2s']['write']['password'])
 
     def getRuleAdvertise(self, rule_id):
-        sR = specailRule()
-        rule_value = sR.getRule(rule_id)
+        rule_value = None
+        # sR = SpecailRule()
+        # rule_value = sR.getRule(rule_id)
+        db_conns = self.db_conns
+        try:
+            rulemodel = RuleModel(db_conns['read'], db_conns['write'])
+            value = rulemodel.get_rule_by_id(rule_id)
+            rule_value = value['value']
+            # print rule_value
+        except Exception as e:
+            print e
 
-        if re.search(ur'[0-9]', rule_value):
+        if re.search(ur'get_price', rule_value):
             try:
-                query = 'select ad_id,ad_name,pkg_name,region,category,icon_url,preview_url,get_price,payout_type,os,\
-                os_version,creatives,description,status from advertise where get_price%s' % (rule_value[2:])
-                cursor = connection.cursor()
-                cursor.execute(query)
-                self.data = data = cursor.fetchall()
+                params = re.split(' ', rule_value)
+                # db_conns = self.db_conns
+                advermodel = AdvertiseModel(db_conns['read'], db_conns['write'])
+                self.data = data = advermodel.get_advertise_by_price(params)
                 if data:
                     return data
             except err.ProgrammingError as e:
                 print e
-        elif re.search(ur'[CPASI]', rule_value):
+        elif re.search(ur'payout_type', rule_value):
             # print rule_value
             try:
-                query = 'select ad_id,ad_name,pkg_name,region,category,icon_url,preview_url,get_price,payout_type,os,\
-                os_version,creatives,description,status from advertise where payout_type="%s"' % (rule_value[4:])
+                params = re.split(' ', rule_value)
+                # db_conns = self.application.db_conns
+                advermodel = AdvertiseModel(db_conns['read'], db_conns['write'])
                 # print query
-                cursor = connection.cursor()
-                cursor.execute(query)
-                self.data = data = cursor.fetchall()
+                self.data = data = advermodel.get_advertise_by_payout_type(params)
                 if data:
                     return data
                 else:
                     message = {
-                        'code': 3006,
-                        'msg': 'have no this OFFER'
+                        'retcode': 3006,
+                        'retmsg': 'have no this OFFER'
                     }
             except err.ProgrammingError as e:
                 print e
         else:
             msg = {
-                'code': 3006,
-                'msg': '重新选择规则'
+                'retcode': 3006,
+                'retmsg': '重新选择规则'
             }
             return msg
 
-    def tranONEOffer(self, app_id, ad_id):
-        if self.checkDuplication(app_id, data['ad_id']):
-            message = {
-                'code': 3007,
-                'msg': 'offer hava been existed'
-            }
-            return message
-        else:
-            offer_id = ''.join(random.sample(string.ascii_letters + string.digits, 8))
-
-            pid = random.randint(0,10)
-            _url = createClickUrl(app_id, offer_id, pid)
-            click_url = _url.createUrl()
-            try:
-                query = 'insert into `offer` (`offer_id`,`tittle`,`app_id`,`advertise_id`,`pkgname`,\
-                    `icon_url`,`preview_url`,`category`,`os`,`os_version`,`payout`,\
-                    `payout_type`,`click_url`,`creatives`,`region`,`active`,`createdate`) values ("%s","%s","%s","%s","%s",\
-                    "%s","%s","%s","%s","%s","%f","%s","%s","%s","%s","1","%s")' % (offer_id,self.data[0]['ad_name'],\
-                    app_id,ad_id,self.data[0]['pkg_name'],self.data[0]['icon_url'],\
-                    self.data[0]['preview_url'],self.data[0]['category'],self.data[0]['os'],\
-                    self.data[0]['os_version'],self.data[0]['get_price'],self.data[0]['payout_type'],\
-                    click_url,self.data[0]['creatives'],self.data[0]['region'],datetime.utcnow())
-                    # print query
-                cursor = connection.cursor()
-                cursor.execute(query)
-                connection.commit()
-            except err.ProgrammingError as e:
-                print e
-            finally:
-                connection.close()
-
     def tranRuleOffer(self, app_id):
 
+        db_conns = self.db_conns
+        offermodel = OfferModel(db_conns['read'], db_conns['write'])
         for data in self.data:
+            # print data
             if self.checkDuplication(app_id, data['ad_id']):
                 continue
             else:
                 offer_id = ''.join(random.sample(string.ascii_letters + string.digits, 8))
                 pid = random.randint(0,10)
-                _url = createClickUrl(app_id, offer_id, pid)
+                _url = CreateClickUrl(app_id, offer_id, pid)
                 click_url = _url.createUrl()
-                try:
-                    query = 'insert IGNORE into `offer` (`offer_id`,`tittle`,`app_id`,`advertise_id`,`pkgname`,`icon_url`,`preview_url`,`category`,`os`,`os_version`,`payout`,`payout_type`,`click_url`,`creatives`,`region`,`active`,`createdate`) values ("%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%f","%s","%s","%s","%s","1","%s")' % (offer_id,data['ad_name'],app_id,data['ad_id'],data['pkg_name'],data['icon_url'],data['preview_url'],data['category'],data['os'],data['os_version'],data['get_price'],data['payout_type'],click_url,data['creatives'],data['region'],datetime.utcnow())
-                    # print query
-                    cursor = connection.cursor()
-                    cursor.execute(query)
-                    connection.commit()
-                except err.ProgrammingError as e:
-                    print e
-        # connection.close()
+                row = offermodel.trans_offer_by_rule(offer_id, app_id, click_url, data)
 
     def checkDuplication(self, app_id, ad_id):
         try:
-            query = 'select offer_id from offer where app_id="%s" and advertise_id="%s"' % (app_id,ad_id)
-            cursor = connection.cursor()
-            cursor.execute(query)
-            data = cursor.fetchone()
+            db_conns = self.db_conns
+            offermodel = OfferModel(db_conns['read'], db_conns['write'])
+            data = offermodel.check_duplicate_offer(app_id, ad_id)
+            # print data
             if data:
                 return True
             else:
                 return False
-        except err.ProgrammingError as e:
+        except Exception as e:
             print e
+<<<<<<< HEAD
 
 class ListRunningOffer(BaseHandler):
     pass
@@ -241,3 +230,5 @@ class ListAllOffer(BaseHandler):
     # def post(self):
     #     try:
     #         query = 'select '
+=======
+>>>>>>> master

@@ -109,8 +109,11 @@ traits:
                         application/json:
                             example: |
                                 {
-                                    "code": 0,
-                                    "msg": "xxxxx"
+                                    'retcode': 0,
+                                    'retdata': {
+                                        'chn_id': 'xxxxxxx'
+                                    },
+                                    'retmsg': 'success'
                                 }
     /chn/login:
         description: 下游登录验证
@@ -138,9 +141,11 @@ traits:
                         application/json:
                             example: |
                                 {
-                                    "code": 0,
-                                    'channeler_id': "xxxxxx"
-                                    "msg": "success"
+                                    'retcode': 0,
+                                      'retdata': {
+                                          'chn_id': 'xxxxxx',
+                                      },
+                                      'retmsg': 'success'
                                 }
     /app/setting:
         description: 下游录入 callback_url后自动获取 token
@@ -170,8 +175,15 @@ traits:
                 200:
                     body:
                         application/json:
-                            type: result
-                            example: !include examples/success.res.json
+                            example: |
+                                {
+                                    'retcode': 0,
+                                    'retdata': {
+                                        'AppSign': sign
+                                    },
+                                    'retmsg': 'success'
+                                }
+
     /app/create:
         description: 下游提交创建 APP
         post:
@@ -222,10 +234,12 @@ traits:
                         application/json:
                           example: |
                             {
-                                "code": 0,
-                                "msg": "APP is created,please contract your account manager to active your APP",
-                                "App_id": "xxxx",
-                                "App_secret": "xxxx"
+                                'retcode': 0,
+                                'retdata': {
+                                    'AppID': app_id,
+                                    'AppSecret': app_secret
+                                  },
+                                'retmsg': 'APP is created,please contract your account manager to active your APP',
                             }
     /app/active:
         description: 激活下游APP
@@ -253,8 +267,87 @@ traits:
                             type: exist
                             example: |
                                 {
-                                    "code": 0,
-                                    "msg": "APP active successfully",
+                                    "retcode": 0,
+                                    "retmsg": "APP active successfully",
+                                }
+    /app/detail:
+        description: 获取APP详情
+        post:
+            queryParameters:
+                app_id:
+                    type        : string
+                    description : app_id
+                    required    : true
+                chn_id:
+                    type        : string
+                    description : channeler_id
+                    required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "app_id": "xxxxx",
+                            "chn_id": "xxxxx"
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": {
+                                        "app_id": "azLCKhW98M3E5AUk",
+                                        "app_name": "mysql",
+                                        "app_secret": "MBQTVbMgY6Iy81dPmheWQg==",
+                                        "pkg_name": "com.mysql.com",
+                                        "platform": "IOS",
+                                        "status": 1
+                                    },
+                                    "retmsg": "success",
+                                }
+    /app/list:
+        description: 获取当前下游的所有APP详情
+        post:
+            queryParameters:
+                chn_id:
+                    type        : string
+                    description : channeler_id
+                    required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "chn_id": "xxxxx"
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": [
+                                        {
+                                            "app_id": "azLCKhW98M3E5AUk",
+                                            "app_name": "mysql",
+                                            "app_secret": "MBQTVbMgY6Iy81dPmheWQg==",
+                                            "pkg_name": "com.mysql.com",
+                                            "platform": "IOS",
+                                            "status": 1
+                                        },
+                                        {
+                                            "app_id": "tYpInTNS3jdxiol5",
+                                            "app_name": "zeropark",
+                                            "app_secret": "/9hCnnp+FzjLu64u+ONT3g==",
+                                            "pkg_name": "com.zeropark.com",
+                                            "platform": "Android",
+                                            "status": 1
+                                        }
+                                    ],
+                                    "retmsg": "success",
                                 }
     /am/login:
         description: AM登录验证
@@ -282,9 +375,12 @@ traits:
                             type: exist
                             example: |
                                 {
-                                    "code": 0,
-                                    'is_actived': 1,
-                                    "msg": "success",
+                                    'retcode': 0,
+                                    'retdata': {
+                                        'am_id': xx,
+                                        'is_logined': 1,
+                                    },
+                                    'retmsg': 'success'
                                 }
 
     /am/multioffer:
@@ -318,8 +414,8 @@ traits:
                             type: exist
                             example: |
                                 {
-                                    "code": 0,
-                                    "msg": "Offer create successfully",
+                                    "retcode": 0,
+                                    "retmsg": "Offer create successfully",
                                 }
     /am/connchn:
         description:  更改下游账号状态
@@ -338,6 +434,7 @@ traits:
                 example: |
                     {
                         "status": 1,
+                        "am_id": 1,
                         "chn_id": "xxxxx",
                     }
             responses:
@@ -347,6 +444,6 @@ traits:
                             type: exist
                             example: |
                                 {
-                                    "code": 0,
-                                    "msg": "channeler status update successfully",
+                                    "retcode": 0,
+                                    "retmsg": "channeler status update successfully",
                                 }

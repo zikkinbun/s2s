@@ -62,12 +62,20 @@ class searchValidClick(object):
         except err.ProgrammingError as e:
             print e
 
+    @tornado.gen.coroutine
     def callback(self, click_id, sign, callback_url):
         params = {
             'click_id': click_id,
             'sign': sign
         }
         try:
-            r = requests.get(url, params=params)
+            url_parse = urlparse(callback_url)
+            # click_url = callback_url.replace(url_parse.query, 'click_id=%s' % app_click_id)
+
+            client = tornado.httpclient.AsyncHTTPClient() # 异步回调
+            headers = tornado.httputil.HTTPHeaders({"content-type": "application/json charset=utf-8"})
+            request = tornado.httpclient.HTTPRequest(url, "GET", headers)
+            response = yield client.fetch(request)
+
         except requests.exceptions.HTTPError as e:
             print e

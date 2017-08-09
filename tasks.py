@@ -4,11 +4,12 @@ from celery import Celery
 from celery.schedules import crontab
 
 from handler.advertise_handler import Advertises
-from handler.rule_handler import specailRule
+from handler.rule_handler import SpecailRule
 from handler.offer_handler import AdvertiseTransOffer
 from callback.offer_callback import searchValidClick
 
 from threading import Thread
+import re
 
 app = Celery("tasks", broker='redis://127.0.0.1:6379/1')
 app.conf.CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
@@ -34,16 +35,38 @@ def getValidClick():
     pass
 
 def getRule():
-    sp_rule = specailRule()
+    sp_rule = SpecailRule()
     value = sp_rule.getRule(2)
     print value
 
-def tranOfferbyRule():
-    add = AdvertiseTransOffer()
-    sql = add.getRuleAdvertise(3)
-    query = add.tranRuleOffer('q+aAyoS+p9Gnj0Ll962k0Q==')
+def tranoffer():
+    adt = AdvertiseTransOffer()
+    data = adt.getRuleAdvertise(2)
+    print data
 
-def tranOfferbyOne():
-    add = AdvertiseTransOffer()
-    sql = add.getONEAdvertise('03184972')
-    query = add.tranONEOffer('q+aAyoS+p9Gnj0Ll962k0Q==', '03184972')
+def sqltest():
+    line = '{get_price} >= 1'
+    params = re.split(' ', line)
+    table = 'advertise'
+    fields = ['ad_id', 'ad_name', 'pkg_name', 'region', 'category', 'icon_url', 'preview_url', 'get_price', 'payout_type', 'os', 'os_version', 'creatives', 'description', 'status']
+
+    items = ['SELECT ']
+    if not fields:
+        items.append('*')
+    else:
+        for field in fields:
+            items.append(field+',')
+    sql_str = ''.join(items)
+    sql_str = sql_str[0:len(sql_str)-1] + " FROM " + table
+
+    condition_str = ''
+    condition_list = [' WHERE get_price']
+    condition_list.append(params[1])
+    condition_list.append(params[2])
+    condition_str = ''.join(condition_list)
+
+    sql = sql_str + condition_str
+    print sql
+
+if __name__ == '__main__':
+    getRule()

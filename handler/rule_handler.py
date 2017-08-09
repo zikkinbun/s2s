@@ -3,6 +3,10 @@ import tornado.web
 import tornado.httpclient
 
 from db.mysql import connection
+from model.rule_model import RuleModel
+
+from utils.db_utils import TornDBConnector
+from db import setting
 
 from datetime import datetime
 from pymysql import err
@@ -28,12 +32,14 @@ class RuleHandler(tornado.web.RequestHandler):
             connection.commit()
             if row:
                 msg = {
-                    'code': 1000,
-                    'ruleName': rule_name,
-                    'ruleStatus': '规则创建成功'
+                    'retcode': 0,
+                    'retdata': {
+                        'ruleName': rule_name,
+                    },
+                    'retmsg': 'success'
                 }
                 self.write(msg)
-        except err.ProgrammingError as e:
+        except Exception as e:
             print e
         finally:
             connection.close()
@@ -45,35 +51,39 @@ class SelectRule(tornado.web.RequestHandler):
         rule_id = self.get_argument('rule_id', None)
 
         try:
-            query = 'select name,type,value,comment from rule where id="%d"' % int(rule_id)
-            cursor = connection.cursor()
-            cursor.execute(query)
-            datas = cursor.fetchone()
-            if datas:
+            db_conns = self.application.db_conns
+            rulemodel = RuleModel(db_conns['read'], db_conns['write'])
+            data = rulemodel.get_rule_by_id(rule_id)
+            if data:
                 response = {
-                    'code': 1000,
-                    'ruleName': data['name'],
-                    'ruleValue': data['value'],
-                    'ruleComment': data['comment']
-                    }
+                    'retcode': 0,
+                    'retdata': {
+                        'ruleName': data['name'],
+                        'ruleValue': data['value'],
+                        'ruleComment': data['comment']
+                    },
+                    'retmsg': 'success'
+                }
                 self.write(response)
-        except err.ProgrammingError as e:
+        except Exception as e:
             print e
-        # finally:
-        #     connection.close()
 
 
 class SpecailRule(object):
 
+    def __init___(self):
+        self.db_conns = {}
+        self.db_conns['read'] = TornDBConnector(setting.RELEASE['s2s']['read']['host'], setting.RELEASE['s2s']['read']['database'], setting.RELEASE['s2s']['read']['user'], setting.RELEASE['s2s']['read']['password'])
+        self.db_conns['write'] = TornDBConnector(setting.RELEASE['s2s']['write']['host'], setting.RELEASE['s2s']['write']['database'], setting.RELEASE['s2s']['write']['user'], setting.RELEASE['s2s']['write']['password'])
+
     def getRule(self, rule_id):
         try:
-            query = 'select value from rule where id="%d"' % int(rule_id)
-            cursor = connection.cursor()
-            cursor.execute(query)
-            value = cursor.fetchone()
+            db_conns = self.db_conns
+            rulemodel = RuleModel(db_conns['read'], db_conns['write'])
+            value = rulemodel.get_rule_by_id(rule_id)
             if value:
                 return value['value']
-        except err.ProgrammingError as e:
+        except Exception as e:
             print e
         # finally:
         #     connection.close()
