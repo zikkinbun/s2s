@@ -5,29 +5,31 @@ import tornado.ioloop
 import tornado.options
 import tornado.web
 
-# import pymongo
-# from tornado_mysql import pools
-
 from datetime import datetime
 import base64
 import os
 import json
+import torndb
 
 from callback.advertise_callback import AdvertiseCallback
 from callback.offer_callback import OfferCallback
+
 from handler.channel_handler import SignupChaneler, ChannelerLogin
-from handler.am_handler import AMSginup, AMtoMultiOffer, AMtoOneOffer, AMChanneler, AMChannelOper, AMAppOper, AMLogin
+from handler.am_handler import AMSginup, AMtoMultiOffer, AMChannelOper, AMAppOper, AMLogin
 from handler.offer_handler import OfferHandler
 from handler.click_handler import ClickUrlHandler
 from handler.advertise_handler import Advertises, Advertiser
 from handler.rule_handler import RuleHandler, SelectRule
 from handler.cookietoken_handler import XSRFTokenHandler
-from handler.applicaiton_handler import CreateApplication, ListApplication, DetailSetting
+from handler.applicaiton_handler import CreateApplication, ListApplication, DetailSetting, ApplicationDetail
 
-
+from db import setting
 from tornado.options import define, options
 define("port", default=8000, help="run on the given port", type=int)
 
+class PageNotFoundHandler(tornado.web.RequestHandler):
+    def get(self):
+        return self.write_error(404)
 
 class Application(tornado.web.Application):
 
@@ -40,33 +42,36 @@ class Application(tornado.web.Application):
             (r"/v1/app/active", AMAppOper),
             (r"/v1/app/list", ListApplication),
             (r"/v1/app/setting", DetailSetting),
+            (r"/v1/app/detail", ApplicationDetail),
             (r"/v1/am/sginup", AMSginup),
             (r"/v1/am/login", AMLogin),
             (r"/v1/am/createader", Advertiser),
             (r"/v1/am/multioffer", AMtoMultiOffer),
-            (r"/v1/am/offer", AMtoOneOffer),
-            (r"/v1/am/connchn", AMChanneler),
             (r"/v1/am/setstatus", AMChannelOper),
             (r"/v1/am/rule/create", RuleHandler),
             (r"/v1/am/rule/detail", SelectRule),
             (r"/v1/offline", OfferHandler),
             (r"/v1/click", AdvertiseCallback),
             (r"/v1/track", ClickUrlHandler),
-            (r"/v1/token", XSRFTokenHandler)
+            (r"/v1/token", XSRFTokenHandler),
+            (r".*", PageNotFoundHandler)
         ]
         settings = {
             "cookie_secret": "bZJc2sWbQLKos6GkHn/VB9oXwQt8S0R0kRvJ5/xJ89E=",
             "xsrf_cookies": True,
             "login_url": "/v1/chn/login"
         }
-        # conn = pymongo.MongoClient("mongodb://db_admin:db_admin2017@112.74.182.80:27017/S2S")
-        # self.db = conn.cursor()
-        # pools.DEBUG = True
-        # self.POOL = pools.Pool(
-        #     dict(host='127.0.0.1', port=3306, user='db_admin', passwd='db_admin2015', db='s2s'),
-        #     max_idle_connections=1,
-        #     max_recycle_sec=3)
         tornado.web.Application.__init__(self, handlers, debug=True, **settings)
+        self.db_conns = self._init_db()
+
+    def _init_db(self):
+        """
+            初始化数据库
+        """
+        db_conns = {}
+        db_conns['read'] = torndb.Connection(setting.DEV['s2s']['read']['host'], setting.DEV['s2s']['read']['database'], setting.DEV['s2s']['read']['user'], setting.DEV['s2s']['read']['password'])
+        db_conns['write'] = torndb.Connection(setting.DEV['s2s']['write']['host'], setting.DEV['s2s']['write']['database'], setting.DEV['s2s']['write']['user'], setting.DEV['s2s']['write']['password'])
+        return db_conns
 
 def main():
     tornado.options.parse_command_line()

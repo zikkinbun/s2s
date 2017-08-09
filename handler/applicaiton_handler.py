@@ -2,16 +2,19 @@
 import tornado.web
 import tornado.httpclient
 
-from db.mysql import connection
-from base import BaseHandler
+from model.application_model import ApplicationModel
+from base_handler import BaseHandler
+import sign_api
 
 from pymysql import err
 from datetime import datetime
+from urlparse import urlparse
 import os
 import re
 import json
 import random
 import string
+import base64
 
 class CreateApplication(BaseHandler):
 
@@ -26,7 +29,7 @@ class CreateApplication(BaseHandler):
         category = self.get_argument('category', None)
         if category is None:
             raise tornado.web.MissingArgumentError('category')
-        platform = self.get_argument('os', None)
+        platform = self.get_argument('platform', None)
         if platform is None:
             raise tornado.web.MissingArgumentError('platform')
         url = self.get_argument('url', [])
@@ -38,43 +41,31 @@ class CreateApplication(BaseHandler):
 
         chn_id = self.get_argument('chn_id', None)
         if chn_id is None:
-            chn_id = self.get_secure_cookie('user_id', None)
-            if chn_id is None:
-                raise tornado.web.MissingArgumentError('chn_id')
-        else:
             raise tornado.web.MissingArgumentError('chn_id')
 
-        app_id = base64.b64encode(os.urandom(16))
+        app_id = ''.join(random.sample(string.ascii_letters + string.digits, 16))
         app_secret = base64.b64encode(os.urandom(16))
 
         try:
-            query = 'insert into application (app_id,app_name,app_secret,pkg_name,platform,category,\
-                url,is_stored,description,channeler_id,createdate) values ("%s","%s","%s","%s","%s","%s",\
-                "%s","%s","%s","%s","%s")' % (app_id,app_name,app_secret,pkg_name,platform,category,url,is_stored,\
-                description,chn_id,datetime.utcnow())
+            db_conns = self.application.db_conns
+            appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
+            data = appmodel.create_applicaiton(app_id, app_secret, app_name, pkg_name, category, platform, url, description, chn_id)
+            msg = {
+                'retcode': 0,
+                'retdata': {
+                    'AppID': app_id,
+                    'AppSecret': app_secret
+                },
+                'retmsg': 'APP is created,please contract your account manager to active your APP',
+            }
+            self.write(msg)
 
-            cursor = connection.cursor()
-            row = cursor.execute(query)
-            connection.commit()
-
-            if row:
-                msg = {
-                    'code': 0,
-                    'msg': 'APP is created,please contract your account manager to active your APP',
-                    'App_id': app_id,
-                    'App_secret': app_secret
-                    }
-                self.write(msg)
-            else:
-                msg = {
-                    'msgcode': 6002,
-                    'msgdata': 'APP created failure'
-                }
-                self.write(msg)
         except err.ProgrammingError as e:
-            print e
-        finally:
-            connection.close()
+            msg = {
+                'retcode': 6002,
+                'retmsg': 'APP created failure'
+            }
+            self.write(msg)
 
 class ListApplication(BaseHandler):
 
@@ -82,29 +73,16 @@ class ListApplication(BaseHandler):
     def post(self):
         chn_id = self.get_argument('chn_id', None)
         if chn_id is None:
-            chn_id = self.get_secure_cookie('user_id', None)
-            if chn_id is None:
-                raise tornado.web.MissingArgumentError('chn_id')
-        else:
             raise tornado.web.MissingArgumentError('chn_id')
 
         try:
-            app_list = []
-            query = 'select app_name,status,platform from application where channeler_id="%s"' % chn_id
-            cursor = connection.cursor()
-            cursor.execute(query)
-            datas = iter(cursor.fetchall())
-            for data in datas:
-                message = {
-                    'app_name': data['app_name'],
-                    'platform': data['platform'],
-                    'status': data['status']
-                }
-                app_list.append(message)
+            db_conns = self.application.db_conns
+            appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
+            data = appmodel.list_application(chn_id)
             response = {
-                'code': 0,
-                'data': app_list,
-                'msg': 'success'
+                'retcode': 0,
+                'retdata': data,
+                'retmsg': 'success'
             }
             self.write(response)
         except err.ProgrammingError as e:
@@ -127,6 +105,33 @@ class UpdateApplication(BaseHandler):
         except err.ProgrammingError as e:
             print e
 
+class ApplicationDetail(BaseHandler):
+
+    @tornado.gen.coroutine
+    def post(self):
+        app_id = self.get_argument('app_id', None)
+        if app_id is None:
+            raise tornado.web.MissingArgumentError('app_id')
+        chn_id = self.get_argument('chn_id', None)
+        if chn_id is None:
+            raise tornado.web.MissingArgumentError('chn_id')
+
+        try:
+            db_conns = self.application.db_conns
+            appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
+            data = appmodel.get_application_detail(app_id, chn_id)
+            if data:
+                message = {
+                    'retcode': 0,
+                    'retdata': data,
+                    'retmsg': 'success'
+                }
+                self.write(message)
+            else:
+                self.write_error(500)
+        except err.ProgrammingError as e:
+            print e
+
 class DetailSetting(BaseHandler):
 
     """
@@ -138,10 +143,6 @@ class DetailSetting(BaseHandler):
         sign = None
         chn_id = self.get_argument('chn_id', None)
         if chn_id is None:
-            chn_id = self.get_secure_cookie('user_id', None)
-            if chn_id is None:
-                raise tornado.web.MissingArgumentError('chn_id')
-        else:
             raise tornado.web.MissingArgumentError('chn_id')
 
         app_id = self.get_argument('app_id', None)
@@ -162,15 +163,17 @@ class DetailSetting(BaseHandler):
             if k == 'sign':
                 sign = v
 
-        query = 'update application set callback_url="%s",callback_token="%s",sign="%s" where channeler_id="%s" and app_id="%s"' % (callback_url, callback_token, sign, chn_id, app_id)
-        # print query
         try:
-            cursor = connection.cursor()
-            cursor.execute(query)
-            connection.commit()
+            db_conns = self.application.db_conns
+            appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
+            data = appmodel.set_application_detail(callback_url, callback_token, sign, app_id, chn_id)
+            # print data
             message = {
-                'code': 0,
-                'msg': 'Your AppSign is %s, please mark down' % sign
+                'retcode': 0,
+                'retdata': {
+                    'AppSign': sign
+                },
+                'retmsg': 'success'
             }
             self.write(message)
         except err.ProgrammingError as e:

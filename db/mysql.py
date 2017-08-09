@@ -22,4 +22,4 @@ dev_config = {
           'cursorclass':pymysql.cursors.DictCursor,
           }
 # Connect to the database
-connection = pymysql.connect(**dev_config)
+connection = pymysql.connect(**local_config)

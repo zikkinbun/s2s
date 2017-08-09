@@ -4,9 +4,12 @@ import tornado.httpclient
 import tornado.escape
 
 import sign_api
-from base import BaseHandler
+from base_handler import BaseHandler
 from cookietoken_handler import EncryptPassword
-from db.mysql import connection
+from model.channeler_model import ChannelModel
+
+from utils.db_utils import TornDBConnector
+from db import setting
 
 from urlparse import urlparse
 from datetime import datetime
@@ -18,7 +21,7 @@ import random
 import string
 
 
-class SignupChaneler(tornado.web.RequestHandler):
+class SignupChaneler(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
@@ -36,7 +39,7 @@ class SignupChaneler(tornado.web.RequestHandler):
             raise tornado.web.MissingArgumentError('contact')
 
         status = 0 # verifing
-        channeler_id = ''.join(random.sample(string.ascii_letters + string.digits, 8))
+        chn_id = ''.join(random.sample(string.ascii_letters + string.digits, 8))
 
         _passwd = EncryptPassword(passwd)._hash_password(passwd)
         # print _passwd
@@ -44,72 +47,85 @@ class SignupChaneler(tornado.web.RequestHandler):
         # verify = EncryptPassword('$p5k2$2537$.DgQhf0T$n1Inm0WuCOz23Y5FishcJe83NuXcUVpK').auth_password('test123')
         # print verify
         try:
-            query = 'insert IGNORE into `channeler` (`name`, `passwd`, `contact`, `email`, `status`,`channeler_id`, `sign_up_date`) values ("%s", "%s", "%s", "%s", "%s", "%s", "%s")' % (username, _passwd, contact, email, status, channeler_id, datetime.now())
-            cursor = connection.cursor()
-            cursor.execute(query)
-            connection.commit()
+            db_conns = self.application.db_conns
+            channelmodel = ChannelModel(db_conns['read'], db_conns['write'])
+            data = channelmodel.signup_chaneler(username, _passwd, email, contact, status, chn_id)
             message = {
-                'code': 0,
-                'msg': '%s' % channeler_id
+                'retcode': 0,
+                'retdata': {
+                    'chn_id': chn_id
+                },
+                'retmsg': 'success'
             }
             self.write(message)
         except err.ProgrammingError as e:
             msg = {
-                'code': 6001,
-                'mode': '/signup/',
-                'msg': e
+                'retcode': 6001,
+                'retdata': {
+                    'model': '/signup/'
+                },
+                'retmsg': 'failure'
             }
-            return msg
+            self.write(message)
 
 
 class ChannelStatus(object):
 
-    def getStatus(self, channeler_id):
+    def __init__(self):
+        self.db_conns = {}
+        self.db_conns['read'] = TornDBConnector(setting.DEV['s2s']['read']['host'], setting.DEV['s2s']['read']['database'], setting.DEV['s2s']['read']['user'], setting.DEV['s2s']['read']['password'])
+        self.db_conns['write'] = TornDBConnector(setting.DEV['s2s']['write']['host'], setting.DEV['s2s']['write']['database'], setting.DEV['s2s']['write']['user'], setting.DEV['s2s']['write']['password'])
+
+    def getStatus(self, chn_id):
         try:
-            query = 'select status from channeler where channeler_id="%s"' % channeler_id
-            cursor = connection.cursor()
-            cursor.execute(query)
-            data = cursor.fetchone()
+            db_conns = self.db_conns
+            # sql = 'select a.status as chn_status, b.status as app_status from channeler a, application b where a.chn_id=%s and b.chn_id=%s and b.app_id=%s'
+
+            # data = self._conn_read.query(sql, chn_id, chn_id, app_id)[0]
+            channelmodel = ChannelModel(db_conns['read'], db_conns['write'])
+            data = channelmodel.get_channeler_status(chn_id)
             if data:
-                return data['status']
+                message = {
+                    'retcode': 0,
+                    'retdata': {
+                        'status': data['status']
+                    },
+                    'retmsg': 'success'
+                }
+                return message
         except err.ProgrammingError as e:
             print e
 
-    def setStatus(self, status, channeler_id):
+    def setStatus(self, status, chn_id):
         try:
-            query = 'update channeler set status="%d" where channeler_id="%s"' % (int(status), channeler_id)
-            cursor = connection.cursor()
-            row = cursor.execute(query)
-            connection.commit()
+            db_conns = self.db_conns
+            channelmodel = ChannelModel(db_conns['read'], db_conns['write'])
+            row = channelmodel.set_channeler_status(status, chn_id)
             if row:
                 msg = {
-                    'code': 0,
+                    'retcode': 0,
+                    'retmsg': 'success'
                 }
                 return msg
         except err.ProgrammingError as e:
             return e
-        # finally:
-        #     connection.close()
 
-    def verifyStatusApp(self, channeler_id, app_id):
+    def verifyStatusApp(self, chn_id, app_id):
         """
             验证当前下游的状态和 APP 是否可用
         """
         try:
-            status_query = 'select a.status,b.app_id from channeler a, application b where a.channeler_id="%s" and b.channeler_id="%s"' % (channeler_id, channeler_id)
-            cursor = connection.cursor()
-            cursor.execute(status_query)
-            data = cursor.fetchone()
-
-            if int(data['status']) == 1 and data['app_id'] == app_id:
+            db_conns = self.db_conns
+            channelmodel = ChannelModel(db_conns['read'], db_conns['write'])
+            data = channelmodel.verify_app_status(chn_id, app_id)
+            # print data
+            if int(data['chn_status']) == 1 and int(data['app_status']) == 1:
                 return True
             else:
                 return False
         except err.ProgrammingError as e:
             print e
-        # finally:
-        #     cursor.close()
-        #     connection.close()
+
 
 class ChannelerLogin(BaseHandler):
 
@@ -118,40 +134,45 @@ class ChannelerLogin(BaseHandler):
         username = self.get_argument('username', None)
         if username is None:
             raise tornado.web.MissingArgumentError('username')
-        # username = tornado.escape.json_decode(self.current_user)
+        # chn_id = tornado.escape.json_decode(self.get_current_user)
 
         passwd = self.get_argument('passwd', None)
         if passwd is None:
             raise tornado.web.MissingArgumentError('passwd')
 
         try:
-             query = 'select channeler_id,passwd,status from channeler where name="%s"' % (username)
-             cursor = connection.cursor()
-             cursor.execute(query)
-             data = cursor.fetchone()
+            db_conns = self.application.db_conns
+            channelmodel = ChannelModel(db_conns['read'], db_conns['write'])
+            data = channelmodel.get_login_chner(username, passwd)
             #  verify = EncryptPassword(data['passwd']).auth_password(passwd)
             #  print verify, type(data['status'])
-             if not EncryptPassword(data['passwd']).auth_password(passwd):
+            if not EncryptPassword(data['passwd']).auth_password(passwd):
                  message = {
-                    'code': 6002,
-                    'msg': 'wrong password, please check it'
+                    'retcode': 6002,
+                    'retmsg': 'wrong password, please check it'
                  }
-                #  print message
                  self.write(message)
-             else:
+            else:
                 if int(data['status']) == 1 or int(data['status']) == 0:
                     message = {
-                        'code': 0,
-                        'chn_id': data['channeler_id'],
-                        'msg': 'success'
+                        'retcode': 0,
+                        'retdata': {
+                            'chn_id': data['chn_id'],
+                        },
+                        'retmsg': 'success'
                     }
-                    self.write(message)
+                    try:
+                        row = channelmodel.set_login_time(username)
+                        if row:
+                            self.set_current_user(data['chn_id'])
+                        self.write(message)
+                    except err.ProgrammingError as e:
+                        print e
                 else:
                     message = {
-                        'code': 6003,
-                        'msg': 'login fail, the account occur some exceptions'
+                        'retcode': 6003,
+                        'retmsg': 'login fail, the account occur some exceptions'
                     }
-                    # print message
                     self.write(message)
         except err.ProgrammingError as e:
             print e
@@ -160,4 +181,3 @@ class ChannelerLogout(BaseHandler):
 
 	def get(self):
 		self.clear_current_user()
-        # self.redirect(self.get_argument("next", "/v1/chn/login"))
