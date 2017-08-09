@@ -219,7 +219,6 @@ class AdvertiseTransOffer(object):
                 return False
         except Exception as e:
             print e
-<<<<<<< HEAD
 
 class ListRunningOffer(BaseHandler):
     pass
@@ -230,5 +229,3 @@ class ListAllOffer(BaseHandler):
     # def post(self):
     #     try:
     #         query = 'select '
-=======
->>>>>>> master
