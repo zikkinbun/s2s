@@ -68,5 +68,13 @@ def sqltest():
     sql = sql_str + condition_str
     print sql
 
+def resub():
+    text = 'http://ibrainer.net/cy/100/iPhone7_cy/?referrer ​=1​866'
+    text1 = 'Hot & Sweet" Korean Drama(Vodacom)"'
+
+    data = text.replace(' ', '').replace('%', '')
+    # data1 = text1.replace('"', '')
+    print data
+
 if __name__ == '__main__':
-    getRule()
+    resub()

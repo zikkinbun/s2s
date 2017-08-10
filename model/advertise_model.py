@@ -45,3 +45,38 @@ class AdvertiseModel(BaseDB):
         }
 
         return self.select(table, fields, condition_data)
+
+    def set_advertiser(self, api_name, name, callback_url, callback_token, is_pulled):
+        table = 'advertiser'
+
+        data = {
+            'api_name': api_name,
+            'name': name,
+            'callback_url': callback_url,
+            'callback_token': callback_token,
+            'is_pulled': is_pulled
+        }
+
+        return self.insert(table, data)
+
+    def check_duplicate_advertiser(self, api_name):
+        table = 'advertiser'
+        fields = ['name']
+
+        condition_data = {
+            'api_name': api_name
+        }
+
+        return self.select(table, fields, condition_data)[0]
+
+    def get_advertise_all(self, ader_id):
+        table = 'advertise'
+        fileds = ['ad_name', 'pkg_name', 'region', 'get_price', 'put_price', 'access_price', 'click', 'installed', 'income']
+
+        condition_data = {
+            'ader_id': ader_id
+        }
+
+        # sql = 'select name from advertiser where id=%s'
+        # get_ader_name = self._conn_read.query(sql, ader_id)
+        return self.select(table, fields, condition_data)

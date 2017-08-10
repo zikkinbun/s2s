@@ -14,7 +14,7 @@ from model.rule_model import RuleModel
 from click_handler import CreateClickUrl
 from rule_handler import SpecailRule
 
-from utils.db_utils import TornDBConnector
+from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
 from db import setting
 import sign_api
 
@@ -38,11 +38,11 @@ class OfferHandler(BaseHandler):
         verify_sign = None
         verify_app = None
 
-        app_id = self.get_argument('app_id', None)
+        app_id = json.loads(self.request.body)['app_id']
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
 
-        sign = self.get_argument('accesskey', None)
+        sign = json.loads(self.request.body)['accesskey']
         if sign is None:
             raise tornado.web.MissingArgumentError('accesskey')
 
@@ -142,8 +142,8 @@ class AdvertiseTransOffer(object):
     def __init__(self):
         self.data = None
         self.db_conns = {}
-        self.db_conns['read'] = TornDBConnector(setting.DEV['s2s']['read']['host'], setting.DEV['s2s']['read']['database'], setting.DEV['s2s']['read']['user'], setting.DEV['s2s']['read']['password'])
-        self.db_conns['write'] = TornDBConnector(setting.DEV['s2s']['write']['host'], setting.DEV['s2s']['write']['database'], setting.DEV['s2s']['write']['user'], setting.DEV['s2s']['write']['password'])
+        self.db_conns['read'] = TornDBReadConnector()
+        self.db_conns['write'] = TornDBWriteConnector()
 
     def getRuleAdvertise(self, rule_id):
         rule_value = None
@@ -188,7 +188,7 @@ class AdvertiseTransOffer(object):
         else:
             msg = {
                 'retcode': 3006,
-                'retmsg': '重新选择规则'
+                'retmsg': 'reselect the rule'
             }
             return msg
 

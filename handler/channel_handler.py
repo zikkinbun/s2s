@@ -8,7 +8,7 @@ from base_handler import BaseHandler
 from cookietoken_handler import EncryptPassword
 from model.channeler_model import ChannelModel
 
-from utils.db_utils import TornDBConnector
+from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
 from db import setting
 
 from urlparse import urlparse
@@ -73,8 +73,8 @@ class ChannelStatus(object):
 
     def __init__(self):
         self.db_conns = {}
-        self.db_conns['read'] = TornDBConnector(setting.DEV['s2s']['read']['host'], setting.DEV['s2s']['read']['database'], setting.DEV['s2s']['read']['user'], setting.DEV['s2s']['read']['password'])
-        self.db_conns['write'] = TornDBConnector(setting.DEV['s2s']['write']['host'], setting.DEV['s2s']['write']['database'], setting.DEV['s2s']['write']['user'], setting.DEV['s2s']['write']['password'])
+        self.db_conns['read'] = TornDBReadConnector()
+        self.db_conns['write'] = TornDBWriteConnector()
 
     def getStatus(self, chn_id):
         try:

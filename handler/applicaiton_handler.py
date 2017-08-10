@@ -20,26 +20,26 @@ class CreateApplication(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        app_name = self.get_argument('app_name', None)
+        app_name = json.loads(self.request.body)['app_name']
         if app_name is None:
             raise tornado.web.MissingArgumentError('app_name')
-        pkg_name = self.get_argument('pkg_name', None)
+        pkg_name = json.loads(self.request.body)['pkg_name']
         if pkg_name is None:
             raise tornado.web.MissingArgumentError('pkg_name')
-        category = self.get_argument('category', None)
+        category = json.loads(self.request.body)['category']
         if category is None:
             raise tornado.web.MissingArgumentError('category')
-        platform = self.get_argument('platform', None)
+        platform = json.loads(self.request.body)['platform']
         if platform is None:
             raise tornado.web.MissingArgumentError('platform')
-        url = self.get_argument('url', [])
+        url = json.loads(self.request.body)['url']
         if url is None:
             raise tornado.web.MissingArgumentError('url')
-        description = self.get_argument('description', None)
+        description = json.loads(self.request.body)['description']
         if description is None:
             raise tornado.web.MissingArgumentError('description')
 
-        chn_id = self.get_argument('chn_id', None)
+        chn_id = json.loads(self.request.body)['chn_id']
         if chn_id is None:
             raise tornado.web.MissingArgumentError('chn_id')
 
@@ -71,7 +71,7 @@ class ListApplication(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        chn_id = self.get_argument('chn_id', None)
+        chn_id = json.loads(self.request.body)['chn_id']
         if chn_id is None:
             raise tornado.web.MissingArgumentError('chn_id')
 
@@ -93,10 +93,10 @@ class UpdateApplication(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        app_name = self.get_argument('app_name', None)
+        app_name = json.loads(self.request.body)['app_name']
         if app_name is None:
             raise tornado.web.MissingArgumentError('app_name')
-        chn_id = self.get_argument('chn_id', None)
+        chn_id = json.loads(self.request.body)['chn_id']
         if chn_id is None:
             raise tornado.web.MissingArgumentError('chn_id')
 
@@ -109,10 +109,10 @@ class ApplicationDetail(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        app_id = self.get_argument('app_id', None)
+        app_id = json.loads(self.request.body)['app_id']
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
-        chn_id = self.get_argument('chn_id', None)
+        chn_id = json.loads(self.request.body)['chn_id']
         if chn_id is None:
             raise tornado.web.MissingArgumentError('chn_id')
 
@@ -141,14 +141,14 @@ class DetailSetting(BaseHandler):
     @tornado.gen.coroutine
     def post(self):
         sign = None
-        chn_id = self.get_argument('chn_id', None)
+        chn_id = json.loads(self.request.body)['chn_id']
         if chn_id is None:
             raise tornado.web.MissingArgumentError('chn_id')
 
-        app_id = self.get_argument('app_id', None)
+        app_id = json.loads(self.request.body)['app_id']
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
-        callback_url = self.get_argument('callback_url', None)
+        callback_url = json.loads(self.request.body)['callback_url']
         if callback_url is None:
             raise tornado.web.MissingArgumentError('callback_url')
         callback_token = base64.b64encode(os.urandom(24)) # 包括 app_secret和用户 token

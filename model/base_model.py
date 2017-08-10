@@ -1,7 +1,5 @@
 # _*_ coding:utf-8_*_
 
-from utils.db_utils import TornDBConnector
-
 class BaseDB(object):
 
     def __init__(self, conn_read, conn_write, tracker=None):

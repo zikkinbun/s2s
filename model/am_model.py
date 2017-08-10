@@ -15,8 +15,8 @@ class AccountManagerModel(BaseDB):
             'status': int(0),
             'total': float(0),
             'is_login': int(1),
-            'createdate': datetime.utcnow(),
-            'login_time': datetime.utcnow()
+            'createdate': datetime.now(),
+            'login_time': datetime.now()
         }
 
         return self.insert(table, data)
@@ -31,23 +31,15 @@ class AccountManagerModel(BaseDB):
 
         return self.select(table, fields, condition_data)[0]
 
-    def set_login_time(self, am_id=None, username=None):
+    def set_login_time(self, username):
+
         table = 'am'
-        if am_id:
-            data = {
-                'login_time': datetime.now()
-            }
-            condition_data = {
-                'id': am_id
-            }
-            return self.update(table, data, condition_data)
-        elif username:
-            data = {
-                'login_time': datetime.now()
-            }
-            condition_data = {
-                'name': username
-            }
-            return self.update(table, data, condition_data)
-        else:
-            break
+
+        data = {
+            'login_time': datetime.now()
+        }
+        condition_data = {
+            'name': username
+        }
+
+        return self.update(table, data, condition_data)

@@ -6,9 +6,11 @@ import tornado.options
 import tornado.web
 
 from datetime import datetime
-import base64
 import os
+import sys
+import time
 import json
+import base64
 import torndb
 
 from callback.advertise_callback import AdvertiseCallback
@@ -24,6 +26,7 @@ from handler.cookietoken_handler import XSRFTokenHandler
 from handler.applicaiton_handler import CreateApplication, ListApplication, DetailSetting, ApplicationDetail
 
 from db import setting
+
 from tornado.options import define, options
 define("port", default=8000, help="run on the given port", type=int)
 
@@ -43,7 +46,7 @@ class Application(tornado.web.Application):
             (r"/v1/app/list", ListApplication),
             (r"/v1/app/setting", DetailSetting),
             (r"/v1/app/detail", ApplicationDetail),
-            (r"/v1/am/sginup", AMSginup),
+            (r"/v1/am/signup", AMSginup),
             (r"/v1/am/login", AMLogin),
             (r"/v1/am/createader", Advertiser),
             (r"/v1/am/multioffer", AMtoMultiOffer),
@@ -58,10 +61,11 @@ class Application(tornado.web.Application):
         ]
         settings = {
             "cookie_secret": "bZJc2sWbQLKos6GkHn/VB9oXwQt8S0R0kRvJ5/xJ89E=",
-            "xsrf_cookies": True,
+            "xsrf_cookies": False,
             "login_url": "/v1/chn/login"
         }
         tornado.web.Application.__init__(self, handlers, debug=True, **settings)
+
         self.db_conns = self._init_db()
 
     def _init_db(self):
@@ -72,6 +76,7 @@ class Application(tornado.web.Application):
         db_conns['read'] = torndb.Connection(setting.DEV['s2s']['read']['host'], setting.DEV['s2s']['read']['database'], setting.DEV['s2s']['read']['user'], setting.DEV['s2s']['read']['password'])
         db_conns['write'] = torndb.Connection(setting.DEV['s2s']['write']['host'], setting.DEV['s2s']['write']['database'], setting.DEV['s2s']['write']['user'], setting.DEV['s2s']['write']['password'])
         return db_conns
+
 
 def main():
     tornado.options.parse_command_line()

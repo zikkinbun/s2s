@@ -15,7 +15,7 @@ class ChannelModel(BaseDB):
             'status': status,
             'chn_id': chn_id,
             'is_login': int(1),
-            'sign_up_date': datetime.utcnow()
+            'sign_up_date': datetime.now()
         }
 
         return self.insert(table, data)
@@ -57,7 +57,7 @@ class ChannelModel(BaseDB):
 
         return self.select(table, fields, condition_data)[0]
 
-    def set_login_time(self, chn_id=None, username=None):
+    def set_login_time(self, *arg):
         table = 'channeler'
         if chn_id:
             data = {

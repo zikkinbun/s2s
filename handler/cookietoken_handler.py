@@ -7,8 +7,10 @@ from pbkdf2 import PBKDF2
 
 class XSRFTokenHandler(tornado.web.RequestHandler):
     """专门用来设置_xsrf Cookie的接口"""
+    @tornado.gen.coroutine
     def get(self):
         token = self.xsrf_token
+        print token
         self.write(token)
 
 class EncryptPassword(object):

@@ -9,24 +9,28 @@ from offer_handler import AdvertiseTransOffer
 from channel_handler import ChannelStatus
 
 from model.application_model import ApplicationModel
+from model.am_model import AccountManagerModel
 from model.channeler_model import ChannelModel
 from pymysql.err import ProgrammingError
 from datetime import datetime
 import os
 import json
+from urlparse import urlparse
+from urllib import unquote_plus
 
 
 class AMSginup(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        am_name = self.get_argument('am_name', None)
+        am_name = json.loads(self.request.body)['am_name']
         if am_name is None:
-            raise tornado.web.MissingArgumentError('am_id')
-        passwd = self.get_argument('passwd', None)
+            raise tornado.web.MissingArgumentError('am_name')
+        passwd = json.loads(self.request.body)['passwd']
         if passwd is None:
             raise tornado.web.MissingArgumentError('passwd')
         _passwd = EncryptPassword(passwd)._hash_password(passwd)
+        # print _passwd
         try:
             db_conns = self.application.db_conns
             AMmodel = AccountManagerModel(db_conns['read'], db_conns['write'])
@@ -42,13 +46,19 @@ class AMSginup(tornado.web.RequestHandler):
         except ProgrammingError as e:
             print e
 
-class AMtoMultiOffer(tornado.web.RequestHandler):
+class AMtoMultiOffer(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        app_id = self.get_argument('app_id', None)
-        chn_id = self.get_argument('chn_id', None)
-        rule_id = self.get_argument('rule_id', None)
+        app_id = json.loads(self.request.body)['app_id']
+        if app_id is None:
+            raise tornado.web.MissingArgumentError('app_id')
+        chn_id = json.loads(self.request.body)['chn_id']
+        if chn_id is None:
+            raise tornado.web.MissingArgumentError('chn_id')
+        rule_id = json.loads(self.request.body)['rule_id']
+        if rule_id is None:
+            raise tornado.web.MissingArgumentError('rule_id')
 
         verify_channel = ChannelStatus()
         if verify_channel.verifyStatusApp(chn_id, app_id):
@@ -67,13 +77,13 @@ class AMChannelOper(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        status = self.get_argument('status', None)
+        status = json.loads(self.request.body)['status']
         if status is None:
             raise tornado.web.MissingArgumentError('status')
-        chn_id = self.get_argument('chn_id', None)
-        if channeler_id is None:
+        chn_id = json.loads(self.request.body)['chn_id']
+        if chn_id is None:
             raise tornado.web.MissingArgumentError('chn_id')
-        am_id = self.get_argument('am_id', None)
+        am_id = json.loads(self.request.body)['am_id']
         if am_id is None:
             raise tornado.web.MissingArgumentError('am_id')
 
@@ -93,11 +103,11 @@ class AMAppOper(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        app_id = self.get_argument('app_id', None)
+        app_id = json.loads(self.request.body)['app_id']
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
-        chn_id = self.get_argument('chn_id', None)
-        if channeler_id is None:
+        chn_id = json.loads(self.request.body)['chn_id']
+        if chn_id is None:
             raise tornado.web.MissingArgumentError('chn_id')
 
         # cookie_secret = self.get_cookie('__cookies_token__')
@@ -129,21 +139,29 @@ class AMAppOper(BaseHandler):
                     }
                 self.write(message)
 
-        except ProgrammingError as e:
-            print e
+        except Exception as e:
+            message = {
+                'retcode': 4003,
+                'retmsg': 'APP is not existed'
+            }
+            self.write(message)
 
 class AMLogin(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        username = self.get_argument('username', None)
+        username = json.loads(self.request.body)['username']
         if username is None:
             raise tornado.web.MissingArgumentError('username')
         # username = tornado.escape.json_decode(self.current_user)
 
-        passwd = self.get_argument('password', None)
+        passwd = json.loads(self.request.body)['passwd']
         if passwd is None:
             raise tornado.web.MissingArgumentError('passwd')
+        # print passwd
+
+        # token = self.get_cookie('_xsrf')
+        # print token
 
         try:
             db_conns = self.application.db_conns
@@ -158,6 +176,7 @@ class AMLogin(BaseHandler):
                 #  print message
                 self.write(message)
             else:
+
                 if int(data['status']) == 1:
                     message = {
                         'retcode': 0,
@@ -169,10 +188,11 @@ class AMLogin(BaseHandler):
                     }
                     try:
                         row = AMmodel.set_login_time(username)
+                        # print row
                         if row:
                             self.set_current_user(data['id'])
                         self.write(message)
-                    except err.ProgrammingError as e:
+                    except Exception as e:
                         print e
                 else:
                     message = {
@@ -183,5 +203,10 @@ class AMLogin(BaseHandler):
                         'retmsg': 'failure'
                         }
                     self.write(message)
-        except err.ProgrammingError as e:
-            print e
+        except Exception as e:
+            if e == 'list index out of range':
+                message = {
+                    'retcode': 4006,
+                    'retmsg': 'this user is not existed'
+                }
+                self.write(message)

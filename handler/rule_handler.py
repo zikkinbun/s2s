@@ -5,7 +5,7 @@ import tornado.httpclient
 from db.mysql import connection
 from model.rule_model import RuleModel
 
-from utils.db_utils import TornDBConnector
+from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
 from db import setting
 
 from datetime import datetime
@@ -73,8 +73,8 @@ class SpecailRule(object):
 
     def __init___(self):
         self.db_conns = {}
-        self.db_conns['read'] = TornDBConnector(setting.DEV['s2s']['read']['host'], setting.DEV['s2s']['read']['database'], setting.DEV['s2s']['read']['user'], setting.DEV['s2s']['read']['password'])
-        self.db_conns['write'] = TornDBConnector(setting.DEV['s2s']['write']['host'], setting.DEV['s2s']['write']['database'], setting.DEV['s2s']['write']['user'], setting.DEV['s2s']['write']['password'])
+        self.db_conns['read'] = TornDBReadConnector()
+        self.db_conns['write'] = TornDBWriteConnector()
 
     def getRule(self, rule_id):
         try:

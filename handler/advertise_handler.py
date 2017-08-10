@@ -3,7 +3,9 @@ import tornado.web
 import tornado.httpclient
 
 from db.mysql import connection
-
+from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
+from handler.base_handler import BaseHandler
+from model.advertise_model import AdvertiseModel
 import sign_api
 
 from pymysql import err
@@ -23,6 +25,9 @@ class Advertises(object):
     """
 
     def __init__(self):
+        self.db_conns = {}
+        self.db_conns['read'] = TornDBReadConnector()
+        self.db_conns['write'] = TornDBWriteConnector()
         self.api_name = 'Admix'
 
     def verifyPullstatus(self):
@@ -167,7 +172,40 @@ class AdvertiseStatus(object):
             print e
 
 
-class Advertiser(tornado.web.RequestHandler):
+class getAdvertise(BaseHandler):
+
+    @tornado.gen.coroutine
+    def post(self):
+        ader_id = json.loads(self.request.body)['ader_id']
+        if not ader_id:
+            raise tornado.web.MissingArgumentError('ader_id')
+
+        try:
+            db_conns = self.application.db_conns
+            advermodel = AdvertiseModel(db_conns['read'], db_conns['write'])
+            data = advermodel.get_advertise_all(ader_id)
+
+            if data:
+                message = {
+                    'retcode': 0,
+                    'retdata': data,
+                    'retmsg': 'success'
+                }
+                self.write(message)
+            else:
+                message = {
+                    'retcode': 1007,
+                    'retmsg': 'have no advertise'
+                }
+                self.write(message)
+        except Exception as e:
+                message = {
+                    'retcode': 1006,
+                    'retmsg': 'databases oper error'
+                }
+                self.write(message)
+
+class Advertiser(BaseHandler):
 
     """
         广告主录入
@@ -175,35 +213,50 @@ class Advertiser(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        api_name = self.get_argument('api_name', None)
-        name = self.get_argument('name', None)
-        resp_callback_url = self.get_argument('callback_url', None)
-        resp_callback_token = self.get_argument('callback_token', None)
-        is_pulled = self.get_argument('is_pulled', None) # 控制定时拉取任务
+        api_name = json.loads(self.request.body)['api_name']
+        if not api_name:
+            raise tornado.web.MissingArgumentError('api_name')
+        name = json.loads(self.request.body)['name']
+        if not name:
+            raise tornado.web.MissingArgumentError('name')
+        resp_callback_url = json.loads(self.request.body)['resp_callback_url']
+        if not resp_callback_url:
+            raise tornado.web.MissingArgumentError('resp_callback_url')
+        resp_callback_token = json.loads(self.request.body)['resp_callback_token']
+        if not resp_callback_url:
+            raise tornado.web.MissingArgumentError('resp_callback_token')
+        is_pulled = json.loads(self.request.body)['is_pulled'] # 控制定时拉取任务
+        if not is_pulled:
+            raise tornado.web.MissingArgumentError('is_pulled')
 
         try:
-            cursor = connection.cursor()
-            cursor.execute('select callback_token from advertiser where api_name="%s"' % api_name)
-            data = cursor.fetchone()
+            db_conns = self.application.db_conns
+            advermodel = AdvertiseModel(db_conns['read'], db_conns['write'])
+            data = advermodel.check_duplicate_advertiser(api_name)
             if data:
                 msg = {
-                    'code': 1005,
-                    'msg': 'Advertiser is existed'
+                    'retcode': 1005,
+                    'retmsg': 'Advertiser is existed'
                 }
                 self.write(msg)
             else:
                 try:
-                    query = 'insert into advertiser (api_name, name, callback_url, callback_token, \
-                    is_pulled) values ("%s", "%s", "%s", "%s", "%d")' % (api_name, name, resp_callback_url, \
-                    resp_callback_token, int(is_pulled))
-                    row = cursor.execute(query)
+                    row = advermodel.set_advertiser(api_name, name, resp_callback_url, resp_callback_token, is_pulled)
                     if row:
                         msg = {
-                            'code': 1000,
-                            'msg': 'Advertiser commit successfully'
+                            'retcode': 0,
+                            'retmsg': 'Advertiser commit successfully'
                             }
                         self.write(msg)
-                except err.ProgrammingError as e:
-                    print e
-        except err.ProgrammingError as e:
-            print e
+                except Exception as e:
+                    msg = {
+                        'retcode': 1006,
+                        'retmsg': 'databases oper error'
+                    }
+                    self.write(msg)
+        except Exception as e:
+            msg = {
+                'retcode': 1006,
+                'retmsg': 'databases oper error'
+            }
+            self.write(msg)

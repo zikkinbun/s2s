@@ -34,15 +34,17 @@ class OfferModel(BaseDB):
 
     def trans_offer_by_rule(self, offer_id, app_id, click_url, dataset):
         table = 'offer'
-
+        # print dataset
+        preview_url = unicode(dataset['preview_url']).replace('%', '').replace(' ', '')
+        tittle = unicode(dataset['ad_name']).replace('%', '').replace('+', ' ').replace('"', '')
         data = {
             'offer_id': offer_id,
             'app_id': app_id,
-            'tittle': dataset['ad_name'],
+            'tittle': tittle,
             'advertise_id': dataset['ad_id'],
             'pkgname': dataset['pkg_name'],
             'icon_url': dataset['icon_url'],
-            'preview_url': dataset['preview_url'],
+            'preview_url': preview_url,
             'category': dataset['category'],
             'os': dataset['os'],
             'os_version': dataset['os_version'],
@@ -52,7 +54,7 @@ class OfferModel(BaseDB):
             'region': dataset['region'],
             'creatives': dataset['creatives'],
             'description': dataset['description'],
-            'createdate': datetime.utcnow()
+            'createdate': datetime.now()
         }
-        print data
+        # print data
         return self.insert(table, data)
