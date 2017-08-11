@@ -3,6 +3,7 @@ import tornado.web
 import tornado.httpclient
 import tornado.escape
 
+import base64
 from pbkdf2 import PBKDF2
 
 class XSRFTokenHandler(tornado.web.RequestHandler):
@@ -38,3 +39,31 @@ class EncryptPassword(object):
             return self.password == PBKDF2.crypt(pwd, self.password)
         else:
             return False
+
+def RSAsign(object):
+
+    def sign(self,signdata):
+        '''''
+        @param signdata: 需要签名的字符串
+        '''
+
+        h=SHA.new(signdata)
+        signer = pk.new(Gl.privatekey)
+        signn=signer.sign(h)
+        signn=base64.b64encode(signn)
+        return  signn
+
+    '''''
+    RSA验签
+    结果：如果验签通过，则返回The signature is authentic
+         如果验签不通过，则返回"The signature is not authentic."
+    '''
+    def checksign(self,rdata):
+
+        signn=base64.b64decode(rdata.pop('sign'))
+        signdata=self.sort(rdata)
+        verifier = pk.new(Gl.publickey)
+        if verifier.verify(SHA.new(signdata), signn):
+            print "The signature is authentic."
+        else:
+            print "The signature is not authentic."

@@ -447,3 +447,93 @@ traits:
                                     "retcode": 0,
                                     "retmsg": "channeler status update successfully",
                                 }
+    /app/getAdIDlist:
+        description:  获取该联盟下的所有广告
+        post:
+            queryParameters:
+                ader_id:
+                    type        : int
+                    description : ader_id
+                    required    : true
+
+            body:
+                application/json:
+                example: |
+                    {
+                        "ader_id": 1,
+                    }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": [
+                                        {
+                                            "name": "有米",
+                                            "ad_name": "foodpanda - Order Food Delivery for Pizza, Burger",
+                                            "pkg_name": "758103884",
+                                            "region": "[u'HK']",
+                                            "get_price": 1.52,
+                                            "put_price": 0,
+                                            "access_price": 0,
+                                            "click": 0,
+                                            "installed": 0,
+                                            "income": 0
+                                          },
+                                        {
+                                            "name": "有米",
+                                            "ad_name": "Space Manager",
+                                            "pkg_name": "com.mobileartsme.spacemanager",
+                                            "region": "[u'AE']",
+                                            "get_price": 0.95,
+                                            "put_price": 0,
+                                            "access_price": 0,
+                                            "click": 0,
+                                            "installed": 0,
+                                            "income": 0
+                                          },
+                                        ]
+                                    "retmsg": "success",
+                                }
+    /app/getAdIDlist:
+        description:  获取该联盟下的所有广告
+        post:
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": [
+                                        {
+                                            "name": "有米",
+                                            "ad_name": "foodpanda - Order Food Delivery for Pizza, Burger",
+                                            "pkg_name": "758103884",
+                                            "region": "[u'HK']",
+                                            "get_price": 1.52,
+                                            "put_price": 0,
+                                            "access_price": 0,
+                                            "click": 0,
+                                            "installed": 0,
+                                            "income": 0
+                                        },
+                                        {
+                                            "name": "有米",
+                                            "ad_name": "Space Manager",
+                                            "pkg_name": "com.mobileartsme.spacemanager",
+                                            "region": "[u'AE']",
+                                            "get_price": 0.95,
+                                            "put_price": 0,
+                                            "access_price": 0,
+                                            "click": 0,
+                                            "installed": 0,
+                                            "income": 0
+                                        },
+                                      ]
+                                      "retmsg": "success",
+                                }

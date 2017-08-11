@@ -69,14 +69,12 @@ class AdvertiseModel(BaseDB):
 
         return self.select(table, fields, condition_data)[0]
 
-    def get_advertise_all(self, ader_id):
-        table = 'advertise'
-        fileds = ['ad_name', 'pkg_name', 'region', 'get_price', 'put_price', 'access_price', 'click', 'installed', 'income']
+    def get_advertise_by_AderId(self, ader_id):
 
-        condition_data = {
-            'ader_id': ader_id
-        }
+        sql = 'select a.name,b.ad_name,b.pkg_name,b.region,b.get_price,b.put_price,b.access_price,b.click,b.installed,b.income from advertiser a,advertise b where a.id=%s and b.ader_id=%s'
+        return self._conn_read.query(sql, ader_id, ader_id)
 
-        # sql = 'select name from advertiser where id=%s'
-        # get_ader_name = self._conn_read.query(sql, ader_id)
-        return self.select(table, fields, condition_data)
+    def get_advertise_all(self):
+
+        sql = 'select a.name,b.ad_name,b.pkg_name,b.region,b.get_price,b.put_price,b.access_price,b.click,b.installed,b.income from advertiser a,advertise b where a.id=b.ader_id'
+        return self._conn_read.query(sql)

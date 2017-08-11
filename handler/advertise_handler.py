@@ -176,14 +176,48 @@ class getAdvertise(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        ader_id = json.loads(self.request.body)['ader_id']
+        # ader_id = json.loads(self.request.body)['ader_id']
+        # if not ader_id:
+        #     raise tornado.web.MissingArgumentError('ader_id')
+        ader_id = self.get_argument('ader_id', None)
         if not ader_id:
             raise tornado.web.MissingArgumentError('ader_id')
-
         try:
             db_conns = self.application.db_conns
             advermodel = AdvertiseModel(db_conns['read'], db_conns['write'])
-            data = advermodel.get_advertise_all(ader_id)
+            data = advermodel.get_advertise_by_AderId(ader_id)
+
+            if data:
+                message = {
+                    'retcode': 0,
+                    'retdata': data,
+                    'retmsg': 'success'
+                }
+                self.write(message)
+            else:
+                message = {
+                    'retcode': 1007,
+                    'retmsg': 'have no advertise'
+                }
+                self.write(message)
+        except Exception as e:
+                message = {
+                    'retcode': 1006,
+                    'retmsg': 'databases oper error'
+                }
+                self.write(message)
+
+class getAdvertiseAll(BaseHandler):
+
+    @tornado.gen.coroutine
+    def post(self):
+        # ader_id = json.loads(self.request.body)['ader_id']
+        # if not ader_id:
+        #     raise tornado.web.MissingArgumentError('ader_id')
+        try:
+            db_conns = self.application.db_conns
+            advermodel = AdvertiseModel(db_conns['read'], db_conns['write'])
+            data = advermodel.get_advertise_all()
 
             if data:
                 message = {
