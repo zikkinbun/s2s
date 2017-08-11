@@ -63,7 +63,7 @@ class CreateApplication(BaseHandler):
         except err.ProgrammingError as e:
             msg = {
                 'retcode': 6002,
-                'retmsg': 'APP created failure'
+                'retmsg': 'databases operate error'
             }
             self.write(msg)
 
@@ -129,8 +129,12 @@ class ApplicationDetail(BaseHandler):
                 self.write(message)
             else:
                 self.write_error(500)
-        except err.ProgrammingError as e:
-            print e
+        except Exception as e:
+            message = {
+                'retcode': 6002,
+                'retmsg': 'databases operate error'
+            }
+            self.write(message)
 
 class DetailSetting(BaseHandler):
 
@@ -176,5 +180,9 @@ class DetailSetting(BaseHandler):
                 'retmsg': 'success'
             }
             self.write(message)
-        except err.ProgrammingError as e:
-            print e
+        except Exception as e:
+            message = {
+                'retcode': 6002,
+                'retmsg': 'databases operate error'
+            }
+            self.write(message)

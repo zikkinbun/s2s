@@ -4,7 +4,10 @@ import tornado.httpclient
 import tornado.escape
 
 import base64
+import time
 from pbkdf2 import PBKDF2
+from model.admin_model import AdminModel
+
 
 class XSRFTokenHandler(tornado.web.RequestHandler):
     """专门用来设置_xsrf Cookie的接口"""
@@ -13,6 +16,16 @@ class XSRFTokenHandler(tornado.web.RequestHandler):
         token = self.xsrf_token
         print token
         self.write(token)
+
+class AdminTokenHandler(tornado.web.RequestHandler):
+
+    @tornado.gen.coroutine
+    def get(self):
+        cur_time = time.time()
+        end_time = cur_time-cur_time%86400
+        access_token = ''.join(random.sample(string.ascii_letters + string.digits, 16))
+        access_secret = access_token + '&' + end_time
+
 
 class EncryptPassword(object):
 

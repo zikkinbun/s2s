@@ -20,7 +20,7 @@ from handler.channel_handler import SignupChaneler, ChannelerLogin
 from handler.am_handler import AMSginup, AMtoMultiOffer, AMChannelOper, AMAppOper, AMLogin
 from handler.offer_handler import OfferHandler
 from handler.click_handler import ClickUrlHandler
-from handler.advertise_handler import Advertises, Advertiser, getAdvertise, getAdvertiseAll
+from handler.advertise_handler import Advertises, Advertiser, getAdvertiseById, getAdvertiseAll
 from handler.rule_handler import RuleHandler, SelectRule
 from handler.cookietoken_handler import XSRFTokenHandler
 from handler.applicaiton_handler import CreateApplication, ListApplication, DetailSetting, ApplicationDetail
@@ -53,7 +53,7 @@ class Application(tornado.web.Application):
             (r"/v1/am/setstatus", AMChannelOper),
             (r"/v1/am/rule/create", RuleHandler),
             (r"/v1/am/rule/detail", SelectRule),
-            (r"/v1/ad/getAdIDlist", getAdvertise),
+            (r"/v1/ad/getAdIDlist", getAdvertiseById),
             (r"/v1/ad/getAdAll", getAdvertiseAll),
             (r"/v1/offline", OfferHandler),
             (r"/v1/click", AdvertiseCallback),

@@ -172,25 +172,35 @@ class AdvertiseStatus(object):
             print e
 
 
-class getAdvertise(BaseHandler):
+class getAdvertiseById(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        # ader_id = json.loads(self.request.body)['ader_id']
-        # if not ader_id:
-        #     raise tornado.web.MissingArgumentError('ader_id')
-        ader_id = self.get_argument('ader_id', None)
+        ader_id = json.loads(self.request.body)['ader_id']
         if not ader_id:
             raise tornado.web.MissingArgumentError('ader_id')
+
+        page_size = json.loads(self.request.body)['page_size']
+        if not page_size:
+            raise tornado.web.MissingArgumentError('page_size')
+
+        index = json.loads(self.request.body)['page']
+        if not index:
+            raise tornado.web.MissingArgumentError('page')
+
         try:
             db_conns = self.application.db_conns
             advermodel = AdvertiseModel(db_conns['read'], db_conns['write'])
-            data = advermodel.get_advertise_by_AderId(ader_id)
-
+            data = advermodel.get_advertise_by_AderId(ader_id, int(page_size), int(index))
+            total = advermodel.get_total_count_list(ader_id)
             if data:
                 message = {
                     'retcode': 0,
-                    'retdata': data,
+                    'retdata': {
+                        'total': total['COUNT(*)'],
+                        'advertise': data,
+                        'index': index
+                    },
                     'retmsg': 'success'
                 }
                 self.write(message)
@@ -201,28 +211,39 @@ class getAdvertise(BaseHandler):
                 }
                 self.write(message)
         except Exception as e:
-                message = {
-                    'retcode': 1006,
-                    'retmsg': 'databases oper error'
-                }
-                self.write(message)
+            # print e
+            message = {
+                'retcode': 1006,
+                'retmsg': 'databases oper error'
+            }
+            self.write(message)
 
 class getAdvertiseAll(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        # ader_id = json.loads(self.request.body)['ader_id']
-        # if not ader_id:
-        #     raise tornado.web.MissingArgumentError('ader_id')
+
+        page_size = json.loads(self.request.body)['page_size']
+        if not page_size:
+            raise tornado.web.MissingArgumentError('page_size')
+
+        index = json.loads(self.request.body)['page']
+        if not index:
+            raise tornado.web.MissingArgumentError('page')
+
         try:
             db_conns = self.application.db_conns
             advermodel = AdvertiseModel(db_conns['read'], db_conns['write'])
-            data = advermodel.get_advertise_all()
-
+            data = advermodel.get_advertise_all(int(page_size), int(index))
+            total = advermodel.get_total_count_all()
             if data:
                 message = {
                     'retcode': 0,
-                    'retdata': data,
+                    'retdata': {
+                        'total': total['COUNT(*)'],
+                        'advertise': data,
+                        'index': index
+                    },
                     'retmsg': 'success'
                 }
                 self.write(message)
@@ -233,11 +254,47 @@ class getAdvertiseAll(BaseHandler):
                 }
                 self.write(message)
         except Exception as e:
+            message = {
+                'retcode': 1006,
+                'retmsg': 'databases oper error'
+            }
+            self.write(message)
+
+class SetAdvertisePutPrice(BaseHandler):
+
+    @tornado.gen.coroutine
+    def post(self):
+        ad_id = json.loads(self.request.body)['ad_id']
+        if not ad_id:
+            raise tornado.web.MissingArgumentError('ad_id')
+        put_price = json.loads(self.request.body)['put_price']
+        if not put_price:
+            raise tornado.web.MissingArgumentError('put_price')
+
+        try:
+            db_conns = self.application.db_conns
+            advermodel = AdvertiseModel(db_conns['read'], db_conns['write'])
+            row = advermodel.set_put_price(ad_id, put_price)
+            if row:
                 message = {
-                    'retcode': 1006,
-                    'retmsg': 'databases oper error'
+                    'retcode': 0,
+                    'retdata': {
+                        'put_price': put_price
+                    },
+                    'retmsg': 'setting successfully'
                 }
                 self.write(message)
+            else:
+                message = {
+                    'retcode': 1007,
+                    'retmsg': 'have no advertise'
+                }
+        except Exception as e:
+            message = {
+                'retcode': 1006,
+                'retmsg': 'databases oper error'
+            }
+            self.write(message)
 
 class Advertiser(BaseHandler):
 

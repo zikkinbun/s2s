@@ -132,8 +132,8 @@ traits:
               application/json:
                   example: |
                       {
-                          "username": "mao",
-                          "passwd": "mao",
+                          "username": "keita",
+                          "passwd": "keita123",
                       }
             responses:
                 200:
@@ -365,8 +365,8 @@ traits:
                 application/json:
                     example: |
                         {
-                            "username": "xxxxx",
-                            "password": "xxxxx"
+                            "username": "Chen",
+                            "passwd": "admin"
                         }
             responses:
                 200:
@@ -447,7 +447,7 @@ traits:
                                     "retcode": 0,
                                     "retmsg": "channeler status update successfully",
                                 }
-    /app/getAdIDlist:
+    /ad/getAdIDlist:
         description:  获取该联盟下的所有广告
         post:
             queryParameters:
@@ -472,16 +472,16 @@ traits:
                                     "retcode": 0,
                                     "retdata": [
                                         {
-                                            "name": "有米",
-                                            "ad_name": "foodpanda - Order Food Delivery for Pizza, Burger",
-                                            "pkg_name": "758103884",
-                                            "region": "[u'HK']",
-                                            "get_price": 1.52,
-                                            "put_price": 0,
-                                            "access_price": 0,
-                                            "click": 0,
-                                            "installed": 0,
-                                            "income": 0
+                                            "name/联盟名称": "有米",
+                                            "ad_name/广告名": "foodpanda - Order Food Delivery for Pizza, Burger",
+                                            "pkg_name/包名": "758103884",
+                                            "region/投放地区": "[u'HK']",
+                                            "get_price/广告主出价": 1.52,
+                                            "put_price/下放价": 0,
+                                            "access_price/成本价": 0,
+                                            "click/有效点击数": 0,
+                                            "installed/安装数": 0,
+                                            "income/我方收入": 0
                                           },
                                         {
                                             "name": "有米",
@@ -498,8 +498,8 @@ traits:
                                         ]
                                     "retmsg": "success",
                                 }
-    /app/getAdIDlist:
-        description:  获取该联盟下的所有广告
+    /ad/getAdAll:
+        description:  获取所有联盟下的所有广告
         post:
             responses:
                 200:
@@ -511,16 +511,16 @@ traits:
                                     "retcode": 0,
                                     "retdata": [
                                         {
-                                            "name": "有米",
-                                            "ad_name": "foodpanda - Order Food Delivery for Pizza, Burger",
-                                            "pkg_name": "758103884",
-                                            "region": "[u'HK']",
-                                            "get_price": 1.52,
-                                            "put_price": 0,
-                                            "access_price": 0,
-                                            "click": 0,
-                                            "installed": 0,
-                                            "income": 0
+                                            "name/联盟名称": "有米",
+                                            "ad_name/广告名": "foodpanda - Order Food Delivery for Pizza, Burger",
+                                            "pkg_name/包名": "758103884",
+                                            "region/投放地区": "[u'HK']",
+                                            "get_price/广告主出价": 1.52,
+                                            "put_price/下放价": 0,
+                                            "access_price/成本价": 0,
+                                            "click/有效点击数": 0,
+                                            "installed/安装数": 0,
+                                            "income/我方收入": 0
                                         },
                                         {
                                             "name": "有米",
