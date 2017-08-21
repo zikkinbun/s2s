@@ -9,7 +9,7 @@ class TornDBReadConnector(object):
     '''
 
     def __init__(self):
-        self.read_conn = torndb.Connection(setting.DEV['s2s']['read']['host'], setting.DEV['s2s']['read']['database'], setting.DEV['s2s']['read']['user'], setting.DEV['s2s']['read']['password'])
+        self.read_conn = torndb.Connection(setting.RELEASE['s2s']['read']['host'], setting.RELEASE['s2s']['read']['database'], setting.RELEASE['s2s']['read']['user'], setting.RELEASE['s2s']['read']['password'])
 
     def __enter__(self):
         '''
@@ -36,7 +36,7 @@ class TornDBWriteConnector(object):
     '''
 
     def __init__(self):
-        self.write_conn = torndb.Connection(setting.DEV['s2s']['write']['host'], setting.DEV['s2s']['write']['database'], setting.DEV['s2s']['write']['user'], setting.DEV['s2s']['write']['password'])
+        self.write_conn = torndb.Connection(setting.RELEASE['s2s']['write']['host'], setting.RELEASE['s2s']['write']['database'], setting.RELEASE['s2s']['write']['user'], setting.RELEASE['s2s']['write']['password'])
 
     def __enter__(self):
         '''
