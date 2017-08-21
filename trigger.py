@@ -1,11 +1,8 @@
 # _*_ coding:utf-8_*_
 from handler.advertise_handler import Advertises, Advertiser, AdvertiseStatus
 from handler.offer_handler import AdvertiseTransOffer, OfferHandler
-from handler.rule_handler import RuleHandler, selectRule, specailRule
+from handler.rule_handler import RuleHandler, SelectRule, SpecailRule
 from threading import Thread
-
-import tasks
-
 
 
 if __name__ == '__main__':

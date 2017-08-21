@@ -6,7 +6,6 @@ from celery.schedules import crontab
 from handler.advertise_handler import Advertises
 from handler.rule_handler import SpecailRule
 from handler.offer_handler import AdvertiseTransOffer
-from callback.offer_callback import searchValidClick
 
 from threading import Thread
 import re
@@ -68,5 +67,13 @@ def sqltest():
     sql = sql_str + condition_str
     print sql
 
+def resub():
+    text = 'http://ibrainer.net/cy/100/iPhone7_cy/?referrer ​=1​866'
+    text1 = 'Hot & Sweet" Korean Drama(Vodacom)"'
+
+    data = text.replace(' ', '').replace('%', '')
+    # data1 = text1.replace('"', '')
+    print data
+
 if __name__ == '__main__':
-    getRule()
+    resub()

@@ -7,7 +7,7 @@ class BaseHandler(tornado.web.RequestHandler):
     #     super().__init__(*args, **kwargs)
     #     force_xsrf_cookie = self.xsrf_token
     #     print('Token for {}: {}'.format(self.request.uri, force_xsrf_cookie))
-
+    
     def get_current_user(self):
         return self.get_secure_cookie("user_id", 0)
 

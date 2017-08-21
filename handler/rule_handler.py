@@ -3,9 +3,10 @@ import tornado.web
 import tornado.httpclient
 
 from db.mysql import connection
+from base_handler import BaseHandler
 from model.rule_model import RuleModel
 
-from utils.db_utils import TornDBConnector
+from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
 from db import setting
 
 from datetime import datetime
@@ -16,20 +17,31 @@ import json
 import random
 import string
 
-class RuleHandler(tornado.web.RequestHandler):
+class RuleHandler(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        rule_name = self.get_argument('rule_name', None)
-        rule_type = self.get_argument('rule_type', None)
-        rule_value = self.get_argument('rule_value', None)
-        rule_comment = self.get_argument('rule_comment', None)
+        # rule_name = self.get_argument('rule_name', None)
+        rule_name = json.loads(self.request.body)['rule_name']
+        if rule_name is None:
+            raise tornado.web.MissingArgumentError('rule_name')
+        # rule_type = self.get_argument('rule_type', None)
+        rule_type = json.loads(self.request.body)['rule_type']
+        if rule_type is None:
+            raise tornado.web.MissingArgumentError('rule_type')
+        # rule_value = self.get_argument('rule_value', None)
+        rule_value = json.loads(self.request.body)['rule_value']
+        if rule_value is None:
+            raise tornado.web.MissingArgumentError('rule_value')
+        # rule_comment = self.get_argument('rule_comment', None)
+        rule_comment = json.loads(self.request.body)['rule_comment']
+        if rule_comment is None:
+            raise tornado.web.MissingArgumentError('rule_comment')
 
         try:
-            query = 'insert into rule (name,type,value,comment) values ("%s","%s","%s","%s")' % (rule_name,rule_type,rule_value,rule_comment)
-            cursor = connection.cursor()
-            row = cursor.execute(query)
-            connection.commit()
+            db_conns = self.application.db_conns
+            rulemodel = RuleModel(db_conns['read'], db_conns['write'])
+            row = rulemodel.create_rule(rule_name, rule_type, rule_value, rule_comment)
             if row:
                 msg = {
                     'retcode': 0,
@@ -41,15 +53,16 @@ class RuleHandler(tornado.web.RequestHandler):
                 self.write(msg)
         except Exception as e:
             print e
-        finally:
-            connection.close()
+
 
 class SelectRule(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        rule_id = self.get_argument('rule_id', None)
-
+        # rule_id = self.get_argument('rule_id', None)
+        rule_id = json.loads(self.request.body)['rule_id']
+        if rule_id is None:
+            raise tornado.web.MissingArgumentError('rule_id')
         try:
             db_conns = self.application.db_conns
             rulemodel = RuleModel(db_conns['read'], db_conns['write'])
@@ -73,8 +86,8 @@ class SpecailRule(object):
 
     def __init___(self):
         self.db_conns = {}
-        self.db_conns['read'] = TornDBConnector(setting.RELEASE['s2s']['read']['host'], setting.RELEASE['s2s']['read']['database'], setting.RELEASE['s2s']['read']['user'], setting.RELEASE['s2s']['read']['password'])
-        self.db_conns['write'] = TornDBConnector(setting.RELEASE['s2s']['write']['host'], setting.RELEASE['s2s']['write']['database'], setting.RELEASE['s2s']['write']['user'], setting.RELEASE['s2s']['write']['password'])
+        self.db_conns['read'] = TornDBReadConnector()
+        self.db_conns['write'] = TornDBWriteConnector()
 
     def getRule(self, rule_id):
         try:
@@ -85,5 +98,3 @@ class SpecailRule(object):
                 return value['value']
         except Exception as e:
             print e
-        # finally:
-        #     connection.close()

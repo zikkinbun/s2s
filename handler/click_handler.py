@@ -3,7 +3,9 @@ import tornado.web
 import tornado.httpclient
 
 import sign_api
-from db.mysql import connection
+from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
+from base_handler import BaseHandler
+from model.click_model import ClickModel
 
 from pymysql.err import ProgrammingError
 from datetime import datetime
@@ -13,7 +15,7 @@ import os
 import json
 
 
-class ClickUrlHandler(tornado.web.RequestHandler):
+class ClickUrlHandler(BaseHandler):
     """
         用户每访问一次我的click_url 就生成一次 click 记录，包括 click_id,ad_id,app_id，
         可以从下游通过的我们 offer提供的trackinglink做统计，或者我们自己生成 click
@@ -40,11 +42,12 @@ class ClickUrlHandler(tornado.web.RequestHandler):
             if pid is None:
                 raise tornado.web.MissingArgumentError('pid')
 
-            is_existed = self.checkUnique(app_click_id)
-            if is_existed == 200 or is_existed == '200':
+            is_existed = clickHandler().checkUnique(app_click_id)
+            # print is_existed
+            if is_existed['retcode'] == 0 or is_existed['retcode'] == '0':
                 click_id = base64.b64encode(os.urandom(12))
-                trackinglink, adver_id = self.getTrackUrl(offer_id)
-                self.clickRecord(click_id, adver_id, app_id, app_click_id, offer_id)
+                trackinglink, ad_id = clickHandler().getTrackUrl(offer_id)
+                clickHandler().clickRecord(click_id, ad_id, app_id, app_click_id, offer_id)
                 track_link = trackinglink + '&user_id=%s' % click_id
                 self.redirect(track_link)
             else:
@@ -52,76 +55,93 @@ class ClickUrlHandler(tornado.web.RequestHandler):
                     'code': 5001,
                     'msg': 'please do not commit the same click_id again'
                 }
-                self.write(msg)
+                self.write(message)
         else:
             message = {
                 'code': 5002,
                 'msg': 'You are not using the mobile broswer'
             }
-            self.write(msg)
+            self.write(message)
+
+class clickHandler(object):
+
+    def __init__(self):
+        self.db_conns = {}
+        self.db_conns['read'] = TornDBReadConnector()
+        self.db_conns['write'] = TornDBWriteConnector()
+        self.clickmodel = ClickModel(self.db_conns['read'], self.db_conns['write'])
 
     def checkUnique(self, app_click_id):
-        app_click_query = 'select app_click_id from track_click where app_click_id="%s"' % app_click_id
+
         try:
-            cursor = connection.cursor()
-            cursor.execute(app_click_query)
-            data = cursor.fetchone()
-            if data is None or len(data) == 1:
-                msg = "200"
-                return msg
-            elif len(data) > 1:
-                msg = "-200"
-                return msg
+            data = self.clickmodel.check_duplication(app_click_id)
+            if data and len(data) > 1:
+                message = {
+                    'retcode': 5004,
+                    'retmsg': 'this click is not unique'
+                }
+                return message
+            elif data and len(data) == 1:
+                message = {
+                    'retcode': 0,
+                    'retmsg': 'this click is unique'
+                }
+                return message
             else:
-                msg = "-201"
-                return msg
-        except ProgrammingError as e:
-            print e
+                message = {
+                    'retcode': 5005,
+                    'retmsg': 'error'
+                }
+                return message
+        except Exception as e:
+            message = {
+                'retcode': 0,
+                'retmsg': 'this click is not existed'
+            }
+            return message
 
     def getClickId(self, app_click_id):
 
-        click_query = 'select click_id from track_click where app_click_id="%s"' % app_click_id
         try:
-            cursor = connection.cursor()
-            cursor.execute(click_query)
-            data = cursor.fetchone()
-            click_id = data['click_id']
-            if click_id:
-                return click_id
+            data = self.clickmodel.get_clickid(app_click_id)
+            if data:
+                click_id = data['click_id']
+                if click_id:
+                    return click_id
+                else:
+                    return None
             else:
                 return None
-        except ProgrammingError as e:
+        except Exception as e:
             print e
 
     def getTrackUrl(self, offer_id):
-        track_query = 'select track_url, ad_id from advertise where ad_id=(select advertise_id from offer where offer_id="%s")' % offer_id
+
         try:
-            cursor = connection.cursor()
-            cursor.execute(track_query)
-            data = cursor.fetchone()
+            data = self.clickmodel.get_trackurl(offer_id)
+            # print data
             if data:
                 track_url = data['track_url']
                 ad_id = data['ad_id']
                 return track_url, ad_id
             else:
                 return None
-        except ProgrammingError as e:
+        except Exception as e:
             print e
 
 
-    def clickRecord(self, click_id, adver_id, app_id, app_click_id, offer_id):
+    def clickRecord(self, click_id, ad_id, app_id, app_click_id, offer_id):
 
-        insert_query = 'insert into track_click (`click_id`,`ad_id`,`app_id`,`app_click_id`,`offer_id`,`num`,`createdate`) values ("%s","%s",\
-        "%s","%s","%s","%d","%s")' % (click_id,adver_id,app_id,app_click_id,offer_id,1,datetime.utcnow())
         try:
-            cursor = connection.cursor()
-            cursor.execute(insert_query)
-            connection.commit()
-        except ProgrammingError as e:
-            connection.rollback()
+            row = self.clickmodel.create_record(click_id, ad_id, app_id, app_click_id, offer_id)
+            if row:
+                message = {
+                    'retcode': 0,
+                    'retmsg': 'success'
+                }
+                return message
+        except Exception as e:
             print e
-        finally:
-            connection.close()
 
 
 class CreateClickUrl(object):

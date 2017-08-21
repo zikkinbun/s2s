@@ -132,8 +132,8 @@ traits:
               application/json:
                   example: |
                       {
-                          "username": "mao",
-                          "passwd": "mao",
+                          "username": "keita",
+                          "passwd": "keita123",
                       }
             responses:
                 200:
@@ -220,7 +220,7 @@ traits:
                 application/json:
                     example: |
                         {
-                            "channeler_id": "DbcMXzmk",
+                            "chn_id": "DbcMXzmk",
                             "app_name": "test",
                             "pkg_name": "com.test.com",
                             "category": "xxxx",
@@ -258,7 +258,8 @@ traits:
                     example: |
                         {
                             "app_id": "xxxxx",
-                            "chn_id": "xxxxx"
+                            "chn_id": "xxxxx",
+                            "status": 1,
                         }
             responses:
                 200:
@@ -269,6 +270,110 @@ traits:
                                 {
                                     "retcode": 0,
                                     "retmsg": "APP active successfully",
+                                }
+
+    /app/getTokenUrl:
+        description: 获取当前APP的Token和callback_url
+        post:
+            queryParameters:
+                app_id:
+                    type        : string
+                    description : app_id
+                    required    : true
+                chn_id:
+                    type        : string
+                    description : chn_id
+                    required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "app_id": "xxxxx",
+                            "chn_id": "xxxxx"
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": {
+                                        "callback_token": "E5twnuxHOzLsw59DK3aLZAK84ElykM2i",
+                                        "callback_url": "http://127.0.0.1:8001/click?click_id=123&revenue=1"
+                                    },
+                                    "retmsg": "success",
+                                }
+
+    /app/updateUrl:
+        description: 更新当前APP的callback_url
+        post:
+            queryParameters:
+                app_id:
+                    type        : string
+                    description : app_id
+                    required    : true
+                chn_id:
+                    type        : string
+                    description : chn_id
+                    required    : true
+                callback_url:
+                    type        : string
+                    description : callback_url
+                    required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "app_id": "xxxxx",
+                            "chn_id": "xxxxx",
+                            "callback_url": "xxxx"
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retmsg": "success",
+                                }
+
+    /app/SetDP:
+        description: 给该APP设置分成和扣量
+        post:
+            queryParameters:
+                app_id:
+                    type        : string
+                    description : app_id
+                    required    : true
+                deduction:
+                    type        : float
+                    description : 扣量
+                    required    : true
+                divide:
+                    type        : float
+                    description : 分成
+                    required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "app_id": "xxxxx",
+                            "deduction": 0.2,
+                            "divide": 1.0
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retmsg": "success",
                                 }
     /app/detail:
         description: 获取APP详情
@@ -349,6 +454,42 @@ traits:
                                     ],
                                     "retmsg": "success",
                                 }
+    /app/listAll:
+        description:  获取所有APP
+        post:
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": [
+                                        {
+                                            "app_id": "pHcF6ZQxLu82d9gm",
+                                            "app_name": "myworld",
+                                            "app_secret": "IPSE73ecQTy4tsi/kZl+Lg==",
+                                            "pkg_name": "com.myworld.com",
+                                            "platform": "Android",
+                                            "status": 1,
+                                            "chn_id": "DbcMXzmk",
+                                            "description": "test"
+                                        },
+                                        {
+                                            "app_id": "tYpInTNS3jdxiol5",
+                                            "app_name": "zeropark",
+                                            "app_secret": "/9hCnnp+FzjLu64u+ONT3g==",
+                                            "pkg_name": "com.zeropark.com",
+                                            "platform": "Android",
+                                            "status": 1,
+                                            "chn_id": "dfJobhOs",
+                                            "description": "test"
+                                        }
+                                      ],
+                                      "retmsg": "success",
+                                }
+
     /am/login:
         description: AM登录验证
         post:
@@ -365,8 +506,8 @@ traits:
                 application/json:
                     example: |
                         {
-                            "username": "xxxxx",
-                            "password": "xxxxx"
+                            "username": "Chen",
+                            "passwd": "admin"
                         }
             responses:
                 200:
@@ -377,47 +518,101 @@ traits:
                                 {
                                     'retcode': 0,
                                     'retdata': {
-                                        'am_id': xx,
+                                        'am_id': 1,
                                         'is_logined': 1,
                                     },
                                     'retmsg': 'success'
                                 }
 
-    /am/multioffer:
-        description: 为下游创建OFFER
+
+    /am/createchn:
+        description:  创建下游账号
         post:
             queryParameters:
-                app_id:
+                username:
                     type        : string
-                    description : app_id
+                    description : username
                     required    : true
-                chn_id:
+                passwd:
                     type        : string
-                    description : channeler_id
+                    description : passwd
                     required    : true
-                rule_id:
+                email:
                     type        : string
-                    description : rule_id
+                    description : email
                     required    : true
-            body:
+                am_id:
+                    type        : int
+                    description : am_id
+                    required    : true
+             body:
                 application/json:
                 example: |
                     {
-                        "app_id": "xxxxx",
-                        "chn_id": "xxxxx",
-                        "rule_id": 2
+                        "username": "xxxx",
+                        "passwd": "xxxx",
+                        "email": "xxxxx",
+                        "am_id": 1,
                     }
-            responses:
+             responses:
                 200:
                     body:
                         application/json:
                             type: exist
                             example: |
                                 {
-                                    "retcode": 0,
-                                    "retmsg": "Offer create successfully",
+                                        "retcode": 0,
+                                        "retdata": {
+                                            'chn_id': 'xxxxx'
+                                        },
+                                        "retmsg": "success",
                                 }
-    /am/connchn:
+
+    /am/createAder:
+        description:  创建联盟
+        post:
+            queryParameters:
+                api_name:
+                    type        : string
+                    description : api_name
+                    required    : true
+                name:
+                    type        : string
+                    description : name
+                    required    : true
+                resp_callback_url:
+                    type        : string
+                    description : resp_callback_url
+                    required    : true
+                resp_callback_token:
+                    type        : string
+                    description : resp_callback_token
+                    required    : true
+                is_pulled:
+                    type        : int
+                    description : 是否拉取
+                    required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "api_name": "Admix",
+                            "name": "有米",
+                            "resp_callback_url": "http://api.bensonzhi.co/v1/click?click_id={user_id}&chn={chn}&order={order}&app_id={app}&ad_id={ad_id}&revenue={revenue}"
+                            "resp_callback_token": "xxxxxxxxxxxx"
+                        }
+            responses:
+               200:
+                   body:
+                       application/json:
+                           type: exist
+                           example: |
+                               {
+                                    "retcode": 0,
+                                    "retmsg": "success",
+                              }
+
+    /am/setstatus:
         description:  更改下游账号状态
         post:
             queryParameters:
@@ -434,7 +629,6 @@ traits:
                 example: |
                     {
                         "status": 1,
-                        "am_id": 1,
                         "chn_id": "xxxxx",
                     }
             responses:
@@ -447,3 +641,184 @@ traits:
                                     "retcode": 0,
                                     "retmsg": "channeler status update successfully",
                                 }
+
+    /am/listchn:
+        description:  获取所有下游信息
+        post:
+            queryParameters:
+                am_id:
+                    type        : int
+                    description : am_id
+                    required    : true
+            body:
+                application/json:
+                example: |
+                    {
+                        "am_id": 1,
+                    }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": [
+                                        {
+                                            "chn_id": "dfJobhOs",
+                                            "name": "benson",
+                                            "email": "test@test.com",
+                                            "status": 1
+                                        },
+                                        {
+                                            "chn_id": "DbcMXzmk",
+                                            "name": "keita",
+                                            "email": "keita@keita.com",
+                                            "status": 1
+                                        }
+                                    ],
+                                    "retmsg": "success",
+                                }
+    /am/createOfferByUnion:
+        description:  根据联盟 ID创建 OFFER
+        post:
+            queryParameters:
+                ader_id:
+                    type        : int
+                    description : ader_id
+                    required    : true
+                app_id:
+                    type        : string
+                    description : app_id
+                    required    : true
+            body:
+                application/json:
+                example: |
+                    {
+                        "ader_id": 1,
+                        "app_id": "azLCKhW98M3E5AUk"
+                    }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retmsg": "success to create offer",
+                                }
+    /ad/getAdById:
+        description:  获取该联盟下的所有广告
+        post:
+            queryParameters:
+                ader_id:
+                    type        : int
+                    description : ader_id
+                    required    : true
+
+            body:
+                application/json:
+                example: |
+                    {
+                        "ader_id": 1,
+                    }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": [
+                                        {
+                                            "name/联盟名称": "有米",
+                                            "ad_name/广告名": "foodpanda - Order Food Delivery for Pizza, Burger",
+                                            "pkg_name/包名": "758103884",
+                                            "region/投放地区": "[u'HK']",
+                                            "get_price/广告主出价": 1.52,
+                                            "put_price/下放价": 0,
+                                            "access_price/成本价": 0,
+                                            "click/有效点击数": 0,
+                                            "installed/安装数": 0,
+                                            "income/我方收入": 0
+                                          },
+                                        {
+                                            "name": "有米",
+                                            "ad_name": "Space Manager",
+                                            "pkg_name": "com.mobileartsme.spacemanager",
+                                            "region": "[u'AE']",
+                                            "get_price": 0.95,
+                                            "put_price": 0,
+                                            "access_price": 0,
+                                            "click": 0,
+                                            "installed": 0,
+                                            "income": 0
+                                          },
+                                        ]
+                                    "retmsg": "success",
+                                }
+    /ad/getAdAll:
+        description:  获取所有联盟下的所有广告
+        post:
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": [
+                                        {
+                                            "name/联盟名称": "有米",
+                                            "ad_name/广告名": "foodpanda - Order Food Delivery for Pizza, Burger",
+                                            "pkg_name/包名": "758103884",
+                                            "region/投放地区": "[u'HK']",
+                                            "get_price/广告主出价": 1.52,
+                                            "put_price/下放价": 0,
+                                            "access_price/成本价": 0,
+                                            "click/有效点击数": 0,
+                                            "installed/安装数": 0,
+                                            "income/我方收入": 0
+                                        },
+                                        {
+                                            "name": "有米",
+                                            "ad_name": "Space Manager",
+                                            "pkg_name": "com.mobileartsme.spacemanager",
+                                            "region": "[u'AE']",
+                                            "get_price": 0.95,
+                                            "put_price": 0,
+                                            "access_price": 0,
+                                            "click": 0,
+                                            "installed": 0,
+                                            "income": 0
+                                        },
+                                      ]
+                                      "retmsg": "success",
+                                }
+
+    /ad/getAder:
+        description:  获取所有联盟信息
+        post:
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": {
+                                        "union": [
+                                            {
+                                                "id": 1,
+                                                "name": "有米",
+                                                "api_name": "Admix",
+                                                "is_pulled": 1
+                                            }
+                                        ]
+                                    "retmsg": "success",
+                                  }

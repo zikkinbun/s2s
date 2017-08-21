@@ -9,24 +9,28 @@ from offer_handler import AdvertiseTransOffer
 from channel_handler import ChannelStatus
 
 from model.application_model import ApplicationModel
+from model.am_model import AccountManagerModel
 from model.channeler_model import ChannelModel
 from pymysql.err import ProgrammingError
 from datetime import datetime
 import os
 import json
+from urlparse import urlparse
+from urllib import unquote_plus
 
 
 class AMSginup(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        am_name = self.get_argument('am_name', None)
+        am_name = json.loads(self.request.body)['am_name']
         if am_name is None:
-            raise tornado.web.MissingArgumentError('am_id')
-        passwd = self.get_argument('passwd', None)
+            raise tornado.web.MissingArgumentError('am_name')
+        passwd = json.loads(self.request.body)['passwd']
         if passwd is None:
             raise tornado.web.MissingArgumentError('passwd')
         _passwd = EncryptPassword(passwd)._hash_password(passwd)
+        # print _passwd
         try:
             db_conns = self.application.db_conns
             AMmodel = AccountManagerModel(db_conns['read'], db_conns['write'])
@@ -42,44 +46,22 @@ class AMSginup(tornado.web.RequestHandler):
         except ProgrammingError as e:
             print e
 
-class AMtoMultiOffer(tornado.web.RequestHandler):
+class AMChannelOper(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        app_id = self.get_argument('app_id', None)
-        chn_id = self.get_argument('chn_id', None)
-        rule_id = self.get_argument('rule_id', None)
-
-        verify_channel = ChannelStatus()
-        if verify_channel.verifyStatusApp(chn_id, app_id):
-            tranform = AdvertiseTransOffer()
-            getoffer = tranform.getRuleAdvertise(rule_id)
-            tranform.tranRuleOffer(app_id)
-            msg = {
-                'retcode': 0,
-                'retmsg': 'Offer create successfully'
-            }
-            self.write(msg)
-        else:
-            self.write_error(500)
-
-class AMChannelOper(tornado.web.RequestHandler):
-
-    @tornado.gen.coroutine
-    def post(self):
-        status = self.get_argument('status', None)
+        status = json.loads(self.request.body)['status']
+        # status = self.get_argument('status', None)
         if status is None:
             raise tornado.web.MissingArgumentError('status')
-        chn_id = self.get_argument('chn_id', None)
-        if channeler_id is None:
+        chn_id = json.loads(self.request.body)['chn_id']
+        # chn_id = self.get_argument('chn_id', None)
+        if chn_id is None:
             raise tornado.web.MissingArgumentError('chn_id')
-        am_id = self.get_argument('am_id', None)
-        if am_id is None:
-            raise tornado.web.MissingArgumentError('am_id')
 
         db_conns = self.application.db_conns
         chnmodel = ChannelModel(db_conns['read'], db_conns['write'])
-        row = chnmodel.set_channeler_status(int(status), am_id, chn_id)
+        row = chnmodel.set_channeler_status(int(status), chn_id)
         if row:
             message = {
                 'retcode': 0,
@@ -87,21 +69,84 @@ class AMChannelOper(tornado.web.RequestHandler):
             }
             self.write(message)
         else:
-            self.write_error(500)
+            message = {
+                'retcode': 4001,
+                'retmsg': 'channeler is already actived'
+            }
+            self.write(message)
 
-class AMAppOper(BaseHandler):
+class AMCreateOfferByUnion(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
+        ader_id = self.get_argument('ader_id', None)
+        # ader_id = json.loads(self.request.body)['ader_id']
+        if ader_id is None:
+            raise tornado.web.MissingArgumentError('ader_id')
         app_id = self.get_argument('app_id', None)
+        # app_id = json.loads(self.request.body)['app_id']
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
-        chn_id = self.get_argument('chn_id', None)
-        if channeler_id is None:
-            raise tornado.web.MissingArgumentError('chn_id')
+        try:
+            db_conns = self.application.db_conns
+            appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
+            checkout_data = appmodel.get_application_tranform(app_id)
+            if not checkout_data:
+                message = {
+                    'retcode': 4010,
+                    'retmsg': 'please setting the Deduction and Partition'
+                }
+                self.write(message)
+            else:
+                try:
+                    AT = AdvertiseTransOffer()
+                    catch_advertise = AT.getAdvertiseByAderID(ader_id)
+                    # print catch_advertise['retcode']
+                    if catch_advertise['retcode'] == 0 or catch_advertise['retcode'] == '0':
+                        msg = AT.tranOffer(app_id, checkout_data['divide'])
+                        message = {
+                            'retcode': 0,
+                            'retmsg': 'success to create offer'
+                        }
+                        self.write(message)
+                    else:
+                        message = {
+                            'retcode': 4009,
+                            'retmsg': 'catch advertise failed'
+                        }
+                        self.write(message)
+                except Exception as e:
+                    # print e
+                    msg = {
+                        'retcode': 4008,
+                        'retmsg': 'databases operate error'
+                    }
+                    self.write(msg)
+        except Exception as e:
+            # print e
+            msg = {
+                'retcode': 4008,
+                'retmsg': 'databases operate error'
+            }
+            self.write(msg)
 
-        # cookie_secret = self.get_cookie('__cookies_token__')
-        # print cookie_secret
+
+class AMAppOper(BaseHandler):
+    """
+
+    """
+
+    @tornado.gen.coroutine
+    def post(self):
+        app_id = json.loads(self.request.body)['app_id']
+        if app_id is None:
+            raise tornado.web.MissingArgumentError('app_id')
+        chn_id = json.loads(self.request.body)['chn_id']
+        if chn_id is None:
+            raise tornado.web.MissingArgumentError('chn_id')
+        status = json.loads(self.request.body)['status']
+        if status is None:
+            raise tornado.web.MissingArgumentError('status')
 
         # 验证是否该下游存在这个APP
         try:
@@ -110,7 +155,7 @@ class AMAppOper(BaseHandler):
             data = appmodel.get_application_detail(app_id, chn_id)
             if data:
                 if data['status'] is None:
-                    row = appmodel.set_applicaiton_status(app_id)
+                    row = appmodel.set_applicaiton_status(status, app_id)
                     message = {
                         'retcode': 0,
                         'retmsg': 'APP active successfully'
@@ -129,21 +174,26 @@ class AMAppOper(BaseHandler):
                     }
                 self.write(message)
 
-        except ProgrammingError as e:
-            print e
+        except Exception as e:
+            message = {
+                'retcode': 4003,
+                'retmsg': 'APP is not existed'
+            }
+            self.write(message)
 
 class AMLogin(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        username = self.get_argument('username', None)
+        username = json.loads(self.request.body)['username']
         if username is None:
             raise tornado.web.MissingArgumentError('username')
         # username = tornado.escape.json_decode(self.current_user)
 
-        passwd = self.get_argument('password', None)
+        passwd = json.loads(self.request.body)['passwd']
         if passwd is None:
             raise tornado.web.MissingArgumentError('passwd')
+        # print passwd
 
         try:
             db_conns = self.application.db_conns
@@ -158,6 +208,7 @@ class AMLogin(BaseHandler):
                 #  print message
                 self.write(message)
             else:
+
                 if int(data['status']) == 1:
                     message = {
                         'retcode': 0,
@@ -169,10 +220,11 @@ class AMLogin(BaseHandler):
                     }
                     try:
                         row = AMmodel.set_login_time(username)
+                        # print row
                         if row:
                             self.set_current_user(data['id'])
                         self.write(message)
-                    except err.ProgrammingError as e:
+                    except Exception as e:
                         print e
                 else:
                     message = {
@@ -183,5 +235,132 @@ class AMLogin(BaseHandler):
                         'retmsg': 'failure'
                         }
                     self.write(message)
-        except err.ProgrammingError as e:
-            print e
+        except Exception as e:
+            if e == 'list index out of range':
+                message = {
+                    'retcode': 4006,
+                    'retmsg': 'this user is not existed'
+                }
+                self.write(message)
+
+class AMChannelSignup(BaseHandler):
+
+    @tornado.gen.coroutine
+    def post(self):
+        username = json.loads(self.request.body)['username']
+        if username is None:
+            raise tornado.web.MissingArgumentError('username')
+        passwd = json.loads(self.request.body)['passwd']
+        if passwd is None:
+            raise tornado.web.MissingArgumentError('passwd')
+        email = json.loads(self.request.body)['email']
+        if email is None:
+            raise tornado.web.MissingArgumentError('email')
+        am_id = json.loads(self.request.body)['am_id']
+        if am_id is None:
+            raise tornado.web.MissingArgumentError('am_id')
+
+        status = 1 # verifing
+        chn_id = ''.join(random.sample(string.ascii_letters + string.digits, 8))
+
+        _passwd = EncryptPassword(passwd)._hash_password(passwd)
+
+        try:
+            db_conns = self.application.db_conns
+            channelmodel = ChannelModel(db_conns['read'], db_conns['write'])
+            data = channelmodel.signup_chaneler(username, _passwd, email, status, chn_id, am_id)
+            message = {
+                'retcode': 0,
+                'retdata': {
+                    'chn_id': chn_id
+                },
+                'retmsg': 'success'
+            }
+            self.write(message)
+        except Exception as e:
+            msg = {
+                'retcode': 4008,
+                'retmsg': 'databases operate error'
+            }
+            self.write(msg)
+
+class AMListChannel(BaseHandler):
+
+    @tornado.gen.coroutine
+    def post(self):
+        am_id = json.loads(self.request.body)['am_id']
+        # am_id = self.get_argument('am_id', None)
+        if am_id is None:
+            raise tornado.web.MissingArgumentError('am_id')
+
+        try:
+            db_conns = self.application.db_conns
+            channelmodel = ChannelModel(db_conns['read'], db_conns['write'])
+            data = channelmodel.list_channeler(int(am_id))
+            if data:
+                message = {
+                    'retcode': 0,
+                    'retdata': data,
+                    'retmsg': 'success'
+                }
+                self.write(message)
+            else:
+                message = {
+                    'retcode': 4007,
+                    'retmsg': 'did not have chn belong to you'
+                }
+                self.write(message)
+        except Exception as e:
+            msg = {
+                'retcode': 4008,
+                'retmsg': 'databases operate error'
+            }
+            self.write(msg)
+            # print e
+
+class AMTestCallback(BaseHandler):
+
+    @tornado.gen.coroutine
+    def post(self):
+        am_id = self.get_argument('am_id', None)
+        # am_id = json.loads(self.request.body)['am_id']
+        if am_id is None:
+            raise tornado.web.MissingArgumentError('am_id')
+        edit_callback_url = self.get_argument('callback_url', None)
+        # am_id = json.loads(self.request.body)['callback_url']
+        if edit_callback_url is None:
+            raise tornado.web.MissingArgumentError('callback_url')
+
+        try:
+            client = tornado.httpclient.AsyncHTTPClient() # 异步回调
+            headers = tornado.httputil.HTTPHeaders({"content-type": "application/json charset=utf-8"})
+            request = tornado.httpclient.HTTPRequest(edit_callback_url, "GET", headers)
+            response = yield client.fetch(request)
+        except Exception as e:
+            self.write_error(500)
+
+class AMList(BaseHandler):
+
+    @tornado.gen.coroutine
+    def post(self):
+        try:
+            db_conns = self.application.db_conns
+            AMmodel = AccountManagerModel(db_conns['read'], db_conns['write'])
+            data = AMmodel.get_am()
+            if data:
+                message = {
+                    'retcode': 0,
+                    'retdata': {
+                        'am': data
+                    },
+                    'resmsg': 'success'
+                }
+                self.write(message)
+            else:
+                self.write_error(500)
+        except Exception as e:
+            msg = {
+                'retcode': 4008,
+                'retmsg': 'databases operate error'
+            }
+            self.write(msg)

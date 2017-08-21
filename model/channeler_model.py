@@ -5,17 +5,17 @@ from datetime import datetime
 
 class ChannelModel(BaseDB):
 
-    def signup_chaneler(self, username, passwd, email, contact, status, chn_id):
+    def signup_chaneler(self, username, passwd, email, status, chn_id, am_id):
         table = 'channeler'
         data = {
             'name': username,
             'passwd': passwd,
             'email': email,
-            'contact': contact,
             'status': status,
             'chn_id': chn_id,
+            'am_id': am_id,
             'is_login': int(1),
-            'sign_up_date': datetime.utcnow()
+            'sign_up_date': datetime.now()
         }
 
         return self.insert(table, data)
@@ -30,11 +30,10 @@ class ChannelModel(BaseDB):
 
         return self.select(table, fileds, condition_data)[0]
 
-    def set_channeler_status(self, status, am_id, chn_id):
+    def set_channeler_status(self, status, chn_id):
         table = 'channeler'
         data = {
             'status': status,
-            'am_id': am_id
         }
         condition_data = {
             'chn_id': chn_id
@@ -57,23 +56,24 @@ class ChannelModel(BaseDB):
 
         return self.select(table, fields, condition_data)[0]
 
-    def set_login_time(self, chn_id=None, username=None):
+    def set_login_time(self, username):
         table = 'channeler'
-        if chn_id:
-            data = {
-                'login_time': datetime.now()
-            }
-            condition_data = {
-                'chn_id': chn_id
-            }
-            return self.update(table, data, condition_data)
-        elif username:
-            data = {
-                'login_time': datetime.now()
-            }
-            condition_data = {
-                'name': username
-            }
-            return self.update(table, data, condition_data)
-        else:
-            raise Exception
+
+        data = {
+            'login_time': datetime.now()
+        }
+        condition_data = {
+            'name': username
+        }
+        return self.update(table, data, condition_data)
+
+    def list_channeler(self, am_id):
+        table = 'channeler'
+
+        fileds = ['chn_id', 'name', 'email', 'status']
+
+        condition_data = {
+            'am_id': am_id
+        }
+
+        return self.select(table, fileds, condition_data)

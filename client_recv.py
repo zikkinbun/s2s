@@ -15,7 +15,7 @@ class Application(tornado.web.Application):
 
     def __init__(self):
         handlers = [
-            (r"/callback", ServiceHandler),
+            (r"/click", ServiceHandler),
         ]
         settings = {
             "cookie_secret": "bZJc2sWbQLKos6GkHn/VB9oXwQt8S0R0kRvJ5/xJ89E=",
@@ -26,8 +26,7 @@ class Application(tornado.web.Application):
 class ServiceHandler(tornado.web.RequestHandler):
 
     def get(self):
-        click_id = self.get_argument('click_id', None)
-        sign = self.get_argument('sign', None)
+        print self.request.body
 
 def main():
     tornado.options.parse_command_line()
