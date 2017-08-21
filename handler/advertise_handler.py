@@ -5,7 +5,7 @@ import tornado.httpclient
 from db.mysql import connection
 from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
 from handler.base_handler import BaseHandler
-from model.advertise_model import AdvertiseModel
+from model.advertise_model import AdvertiseModel, AdvertiserModel
 import sign_api
 
 from pymysql import err
@@ -28,29 +28,35 @@ class Advertises(object):
         self.db_conns = {}
         self.db_conns['read'] = TornDBReadConnector()
         self.db_conns['write'] = TornDBWriteConnector()
+        self.advermodel = AdvertiseModel(self.db_conns['read'], self.db_conns['write'])
+        self.advertermodel = AdvertiserModel(self.db_conns['read'], self.db_conns['write'])
         self.api_name = 'Admix'
 
     def verifyPullstatus(self):
-        exist = connection.cursor()
-        exist.execute('select is_pulled from advertiser where api_name="%s"' % self.api_name)
-        is_pulled = exist.fetchone()['is_pulled']
-        # exist.close()
-        # connection.close()
-        if is_pulled == 1 or is_pulled == '1':
+        data = self.advertermodel.get_pull_status(self.api_name)
+        is_pulled = data['is_pulled']
+        if int(is_pulled) == 1 or is_pulled == '1':
             return True
         else:
             return False
 
     def setStatus(self, api_name, is_pulled):
-        query = 'update advertiser set is_pulled=%s where api_name=%s' % (is_pulled, api_name)
         try:
-            cursor = connection.cursor()
-            cursor.execute(query)
-            connection.commit()
-        except err.ProgrammingError as e:
+            row = self.advertermodel.set_pull_status(self.api_name, is_pulled)
+            if row:
+                message = {
+                    'retcode': 0,
+                    'retmsg': 'update status success'
+                }
+                return message
+            else:
+                message = {
+                    'retcode': 2006,
+                    'retmsg': 'databases operate error'
+                }
+
+        except Exception as e:
             print e
-        # finally:
-        #     connection.close()
 
     def getAdxmiOffer(self, app_id, page_size):
         datas = None
@@ -68,8 +74,8 @@ class Advertises(object):
                 if datas['offers'] == [] or datas['offers'] == '[]':
                     self.setStatus(self.api_name, 0)
                     msg = {
-                        'code': 1001,
-                        'msg':"This advertiser's API is closed."
+                        'retcode': 2001,
+                        'retmsg':"This advertiser's API is closed."
                     }
                     return msg
                 else:
@@ -77,25 +83,9 @@ class Advertises(object):
                         ad_id = ''.join(random.sample(string.digits, 8))
                         ader_id = 1
 
-                        cursor = connection.cursor()
-
                         device = data[u'mandatory_device']
-                        device_query = 'insert IGNORE into `device` (`ad_id`,`imei`,`mac`,`andid`,\
-                        `idfa`,`udid`) values ("%s","%s","%s","%s","%s","%s")' % (ad_id,device['imei'],\
-                        device['mac'],device['andid'],device['idfa'],device['udid'])
-
-                        new_device = cursor.execute(device_query)
-
-                        advertise_query = 'insert IGNORE into `advertise` (`ad_id`,`ad_name`,`ader_id`,`ader_offer_id`,\
-                        `pkg_name`,`region`,`get_price`,`os`,`os_version`,`creatives`,`payout_type`,\
-                        `icon_url`,`preview_url`,`track_url`,`click`,`installed`,`income`,`access_price`,`put_price`,`updatetime`) values ("%s","%s","%d","%s","%s",\
-                        "%s","%f","%s","%s","%s","%s","%s","%s","%s","%d","%f","%f","%f","%f","%s")' % (ad_id,data[u'name'],ader_id,\
-                        data[u'id'],data[u'package'],data[u'country'],data[u'payout'],data[u'os'],\
-                        data[u'os_version'],data[u'creative'],data[u'payout_type'],data[u'icon_url'],\
-                        data[u'preview_url'],data[u'trackinglink'],0,0.0,0.0,0.0,0.0,datetime.utcnow())
-                        # print advertise_query
-
-                        new_advertise = cursor.execute(advertise_query)
+                        new_device = self.advermodel.create_device_info(ad_id, device)
+                        new_advertise = self.advermodel.create_Admix_advertise(ad_id, ader_id, data)
 
                     page_range = int(datas['total'])/int(datas['page_size']) + 1
                     next_page = page + 1
@@ -114,63 +104,55 @@ class Advertises(object):
                                 ad_id = ''.join(random.sample(string.digits, 8))
                                 ader_id = 1
                                 device = data[u'mandatory_device']
-                                device_query = 'insert IGNORE into `device` (`ad_id`,`imei`,`mac`,`andid`,\
-                                `idfa`,`udid`) values ("%s","%s","%s","%s","%s","%s")' % (ad_id,device['imei'],\
-                                device['mac'],device['andid'],device['idfa'],device['udid'])
-
-                                new_device = cursor.execute(device_query)
-
-                                advertise_query = 'insert IGNORE into `advertise` (`ad_id`,`ad_name`,`ader_id`,`ader_offer_id`,\
-                                `pkg_name`,`region`,`get_price`,`os`,`os_version`,`creatives`,`payout_type`,\
-                                `icon_url`,`preview_url`,`track_url`,`click`,`installed`,`income`,`access_price`,`put_price`,`updatetime`) values ("%s","%s","%d","%s","%s",\
-                                "%s","%f","%s","%s","%s","%s","%s","%s","%s","%d","%f","%f","%f","%f","%s")' % (ad_id,data[u'name'],ader_id,\
-                                data[u'id'],data[u'package'],data[u'country'],data[u'payout'],data[u'os'],\
-                                data[u'os_version'],data[u'creative'],data[u'payout_type'],data[u'icon_url'],\
-                                data[u'preview_url'],data[u'trackinglink'],0,0.0,0.0,0.0,0.0,datetime.utcnow())
-
-                                new_advertise = cursor.execute(advertise_query)
-                    connection.commit()
-                    connection.close()
+                                new_device = self.advermodel.create_device_info(ad_id, device)
+                                new_advertise = self.advermodel.create_Admix_advertise(ad_id, ader_id, data)
 
 class AdvertiseStatus(object):
     """
         广告状态操作
     """
 
+    def __init__(self):
+        self.db_conns = {}
+        self.db_conns['read'] = TornDBReadConnector()
+        self.db_conns['write'] = TornDBWriteConnector()
+        self.advermodel = AdvertiseModel(self.db_conns['read'], self.db_conns['write'])
+
     def getAdvertise(self, ad_id):
         try:
-            query = 'select ad_id,ader_offer_id from advertise where ad_id=%s' % ad_id
-            cursor = connection.cursor()
-            cursor.execute(query)
-            data = cursor.fetchone()
+            data = self.advermodel.get_advertise_by_adid(ad_id)
             if data:
                 return data
             else:
                 msg = {
-                    'code': 1002,
-                    'msg': u'广告不存在'
+                    'retcode': 2002,
+                    'retmsg': 'this advertise is not existed'
                 }
                 return msg
-        except err.ProgrammingError as e:
-            print e
+        except Exception as e:
+            msg = {
+                'retcode': 2002,
+                'retmsg': 'this advertise is not existed'
+            }
+            return msg
 
     def getDeviceInfo(self, ad_id):
         try:
-            query = 'select imei,mac,andid,idfa,udid from device where ad_id=%s' % ad_id
-            cursor = connection.cursor()
-            cursor.execute(query)
-            data = cursor.fetchone()
+            data = self.advermodel.get_device_info(ad_id)
             if data:
                 return data
             else:
                 msg = {
-                    'code': 1003,
-                    'msg': u'该广告没有硬件信息'
+                    'retcode': 2003,
+                    'retmsg': 'this advetise have no device info'
                 }
                 return msg
-        except err.ProgrammingError as e:
-            print e
-
+        except Exception as e:
+            msg = {
+                'retcode': 2003,
+                'retmsg': 'this advetise have no device info'
+            }
+            return msg
 
 class getAdvertiseById(BaseHandler):
 
@@ -206,15 +188,47 @@ class getAdvertiseById(BaseHandler):
                 self.write(message)
             else:
                 message = {
-                    'retcode': 1007,
+                    'retcode': 2007,
                     'retmsg': 'have no advertise'
                 }
                 self.write(message)
         except Exception as e:
             # print e
             message = {
-                'retcode': 1006,
+                'retcode': 2006,
                 'retmsg': 'databases oper error'
+            }
+            self.write(message)
+
+class getAdvertiseByGetPrice(BaseHandler):
+
+    @tornado.gen.coroutine
+    def post(self):
+        key = json.loads(self.request.body)['key']
+        # key = self.get_argument('key', None)
+        if not key:
+            raise tornado.web.MissingArgumentError('key')
+        # value = self.get_argument('value', None)
+        value = json.loads(self.request.body)['value']
+        if not value:
+            raise tornado.web.MissingArgumentError('value')
+        try:
+            db_conns = self.application.db_conns
+            advermodel = AdvertiseModel(db_conns['read'], db_conns['write'])
+            data = advermodel.get_advertise_by_get_price(key, value)
+            if data:
+                message = {
+                    'retcode': 0,
+                    'retdata': {
+                        'advertise': data,
+                    },
+                    'retmsg': 'success'
+                }
+                self.write(message)
+        except Exception as e:
+            message = {
+                'retcode': 2006,
+                'retmsg': 'databases operate error'
             }
             self.write(message)
 
@@ -249,50 +263,14 @@ class getAdvertiseAll(BaseHandler):
                 self.write(message)
             else:
                 message = {
-                    'retcode': 1007,
+                    'retcode': 2007,
                     'retmsg': 'have no advertise'
                 }
                 self.write(message)
         except Exception as e:
             message = {
-                'retcode': 1006,
-                'retmsg': 'databases oper error'
-            }
-            self.write(message)
-
-class SetAdvertisePutPrice(BaseHandler):
-
-    @tornado.gen.coroutine
-    def post(self):
-        ad_id = json.loads(self.request.body)['ad_id']
-        if not ad_id:
-            raise tornado.web.MissingArgumentError('ad_id')
-        put_price = json.loads(self.request.body)['put_price']
-        if not put_price:
-            raise tornado.web.MissingArgumentError('put_price')
-
-        try:
-            db_conns = self.application.db_conns
-            advermodel = AdvertiseModel(db_conns['read'], db_conns['write'])
-            row = advermodel.set_put_price(ad_id, put_price)
-            if row:
-                message = {
-                    'retcode': 0,
-                    'retdata': {
-                        'put_price': put_price
-                    },
-                    'retmsg': 'setting successfully'
-                }
-                self.write(message)
-            else:
-                message = {
-                    'retcode': 1007,
-                    'retmsg': 'have no advertise'
-                }
-        except Exception as e:
-            message = {
-                'retcode': 1006,
-                'retmsg': 'databases oper error'
+                'retcode': 2006,
+                'retmsg': 'databases operate error'
             }
             self.write(message)
 
@@ -322,11 +300,11 @@ class Advertiser(BaseHandler):
 
         try:
             db_conns = self.application.db_conns
-            advermodel = AdvertiseModel(db_conns['read'], db_conns['write'])
+            advermodel = AdvertiserModel(db_conns['read'], db_conns['write'])
             data = advermodel.check_duplicate_advertiser(api_name)
             if data:
                 msg = {
-                    'retcode': 1005,
+                    'retcode': 2005,
                     'retmsg': 'Advertiser is existed'
                 }
                 self.write(msg)
@@ -341,13 +319,39 @@ class Advertiser(BaseHandler):
                         self.write(msg)
                 except Exception as e:
                     msg = {
-                        'retcode': 1006,
+                        'retcode': 2006,
                         'retmsg': 'databases oper error'
                     }
                     self.write(msg)
         except Exception as e:
             msg = {
-                'retcode': 1006,
+                'retcode': 2006,
+                'retmsg': 'databases oper error'
+            }
+            self.write(msg)
+
+class getAdvertiserALL(BaseHandler):
+
+    @tornado.gen.coroutine
+    def post(self):
+        try:
+            db_conns = self.application.db_conns
+            advermodel = AdvertiserModel(db_conns['read'], db_conns['write'])
+            data = advermodel.get_advertiser()
+            if data:
+                message = {
+                    'retcode': 0,
+                    'retdata': {
+                        'union': data
+                    },
+                    'retmsg': 'success'
+                }
+                self.write(message)
+            else:
+                self.write_error(500)
+        except Exception as e:
+            msg = {
+                'retcode': 2006,
                 'retmsg': 'databases oper error'
             }
             self.write(msg)

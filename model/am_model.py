@@ -43,3 +43,8 @@ class AccountManagerModel(BaseDB):
         }
 
         return self.update(table, data, condition_data)
+
+    def get_am(self):
+        table = 'am'
+        fields = ['id', 'name']
+        return self.select(table, fields)

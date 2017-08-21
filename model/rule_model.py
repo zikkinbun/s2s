@@ -13,3 +13,14 @@ class RuleModel(BaseDB):
         }
 
         return self.select(table, fields, condition_data)[0]
+
+    def create_rule(self, name, type, value, comment):
+        table = 'rule'
+        data = {
+            'name': name,
+            'type': type,
+            'value': value,
+            'comment': comment
+        }
+
+        return self.insert(table, data)

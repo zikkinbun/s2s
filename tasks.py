@@ -6,7 +6,6 @@ from celery.schedules import crontab
 from handler.advertise_handler import Advertises
 from handler.rule_handler import SpecailRule
 from handler.offer_handler import AdvertiseTransOffer
-from callback.offer_callback import searchValidClick
 
 from threading import Thread
 import re

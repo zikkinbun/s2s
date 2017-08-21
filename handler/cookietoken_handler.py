@@ -5,16 +5,21 @@ import tornado.escape
 
 import base64
 import time
+import json
+import random
+import string
+import hashlib
+import hmac
+
 from pbkdf2 import PBKDF2
 from model.admin_model import AdminModel
-
 
 class XSRFTokenHandler(tornado.web.RequestHandler):
     """专门用来设置_xsrf Cookie的接口"""
     @tornado.gen.coroutine
     def get(self):
         token = self.xsrf_token
-        print token
+        # print token
         self.write(token)
 
 class AdminTokenHandler(tornado.web.RequestHandler):
@@ -22,9 +27,29 @@ class AdminTokenHandler(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def get(self):
         cur_time = time.time()
-        end_time = cur_time-cur_time%86400
+        end_time = int(cur_time - cur_time%86400)
+        default_expires = 24
         access_token = ''.join(random.sample(string.ascii_letters + string.digits, 16))
-        access_secret = access_token + '&' + end_time
+        access_Hashsign = Hashsign()
+        access_sign = access_Hashsign.sign(access_token, str(end_time))
+        try:
+            db_conns = self.application.db_conns
+            admodel = AdminModel(db_conns['read'], db_conns['write'])
+            row = admodel.set_secret_sign(access_token, access_sign, 'vue_user', default_expires)
+            if row:
+                self.write(access_sign)
+        except Exception as e:
+            message = {
+                'retcode': -1,
+                'retmsg': 'token created failure'
+            }
+            self.write(message)
+
+    @tornado.gen.coroutine
+    def post(self):
+        token = self.request.headers['_token']
+        access_Hashsign = Hashsign()
+        print token
 
 
 class EncryptPassword(object):
@@ -53,30 +78,21 @@ class EncryptPassword(object):
         else:
             return False
 
-def RSAsign(object):
+class Hashsign(object):
 
-    def sign(self,signdata):
-        '''''
+    def sign(self,signdata, timestamp):
+        '''
         @param signdata: 需要签名的字符串
         '''
+        md5 = hashlib.md5(timestamp)
+        md5.update(signdata)
+        signn = md5.hexdigest()
+        return signn
 
-        h=SHA.new(signdata)
-        signer = pk.new(Gl.privatekey)
-        signn=signer.sign(h)
-        signn=base64.b64encode(signn)
-        return  signn
+    def checktimeout(self, timestamp):
+        current_time = time.time()
+        time_range = current_time - timestamp # second
+        print time_range
 
-    '''''
-    RSA验签
-    结果：如果验签通过，则返回The signature is authentic
-         如果验签不通过，则返回"The signature is not authentic."
-    '''
-    def checksign(self,rdata):
-
-        signn=base64.b64decode(rdata.pop('sign'))
-        signdata=self.sort(rdata)
-        verifier = pk.new(Gl.publickey)
-        if verifier.verify(SHA.new(signdata), signn):
-            print "The signature is authentic."
-        else:
-            print "The signature is not authentic."
+    def compare(self, a, b):
+        return hmac.compare_digest(a, b)

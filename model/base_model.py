@@ -48,9 +48,9 @@ class BaseDB(object):
             for key in data:
                 value = data.get(key)
                 if isinstance(value, (int, long, float)) or 'now()' == value:
-                    items.append('%s="%s"' % (key, value))
+                    items.append("%s=%s,"% (key, value))
                 else:
-                    items.append('%s="%s",' % (key, value))
+                    items.append('%s="%s",'% (key, value))
 
         if incr_data:
             for key in incr_data:
@@ -72,6 +72,7 @@ class BaseDB(object):
                     condition_list.append(' AND ' + key + '="%s"' % (value))
         condition_str = ''.join(condition_list)
         sql = sql[0:len(sql)-1] + condition_str
+        # print sql
         return self._conn_write.execute_rowcount(sql)
 
 
@@ -129,15 +130,15 @@ class BaseDB(object):
                 limit_str = ' LIMIT %s,%s' % limit
 
         sql = sql_str + condition_str + orderby_str + limit_str
+        # print sql
         if is_transaction:
             result = self._conn_write.query(sql)
         else:
             result = self._conn_read.query(sql)
-        # print sql
         return result
 
     def insert(self, table_name, data):
-        items = ["INSERT INTO %s(" % table_name]
+        items = ["INSERT IGNORE INTO %s(" % table_name]
         values = ["VALUE("]
 
         for key in data:

@@ -14,16 +14,17 @@ import base64
 import torndb
 
 from callback.advertise_callback import AdvertiseCallback
-from callback.offer_callback import OfferCallback
 
-from handler.channel_handler import SignupChaneler, ChannelerLogin
-from handler.am_handler import AMSginup, AMtoMultiOffer, AMChannelOper, AMAppOper, AMLogin
+from handler.channel_handler import ChannelerLogin
+from handler.am_handler import AMSginup, AMChannelOper, AMAppOper, AMLogin, AMChannelSignup, \
+    AMListChannel, AMCreateOfferByUnion
 from handler.offer_handler import OfferHandler
 from handler.click_handler import ClickUrlHandler
-from handler.advertise_handler import Advertises, Advertiser, getAdvertiseById, getAdvertiseAll
+from handler.advertise_handler import Advertises, Advertiser, getAdvertiseById, getAdvertiseAll, getAdvertiseByGetPrice, getAdvertiserALL
 from handler.rule_handler import RuleHandler, SelectRule
-from handler.cookietoken_handler import XSRFTokenHandler
-from handler.applicaiton_handler import CreateApplication, ListApplication, DetailSetting, ApplicationDetail
+from handler.cookietoken_handler import XSRFTokenHandler, AdminTokenHandler
+from handler.applicaiton_handler import CreateApplication, ListApplication, SetCallbackUrl, getApplicationDetail, \
+    ListAllApp, getAppTokenUrl, UpdateAppCallbackUrl, SetDeductionPartition
 
 from db import setting
 
@@ -38,27 +39,32 @@ class Application(tornado.web.Application):
 
     def __init__(self):
         handlers = [
-            (r"/v1/chn/signup", SignupChaneler),
             (r"/v1/chn/login", ChannelerLogin),
-            (r"/v1/chn/callback", OfferCallback),
             (r"/v1/app/create", CreateApplication),
             (r"/v1/app/active", AMAppOper),
             (r"/v1/app/list", ListApplication),
-            (r"/v1/app/setting", DetailSetting),
-            (r"/v1/app/detail", ApplicationDetail),
+            (r"/v1/app/listAll", ListAllApp),
+            (r"/v1/app/setting", SetCallbackUrl),
+            (r"/v1/app/detail", getApplicationDetail),
+            (r"/v1/app/getTokenUrl", getAppTokenUrl),
+            (r"/v1/app/updateUrl", UpdateAppCallbackUrl),
+            (r"/v1/app/SetDP", SetDeductionPartition),
             (r"/v1/am/signup", AMSginup),
+            (r"/v1/am/createchn", AMChannelSignup),
+            (r"/v1/am/listchn", AMListChannel),
             (r"/v1/am/login", AMLogin),
-            (r"/v1/am/createader", Advertiser),
-            (r"/v1/am/multioffer", AMtoMultiOffer),
             (r"/v1/am/setstatus", AMChannelOper),
-            (r"/v1/am/rule/create", RuleHandler),
-            (r"/v1/am/rule/detail", SelectRule),
-            (r"/v1/ad/getAdIDlist", getAdvertiseById),
+            (r"/v1/am/createAder", Advertiser),
+            (r"/v1/am/createOfferByUnion", AMCreateOfferByUnion),
+            (r"/v1/ad/getAdById", getAdvertiseById),
             (r"/v1/ad/getAdAll", getAdvertiseAll),
+            (r"/v1/ad/getAdByPrice", getAdvertiseByGetPrice),
+            (r"/v1/ad/getAder", getAdvertiserALL),
             (r"/v1/offline", OfferHandler),
             (r"/v1/click", AdvertiseCallback),
             (r"/v1/track", ClickUrlHandler),
             (r"/v1/token", XSRFTokenHandler),
+            (r"/v1/getToken", AdminTokenHandler),
             (r".*", PageNotFoundHandler)
         ]
         settings = {

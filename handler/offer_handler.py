@@ -42,6 +42,14 @@ class OfferHandler(BaseHandler):
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
 
+        page_size = json.loads(self.request.body)['page_size']
+        if page_size is None:
+            raise tornado.web.MissingArgumentError('page_size')
+
+        page = json.loads(self.request.body)['page']
+        if page is None:
+            raise tornado.web.MissingArgumentError('page')
+
         sign = json.loads(self.request.body)['accesskey']
         if sign is None:
             raise tornado.web.MissingArgumentError('accesskey')
@@ -100,7 +108,7 @@ class OfferHandler(BaseHandler):
         # print verify_sign, verify_app
         if verify_sign and verify_app:
             offermodel = OfferModel(db_conns['read'], db_conns['write'])
-            data = offermodel.get_offer_by_app(app_id, sign)
+            data = offermodel.get_offer_by_app(app_id, sign, page_size, page)
             # print serializers
             response = {
                 'retcode': 0,
@@ -118,11 +126,18 @@ class ListRunningOffer(BaseHandler):
 
 class ListAllOffer(BaseHandler):
 
+    @tornado.gen.coroutine
     def post(self):
+        page_size = self.get_argument('page_size', None)
+        if not page_size:
+            raise tornado.web.MissingArgumentError('page_size')
+        page = self.get_argument('page', None)
+        if not page:
+            raise tornado.web.MissingArgumentError('page')
         try:
             db_conns = self.application.db_conns
             offermodel = OfferModel(db_conns['read'], db_conns['write'])
-            data = offermodel.get_all_offer()
+            data = offermodel.get_all_offer(page_size, page)
             if data:
                 message = {
                     'retcode': 0,
@@ -134,7 +149,7 @@ class ListAllOffer(BaseHandler):
                 self.write(message)
             else:
                 self.write_error(500)
-        except err.Exception as e:
+        except Exception as e:
             print e
 
 class AdvertiseTransOffer(object):
@@ -144,58 +159,51 @@ class AdvertiseTransOffer(object):
         self.db_conns = {}
         self.db_conns['read'] = TornDBReadConnector()
         self.db_conns['write'] = TornDBWriteConnector()
+        self.rulemodel = RuleModel(self.db_conns['read'], self.db_conns['write'])
+        self.offermodel = OfferModel(self.db_conns['read'], self.db_conns['write'])
+        self.advermodel = AdvertiseModel(self.db_conns['read'], self.db_conns['write'])
 
-    def getRuleAdvertise(self, rule_id):
-        rule_value = None
-        # sR = SpecailRule()
-        # rule_value = sR.getRule(rule_id)
-        db_conns = self.db_conns
+    def getAdvertiseByGetPrice(self, key, value):
         try:
-            rulemodel = RuleModel(db_conns['read'], db_conns['write'])
-            value = rulemodel.get_rule_by_id(rule_id)
-            rule_value = value['value']
-            # print rule_value
+            data = self.advermodel.get_advertise_by_get_price(key, value)
+            if data:
+                self.data = data
+                message = {
+                    'retcode': 0,
+                    'retmsg': 'catch advertise success'
+                }
+                return message
+            else:
+                message = {
+                    'retcode': 3006,
+                    'retmsg': 'have no this OFFER'
+                }
+                return message
         except Exception as e:
             print e
 
-        if re.search(ur'get_price', rule_value):
-            try:
-                params = re.split(' ', rule_value)
-                # db_conns = self.db_conns
-                advermodel = AdvertiseModel(db_conns['read'], db_conns['write'])
-                self.data = data = advermodel.get_advertise_by_price(params)
-                if data:
-                    return data
-            except err.ProgrammingError as e:
-                print e
-        elif re.search(ur'payout_type', rule_value):
-            # print rule_value
-            try:
-                params = re.split(' ', rule_value)
-                # db_conns = self.application.db_conns
-                advermodel = AdvertiseModel(db_conns['read'], db_conns['write'])
-                # print query
-                self.data = data = advermodel.get_advertise_by_payout_type(params)
-                if data:
-                    return data
-                else:
-                    message = {
-                        'retcode': 3006,
-                        'retmsg': 'have no this OFFER'
-                    }
-            except err.ProgrammingError as e:
-                print e
-        else:
-            msg = {
-                'retcode': 3006,
-                'retmsg': 'reselect the rule'
-            }
-            return msg
+    def getAdvertiseByAderID(self, ader_id):
+        try:
+            data = self.advermodel.get_advertise_by_aderid(ader_id)
+            # print data
+            if data:
+                self.data = data
+                message = {
+                    'retcode': 0,
+                    'retmsg': 'catch advertise success'
+                }
+                return message
+            else:
+                message = {
+                    'retcode': 3006,
+                    'retmsg': 'have no this OFFER'
+                }
+                return message
+        except Exception as e:
+            print e
 
-    def tranRuleOffer(self, app_id):
+    def tranOffer(self, app_id, divide):
 
-        db_conns = self.db_conns
-        offermodel = OfferModel(db_conns['read'], db_conns['write'])
         for data in self.data:
             # print data
             if self.checkDuplication(app_id, data['ad_id']):
@@ -205,13 +213,11 @@ class AdvertiseTransOffer(object):
                 pid = random.randint(0,10)
                 _url = CreateClickUrl(app_id, offer_id, pid)
                 click_url = _url.createUrl()
-                row = offermodel.trans_offer_by_rule(offer_id, app_id, click_url, data)
+                row = self.offermodel.trans_offer(offer_id, app_id, click_url, divide, data)
 
     def checkDuplication(self, app_id, ad_id):
         try:
-            db_conns = self.db_conns
-            offermodel = OfferModel(db_conns['read'], db_conns['write'])
-            data = offermodel.check_duplicate_offer(app_id, ad_id)
+            data = self.offermodel.check_duplicate_offer(app_id, ad_id)
             # print data
             if data:
                 return True
