@@ -20,6 +20,7 @@ from handler.am_handler import AMSginup, AMChannelOper, AMAppOper, AMLogin, AMCh
     AMListChannel, AMCreateOfferByUnion
 from handler.offer_handler import OfferHandler
 from handler.click_handler import ClickUrlHandler
+from handler.install_click_handler import getAppInstall, getAppRecvInstall, getAppClick, getAppValidClick
 from handler.advertise_handler import Advertises, Advertiser, getAdvertiseById, getAdvertiseAll, getAdvertiseByGetPrice, getAdvertiserALL
 from handler.rule_handler import RuleHandler, SelectRule
 from handler.cookietoken_handler import XSRFTokenHandler, AdminTokenHandler
@@ -60,6 +61,10 @@ class Application(tornado.web.Application):
             (r"/v1/ad/getAdAll", getAdvertiseAll),
             (r"/v1/ad/getAdByPrice", getAdvertiseByGetPrice),
             (r"/v1/ad/getAder", getAdvertiserALL),
+            (r"/v1/count/getAppInstall", getAppInstall),
+            (r"/v1/count/getAppRecvInstall", getAppRecvInstall),
+            (r"/v1/count/getAppClick", getAppClick),
+            (r"/v1/count/getAppValidClick", getAppValidClick),
             (r"/v1/offline", OfferHandler),
             (r"/v1/click", AdvertiseCallback),
             (r"/v1/track", ClickUrlHandler),

@@ -822,3 +822,115 @@ traits:
                                         ]
                                     "retmsg": "success",
                                   }
+
+    /count/getAppValidClick:
+        description:  获取有效点击数
+        post:
+            queryParameters:
+                app_id:
+                   type        : string
+                   description : app_id
+                   required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "app_id": "azLCKhW98M3E5AUk"
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": {
+                                        "valid": "32"
+                                    }
+                                    "retmsg": "success",
+                                }
+
+    /count/getAppClick:
+        description:  获取接收的点击数
+        post:
+            queryParameters:
+                app_id:
+                   type        : string
+                   description : app_id
+                   required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "app_id": "azLCKhW98M3E5AUk"
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": {
+                                        "click": "32"
+                                    }
+                                    "retmsg": "success",
+                                }
+
+    /count/getAppRecvInstall:
+        description:  获取接收的安装数
+        post:
+            queryParameters:
+                app_id:
+                   type        : string
+                   description : app_id
+                   required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "app_id": "azLCKhW98M3E5AUk"
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": {
+                                        "recv": "32"
+                                    }
+                                    "retmsg": "success",
+                                }
+
+    /count/getAppInstall:
+        description:  获取回调的安装数
+        post:
+            queryParameters:
+                app_id:
+                   type        : string
+                   description : app_id
+                   required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "app_id": "azLCKhW98M3E5AUk"
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": {
+                                        "installed": "32"
+                                    }
+                                    "retmsg": "success",
+                                }

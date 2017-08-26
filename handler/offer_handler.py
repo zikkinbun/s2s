@@ -2,20 +2,17 @@
 import tornado.web
 import tornado.httpclient
 
-# import pymongo
-# from tornado_mysql import pools
-from base_handler import BaseHandler
 from model.application_model import ApplicationModel
 from model.advertise_model import AdvertiseModel
 from model.offer_model import OfferModel
 from model.channeler_model import ChannelModel
 from model.rule_model import RuleModel
 
+from base_handler import BaseHandler
 from click_handler import CreateClickUrl
 from rule_handler import SpecailRule
 
 from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
-from db import setting
 import sign_api
 
 from datetime import datetime
@@ -28,7 +25,6 @@ import string
 
 class OfferHandler(BaseHandler):
 
-    # @tornado.web.authenticated
     @tornado.gen.coroutine
     def get(self):
         """
@@ -120,9 +116,6 @@ class OfferHandler(BaseHandler):
             self.write(response)
         else:
             self.write_error(500)
-
-class ListRunningOffer(BaseHandler):
-    pass
 
 class ListAllOffer(BaseHandler):
 

@@ -2,7 +2,6 @@
 import tornado.web
 import tornado.httpclient
 
-from db.mysql import connection
 from base_handler import BaseHandler
 from cookietoken_handler import EncryptPassword
 from offer_handler import AdvertiseTransOffer
@@ -11,12 +10,12 @@ from channel_handler import ChannelStatus
 from model.application_model import ApplicationModel
 from model.am_model import AccountManagerModel
 from model.channeler_model import ChannelModel
-from pymysql.err import ProgrammingError
+
 from datetime import datetime
-import os
-import json
 from urlparse import urlparse
 from urllib import unquote_plus
+import json
+import os
 
 
 class AMSginup(tornado.web.RequestHandler):
@@ -43,7 +42,7 @@ class AMSginup(tornado.web.RequestHandler):
                 self.write(msg)
             else:
                 self.write_error(500)
-        except ProgrammingError as e:
+        except Exception as e:
             print e
 
 class AMChannelOper(BaseHandler):

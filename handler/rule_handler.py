@@ -2,15 +2,12 @@
 import tornado.web
 import tornado.httpclient
 
-from db.mysql import connection
 from base_handler import BaseHandler
 from model.rule_model import RuleModel
 
 from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
-from db import setting
 
 from datetime import datetime
-from pymysql import err
 import base64
 import os
 import json

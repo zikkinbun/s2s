@@ -2,15 +2,14 @@
 import tornado.web
 import tornado.httpclient
 
-from db.mysql import connection
 from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
 from handler.base_handler import BaseHandler
 from model.advertise_model import AdvertiseModel, AdvertiserModel
 import sign_api
 
-from pymysql import err
 from urlparse import urlparse
 from datetime import datetime
+
 import base64
 import os
 import json

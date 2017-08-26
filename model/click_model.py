@@ -27,7 +27,7 @@ class ClickModel(BaseDB):
 
         data = {
             'click_id': click_id,
-            'ad_id': adver_id,
+            'ad_id': ad_id,
             'app_id': app_id,
             'app_click_id': app_click_id,
             'offer_id': offer_id,

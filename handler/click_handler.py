@@ -6,8 +6,9 @@ import sign_api
 from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
 from base_handler import BaseHandler
 from model.click_model import ClickModel
+from model.install_click_model import InstallClickModel
+from model.offer_model import OfferModel
 
-from pymysql.err import ProgrammingError
 from datetime import datetime
 import base64
 import re
@@ -42,12 +43,18 @@ class ClickUrlHandler(BaseHandler):
             if pid is None:
                 raise tornado.web.MissingArgumentError('pid')
 
+            db_conns = self.application.db_conns
+            install_click_model = InstallClickModel(db_conns['read'], db_conns['write'])
+            offer_model = OfferModel(db_conns['read'], db_conns['write'])
             is_existed = clickHandler().checkUnique(app_click_id)
-            # print is_existed
             if is_existed['retcode'] == 0 or is_existed['retcode'] == '0':
                 click_id = base64.b64encode(os.urandom(12))
                 trackinglink, ad_id = clickHandler().getTrackUrl(offer_id)
                 clickHandler().clickRecord(click_id, ad_id, app_id, app_click_id, offer_id)
+
+                ad_id = offer_model.get_offer_by_id(offer_id)['advertise_id']
+                row_init = install_click_model.set_install_click(offer_id, ad_id, app_id)
+                row_update = install_click_model.update_recv_click(offer_id, app_id)
                 track_link = trackinglink + '&user_id=%s' % click_id
                 self.redirect(track_link)
             else:
