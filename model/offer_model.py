@@ -28,7 +28,7 @@ class OfferModel(BaseDB):
 
     def get_offer_by_id(self, offer_id):
         table = 'offer'
-        fields = ['payout', 'click_url']
+        fields = ['payout', 'click_url', 'advertise_id']
         condition_data = {
             'offer_id': offer_id
         }

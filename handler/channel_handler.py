@@ -9,11 +9,9 @@ from cookietoken_handler import EncryptPassword
 from model.channeler_model import ChannelModel
 
 from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
-from db import setting
 
 from urlparse import urlparse
 from datetime import datetime
-from pymysql import err
 import base64
 import os
 import json
