@@ -934,3 +934,87 @@ traits:
                                     }
                                     "retmsg": "success",
                                 }
+
+    /count/getAppIncome:
+        description:  获取该APP的收入
+        post:
+            queryParameters:
+                app_id:
+                  type        : string
+                  description : app_id
+                  required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "app_id": "azLCKhW98M3E5AUk"
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": {
+                                        "income": 145.1
+                                    }
+                                    "retmsg": "success",
+                                }
+
+    /count/getAdIncome:
+        description:  统计从该联盟获取的收入
+        post:
+            queryParameters:
+                ader_id:
+                  type        : string
+                  description : ader_id
+                  required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "ader_id": 1
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": {
+                                        "total": 145.1
+                                    }
+                                    "retmsg": "success",
+                                }
+
+    /count/getAMIncome:
+        description:  统计该AM的收入
+        post:
+            queryParameters:
+                am_id:
+                  type        : string
+                  description : am_id
+                  required    : true
+            body:
+                application/json:
+                    example: |
+                        {
+                            "am_id": 1
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": {
+                                        "total": 145.1
+                                    }
+                                    "retmsg": "success",
+                                }

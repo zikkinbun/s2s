@@ -11,8 +11,8 @@ class getAppInstall(BaseHandler):
     @tornado.gen.coroutine
     def post(self):
 
-        app_id = self.get_argument('app_id', None)
-        # app_id = json.loads(self.request.body)['app_id']
+        # app_id = self.get_argument('app_id', None)
+        app_id = json.loads(self.request.body)['app_id']
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
 
@@ -37,8 +37,8 @@ class getAppRecvInstall(BaseHandler):
     @tornado.gen.coroutine
     def post(self):
 
-        app_id = self.get_argument('app_id', None)
-        # app_id = json.loads(self.request.body)['app_id']
+        # app_id = self.get_argument('app_id', None)
+        app_id = json.loads(self.request.body)['app_id']
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
 
@@ -63,8 +63,8 @@ class getAppClick(BaseHandler):
     @tornado.gen.coroutine
     def post(self):
 
-        app_id = self.get_argument('app_id', None)
-        # app_id = json.loads(self.request.body)['app_id']
+        # app_id = self.get_argument('app_id', None)
+        app_id = json.loads(self.request.body)['app_id']
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
 
@@ -89,8 +89,8 @@ class getAppValidClick(BaseHandler):
     @tornado.gen.coroutine
     def post(self):
 
-        app_id = self.get_argument('app_id', None)
-        # app_id = json.loads(self.request.body)['app_id']
+        # app_id = self.get_argument('app_id', None)
+        app_id = json.loads(self.request.body)['app_id']
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
 

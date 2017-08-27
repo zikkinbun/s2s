@@ -8,6 +8,7 @@ from offer_handler import AdvertiseTransOffer
 from channel_handler import ChannelStatus
 
 from model.application_model import ApplicationModel
+from model.advertise_model import AdvertiseModel
 from model.am_model import AccountManagerModel
 from model.channeler_model import ChannelModel
 
@@ -358,6 +359,54 @@ class AMList(BaseHandler):
             else:
                 self.write_error(500)
         except Exception as e:
+            msg = {
+                'retcode': 4008,
+                'retmsg': 'databases operate error'
+            }
+            self.write(msg)
+
+class AMCountAdIncome(BaseHandler):
+
+    @tornado.gen.coroutine
+    def post(self):
+        ader_id = self.get_argument('ader_id', None)
+        # ader_id = json.loads(self.request.body)['ader_id']
+        if ader_id is None:
+            raise tornado.web.MissingArgumentError('ader_id')
+
+        try:
+            db_conns = self.application.db_conns
+            admodel = AdvertiseModel(db_conns['read'], db_conns['write'])
+            data = admodel.count_all_advertise_income_by_id(ader_id)
+            if data:
+                message = {
+                    'retcode': 0,
+                    'retdata': data,
+                    'retmsg': 'success'
+                }
+                self.write(message)
+            else:
+                self.write_error(500)
+        except Exception as e:
+            print e
+            msg = {
+                'retcode': 4008,
+                'retmsg': 'databases operate error'
+            }
+            self.write(msg)
+
+class AMIncome(BaseHandler):
+
+    @tornado.gen.coroutine
+    def post(self):
+        am_id = self.get_argument('am_id', None)
+        if am_id is None:
+            raise tornado.web.MissingArgumentError('am_id')
+
+        try:
+            db_conns = self.application.db_conns        
+        except Exception as e:
+            print e
             msg = {
                 'retcode': 4008,
                 'retmsg': 'databases operate error'

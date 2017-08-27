@@ -106,7 +106,7 @@ class ApplicationModel(BaseDB):
         get_payout = 'SELECT payout FROM offer WHERE offer_id=%s'
         payout_data = self._conn_read.query(get_payout, offer_data['offer_id'])[0]
 
-        sql = 'UPDATE application SET income=income+%f, click=click+%d WHERE app_id=(SELECT app_id FROM offer WHERE offer_id="%s")' % (float(payout_data['payout']), int(1), offer_data['offer_id'])
+        sql = 'UPDATE application SET income=income+%f WHERE app_id=(SELECT app_id FROM offer WHERE offer_id="%s")' % (float(payout_data['payout']), offer_data['offer_id'])
 
         return self._conn_write.execute_rowcount(sql)
 
@@ -133,6 +133,14 @@ class ApplicationModel(BaseDB):
     def get_application_tranform(self, app_id):
         table = 'application'
         fields = ['deduction', 'divide']
+        condition_data = {
+            'app_id': app_id
+        }
+        return self.select(table, fields, condition_data)[0]
+
+    def get_application_income(self, app_id):
+        table = 'application'
+        fields = ['income']
         condition_data = {
             'app_id': app_id
         }
