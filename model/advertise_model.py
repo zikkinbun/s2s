@@ -131,7 +131,7 @@ class AdvertiseModel(BaseDB):
 
     def set_income_click(self, ader_offer_id, revenue):
 
-        sql = 'UPDATE advertise SET click=click+%d,income=income+%f WHERE ader_offer_id=%s' % (int(1), float(revenue), ader_offer_id)
+        sql = 'UPDATE advertise SET income=income+%f WHERE ader_offer_id=%s' % (float(revenue), ader_offer_id)
 
         return self._conn_write.execute_rowcount(sql)
 
@@ -183,6 +183,14 @@ class AdvertiseModel(BaseDB):
             'ad_id': ad_id
         }
         return self.select(table, fields, condition_data)[0]
+
+    def count_all_advertise_income_by_id(self, ader_id):
+        sql = 'SELECT FORMAT(SUM(income),2) total FROM advertise WHERE ader_id=%s'
+        return self._conn_read.query(sql, ader_id)[0]
+
+    def count_all_advertise_income(self):
+        sql = 'SELECT FORMAT(SUM(income),2) total FROM advertise'
+        return self._conn_read.query(sql)[0]
 
 class AdvertiserModel(BaseDB):
 

@@ -31,28 +31,28 @@ class AdvertiseCallback(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def get(self):
-        click_id = self.get_argument('click_id', None)
-        # click_id = json.loads(self.request.body)['click_id']
+        # click_id = self.get_argument('click_id', None)
+        click_id = json.loads(self.request.body)['click_id']
         if click_id is None:
             raise tornado.web.MissingArgumentError('click_id')
-        chn = self.get_argument('chn', None)
-        # chn = json.loads(self.request.body)['chn']
+        # chn = self.get_argument('chn', None)
+        chn = json.loads(self.request.body)['chn']
         if chn is None:
             raise tornado.web.MissingArgumentError('chn')
-        order = self.get_argument('order', None)
-        # order = json.loads(self.request.body)['order']
+        # order = self.get_argument('order', None)
+        order = json.loads(self.request.body)['order']
         if order is None:
             raise tornado.web.MissingArgumentError('order')
-        app_id = self.get_argument('app_id', None)
-        # app_id = json.loads(self.request.body)['app_id']
+        # app_id = self.get_argument('app_id', None)
+        app_id = json.loads(self.request.body)['app_id']
         if app_id is None:
             raise tornado.web.MissingArgumentError('app')
-        ad_id = self.get_argument('ad_id', None)
-        # ad_id = json.loads(self.request.body)['ad_id']
+        # ad_id = self.get_argument('ad_id', None)
+        ad_id = json.loads(self.request.body)['ad_id']
         if ad_id is None:
             raise tornado.web.MissingArgumentError('ad_id')
-        revenue = self.get_argument('revenue', None)
-        # revenue = json.loads(self.request.body)['revenue']
+        # revenue = self.get_argument('revenue', None)
+        revenue = json.loads(self.request.body)['revenue']
         if revenue is None:
             raise tornado.web.MissingArgumentError('revenue')
 

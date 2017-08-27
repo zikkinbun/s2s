@@ -17,7 +17,7 @@ from callback.advertise_callback import AdvertiseCallback
 
 from handler.channel_handler import ChannelerLogin
 from handler.am_handler import AMSginup, AMChannelOper, AMAppOper, AMLogin, AMChannelSignup, \
-    AMListChannel, AMCreateOfferByUnion
+    AMListChannel, AMCreateOfferByUnion, AMCountAdIncome, AMIncome
 from handler.offer_handler import OfferHandler
 from handler.click_handler import ClickUrlHandler
 from handler.install_click_handler import getAppInstall, getAppRecvInstall, getAppClick, getAppValidClick
@@ -25,7 +25,7 @@ from handler.advertise_handler import Advertises, Advertiser, getAdvertiseById, 
 from handler.rule_handler import RuleHandler, SelectRule
 from handler.cookietoken_handler import XSRFTokenHandler, AdminTokenHandler
 from handler.applicaiton_handler import CreateApplication, ListApplication, SetCallbackUrl, getApplicationDetail, \
-    ListAllApp, getAppTokenUrl, UpdateAppCallbackUrl, SetDeductionPartition
+    ListAllApp, getAppTokenUrl, UpdateAppCallbackUrl, SetDeductionPartition, getAppIncome
 
 from db import setting
 
@@ -65,6 +65,9 @@ class Application(tornado.web.Application):
             (r"/v1/count/getAppRecvInstall", getAppRecvInstall),
             (r"/v1/count/getAppClick", getAppClick),
             (r"/v1/count/getAppValidClick", getAppValidClick),
+            (r"/v1/count/getAppIncome", getAppIncome),
+            (r"/v1/count/getAdIncome", AMCountAdIncome),
+            (r"/v1/count/getAMIncome", AMIncome),
             (r"/v1/offline", OfferHandler),
             (r"/v1/click", AdvertiseCallback),
             (r"/v1/track", ClickUrlHandler),

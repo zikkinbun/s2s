@@ -329,3 +329,37 @@ class SetDeductionPartition(BaseHandler):
                 'retmsg': 'databases operate error'
             }
             self.write(message)
+
+class getAppIncome(BaseHandler):
+
+    @tornado.gen.coroutine
+    def post(self):
+        app_id = self.get_argument('app_id', None)
+        # app_id = json.loads(self.request.body)['app_id']
+        if app_id is None:
+            raise tornado.web.MissingArgumentError('app_id')
+
+        try:
+            db_conns = self.application.db_conns
+            appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
+            data = appmodel.get_application_income(app_id)
+            if data:
+                message = {
+                    'retcode': 0,
+                    'retdata': data,
+                    'retmsg': 'success'
+                }
+                self.write(message)
+            else:
+                message = {
+                    'retcode': 7002,
+                    'retmsg': 'databases operate error'
+                }
+                self.write(message)
+        except Exception as e:
+            # print e
+            message = {
+                'retcode': 7002,
+                'retmsg': 'databases operate error'
+            }
+            self.write(message)
