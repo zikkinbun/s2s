@@ -79,12 +79,12 @@ class AMCreateOfferByUnion(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        ader_id = self.get_argument('ader_id', None)
-        # ader_id = json.loads(self.request.body)['ader_id']
+        # ader_id = self.get_argument('ader_id', None)
+        ader_id = json.loads(self.request.body)['ader_id']
         if ader_id is None:
             raise tornado.web.MissingArgumentError('ader_id')
-        app_id = self.get_argument('app_id', None)
-        # app_id = json.loads(self.request.body)['app_id']
+        # app_id = self.get_argument('app_id', None)
+        app_id = json.loads(self.request.body)['app_id']
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
         try:
@@ -322,12 +322,12 @@ class AMTestCallback(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        am_id = self.get_argument('am_id', None)
-        # am_id = json.loads(self.request.body)['am_id']
+        # am_id = self.get_argument('am_id', None)
+        am_id = json.loads(self.request.body)['am_id']
         if am_id is None:
             raise tornado.web.MissingArgumentError('am_id')
-        edit_callback_url = self.get_argument('callback_url', None)
-        # am_id = json.loads(self.request.body)['callback_url']
+        # edit_callback_url = self.get_argument('callback_url', None)
+        am_id = json.loads(self.request.body)['callback_url']
         if edit_callback_url is None:
             raise tornado.web.MissingArgumentError('callback_url')
 
@@ -369,8 +369,8 @@ class AMCountAdIncome(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        ader_id = self.get_argument('ader_id', None)
-        # ader_id = json.loads(self.request.body)['ader_id']
+        # ader_id = self.get_argument('ader_id', None)
+        ader_id = json.loads(self.request.body)['ader_id']
         if ader_id is None:
             raise tornado.web.MissingArgumentError('ader_id')
 
@@ -404,7 +404,7 @@ class AMIncome(BaseHandler):
             raise tornado.web.MissingArgumentError('am_id')
 
         try:
-            db_conns = self.application.db_conns        
+            db_conns = self.application.db_conns
         except Exception as e:
             print e
             msg = {

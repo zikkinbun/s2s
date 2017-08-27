@@ -27,19 +27,23 @@ class ClickUrlHandler(BaseHandler):
         req_os = self.request.headers
         if re.search(ur'(iPhone)', str(req_os)) or re.search(ur'(Android)', str(req_os)):
             # offer库发出的offer_id为下游的ad_id
-            offer_id = self.get_argument('ad_id', None)
+            # offer_id = self.get_argument('ad_id', None)
+            offer_id = json.loads(self.request.body)['offer_id']
             if offer_id is None:
                 raise tornado.web.MissingArgumentError('offer_id')
 
-            app_id = self.get_argument('app_id', None)
+            # app_id = self.get_argument('app_id', None)
+            app_id = json.loads(self.request.body)['app_id']
             if app_id is None:
                 raise tornado.web.MissingArgumentError('app_id')
 
-            app_click_id = self.get_argument('click_id', None)
+            # app_click_id = self.get_argument('click_id', None)
+            app_click_id = json.loads(self.request.body)['app_click_id']
             if app_click_id is None:
                 raise tornado.web.MissingArgumentError('click_id')
 
-            pid = self.get_argument('pid', None)
+            pid = json.loads(self.request.body)['pid']
+            # pid = self.get_argument('pid', None)
             if pid is None:
                 raise tornado.web.MissingArgumentError('pid')
 

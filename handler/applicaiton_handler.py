@@ -251,8 +251,8 @@ class SetCallbackUrl(BaseHandler):
         # app_id = self.get_argument('app_id', None)
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
-        # callback_url = json.loads(self.request.body)['callback_url']
-        callback_url = self.get_argument('callback_url', None)
+        callback_url = json.loads(self.request.body)['callback_url']
+        # callback_url = self.get_argument('callback_url', None)
         if callback_url is None:
             raise tornado.web.MissingArgumentError('callback_url')
         callback_token = base64.b64encode(os.urandom(24)) # 包括 app_secret和用户 token
@@ -334,8 +334,8 @@ class getAppIncome(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        app_id = self.get_argument('app_id', None)
-        # app_id = json.loads(self.request.body)['app_id']
+        # app_id = self.get_argument('app_id', None)
+        app_id = json.loads(self.request.body)['app_id']
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
 

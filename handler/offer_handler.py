@@ -121,10 +121,12 @@ class ListAllOffer(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        page_size = self.get_argument('page_size', None)
+        # page_size = self.get_argument('page_size', None)
+        page_size = json.loads(self.request.body)['page_size']
         if not page_size:
             raise tornado.web.MissingArgumentError('page_size')
-        page = self.get_argument('page', None)
+        # page = self.get_argument('page', None)
+        page_size = json.loads(self.request.body)['page']
         if not page:
             raise tornado.web.MissingArgumentError('page')
         try:
