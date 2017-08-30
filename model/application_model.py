@@ -37,7 +37,7 @@ class ApplicationModel(BaseDB):
             'chn_id': chn_id
         }
 
-        return self.select(table, fileds, condition_data)[0]
+        return self.select(table, fileds, condition_data)
 
     def get_application_token_url(self, app_id, chn_id):
         table = 'application'
@@ -47,7 +47,7 @@ class ApplicationModel(BaseDB):
             'chn_id': chn_id
         }
 
-        return self.select(table, fileds, condition_data)[0]
+        return self.select(table, fileds, condition_data)
 
     def set_application_detail(self, callback_url , callback_token, sign, app_id, chn_id):
         table = 'application'
@@ -64,7 +64,7 @@ class ApplicationModel(BaseDB):
 
     def list_application_by_chnid(self, chn_id):
         table = 'application'
-        fileds = ['app_id', 'app_name', 'app_secret', 'pkg_name', 'platform', 'status', 'description']
+        fileds = ['app_id', 'app_name', 'app_secret', 'pkg_name', 'platform', 'status', 'description', 'deduction', 'divide']
         condition_data = {
             'chn_id': chn_id
         }
@@ -73,7 +73,7 @@ class ApplicationModel(BaseDB):
 
     def list_application_all(self):
         table = 'application'
-        fileds = ['app_id', 'app_name', 'app_secret', 'pkg_name', 'platform', 'status', 'chn_id', 'description']
+        fileds = ['app_id', 'app_name', 'app_secret', 'pkg_name', 'platform', 'status', 'chn_id', 'description', 'deduction', 'divide']
 
         return self.select(table, fileds)
 
@@ -97,7 +97,7 @@ class ApplicationModel(BaseDB):
             'sign': sign
         }
 
-        return self.select(table, fields, condition_data)[0]
+        return self.select(table, fields, condition_data)
 
     def set_app_income(self, click_id):
         get_offerid = 'SELECT offer_id FROM track_click WHERE click_id=%s'
@@ -117,7 +117,7 @@ class ApplicationModel(BaseDB):
             'app_id': app_id
         }
 
-        return self.select(table, fields, condition_data)[0]
+        return self.select(table, fields, condition_data)
 
     def set_applicaiton_tranform(self, app_id, deduction, divide):
         table = 'application'
@@ -136,7 +136,7 @@ class ApplicationModel(BaseDB):
         condition_data = {
             'app_id': app_id
         }
-        return self.select(table, fields, condition_data)[0]
+        return self.select(table, fields, condition_data)
 
     def get_application_income(self, app_id):
         table = 'application'
@@ -144,4 +144,4 @@ class ApplicationModel(BaseDB):
         condition_data = {
             'app_id': app_id
         }
-        return self.select(table, fields, condition_data)[0]
+        return self.select(table, fields, condition_data)

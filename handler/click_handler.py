@@ -56,7 +56,7 @@ class ClickUrlHandler(BaseHandler):
                 trackinglink, ad_id = clickHandler().getTrackUrl(offer_id)
                 clickHandler().clickRecord(click_id, ad_id, app_id, app_click_id, offer_id)
 
-                ad_id = offer_model.get_offer_by_id(offer_id)['advertise_id']
+                ad_id = offer_model.get_offer_by_id(offer_id)[0]['advertise_id']
                 row_init = install_click_model.set_install_click(offer_id, ad_id, app_id)
                 row_update = install_click_model.update_recv_click(offer_id, app_id)
                 track_link = trackinglink + '&user_id=%s' % click_id
@@ -116,7 +116,7 @@ class clickHandler(object):
         try:
             data = self.clickmodel.get_clickid(app_click_id)
             if data:
-                click_id = data['click_id']
+                click_id = data[0]['click_id']
                 if click_id:
                     return click_id
                 else:

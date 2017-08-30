@@ -182,7 +182,7 @@ class AdvertiseModel(BaseDB):
         condition_data = {
             'ad_id': ad_id
         }
-        return self.select(table, fields, condition_data)[0]
+        return self.select(table, fields, condition_data)
 
     def count_all_advertise_income_by_id(self, ader_id):
         sql = 'SELECT FORMAT(SUM(income),2) total FROM advertise WHERE ader_id=%s'
@@ -215,7 +215,7 @@ class AdvertiserModel(BaseDB):
             'api_name': api_name
         }
 
-        return self.select(table, fields, condition_data)[0]
+        return self.select(table, fields, condition_data)
 
     def get_pull_status(self, api_name):
         table = 'advertiser'
@@ -223,7 +223,7 @@ class AdvertiserModel(BaseDB):
         condition_data = {
             'api_name': api_name
         }
-        return self.select(table, fields, condition_data)[0]
+        return self.select(table, fields, condition_data)
 
     def set_pull_status(self, api_name, is_pulled):
         table = 'advertiser'

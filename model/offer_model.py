@@ -33,7 +33,7 @@ class OfferModel(BaseDB):
             'offer_id': offer_id
         }
 
-        return self.select(table, fields, condition_data)[0]
+        return self.select(table, fields, condition_data)
 
     def get_all_offer(self, perPage, indexPage):
 

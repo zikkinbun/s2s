@@ -74,7 +74,7 @@ class InstallClickModel(BaseDB):
             'offer_id': offer_id,
             'app_id': app_id
         }
-        return self.select(table, fields, condition_data)[0]
+        return self.select(table, fields, condition_data)
 
     def count_post_install(self, app_id):
         sql = 'SELECT FORMAT(SUM(post_install),0) total FROM install_click_relation WHERE app_id=%s'

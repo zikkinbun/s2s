@@ -68,9 +68,9 @@ class SelectRule(tornado.web.RequestHandler):
                 response = {
                     'retcode': 0,
                     'retdata': {
-                        'ruleName': data['name'],
-                        'ruleValue': data['value'],
-                        'ruleComment': data['comment']
+                        'ruleName': data[0]['name'],
+                        'ruleValue': data[0]['value'],
+                        'ruleComment': data[0]['comment']
                     },
                     'retmsg': 'success'
                 }
@@ -92,6 +92,6 @@ class SpecailRule(object):
             rulemodel = RuleModel(db_conns['read'], db_conns['write'])
             value = rulemodel.get_rule_by_id(rule_id)
             if value:
-                return value['value']
+                return value[0]['value']
         except Exception as e:
             print e

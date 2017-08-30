@@ -15,8 +15,10 @@ from model.channeler_model import ChannelModel
 from datetime import datetime
 from urlparse import urlparse
 from urllib import unquote_plus
-import json
 import os
+import json
+import random
+import string
 
 
 class AMSginup(tornado.web.RequestHandler):
@@ -24,9 +26,11 @@ class AMSginup(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def post(self):
         am_name = json.loads(self.request.body)['am_name']
+        # am_name = self.get_argument('am_name', None)
         if am_name is None:
             raise tornado.web.MissingArgumentError('am_name')
         passwd = json.loads(self.request.body)['passwd']
+        # passwd = self.get_argument('passwd', None)
         if passwd is None:
             raise tornado.web.MissingArgumentError('passwd')
         _passwd = EncryptPassword(passwd)._hash_password(passwd)
@@ -91,7 +95,8 @@ class AMCreateOfferByUnion(BaseHandler):
             db_conns = self.application.db_conns
             appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
             checkout_data = appmodel.get_application_tranform(app_id)
-            if not checkout_data:
+            # print checkout_data
+            if not checkout_data[0]['divide']:
                 message = {
                     'retcode': 4010,
                     'retmsg': 'please setting the Deduction and Partition'
@@ -103,7 +108,8 @@ class AMCreateOfferByUnion(BaseHandler):
                     catch_advertise = AT.getAdvertiseByAderID(ader_id)
                     # print catch_advertise['retcode']
                     if catch_advertise['retcode'] == 0 or catch_advertise['retcode'] == '0':
-                        msg = AT.tranOffer(app_id, checkout_data['divide'])
+                        # print checkout_data[0]['divide']
+                        msg = AT.tranOffer(app_id, checkout_data[0]['divide'])
                         message = {
                             'retcode': 0,
                             'retmsg': 'success to create offer'
@@ -116,14 +122,14 @@ class AMCreateOfferByUnion(BaseHandler):
                         }
                         self.write(message)
                 except Exception as e:
-                    # print e
+                    print e
                     msg = {
                         'retcode': 4008,
                         'retmsg': 'databases operate error'
                     }
                     self.write(msg)
         except Exception as e:
-            # print e
+            print e
             msg = {
                 'retcode': 4008,
                 'retmsg': 'databases operate error'
@@ -139,12 +145,15 @@ class AMAppOper(BaseHandler):
     @tornado.gen.coroutine
     def post(self):
         app_id = json.loads(self.request.body)['app_id']
+        # app_id = self.get_argument('app_id', None)
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
         chn_id = json.loads(self.request.body)['chn_id']
+        # chn_id = self.get_argument('chn_id', None)
         if chn_id is None:
             raise tornado.web.MissingArgumentError('chn_id')
         status = json.loads(self.request.body)['status']
+        # status = self.get_argument('status', None)
         if status is None:
             raise tornado.web.MissingArgumentError('status')
 
@@ -153,8 +162,9 @@ class AMAppOper(BaseHandler):
             db_conns = self.application.db_conns
             appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
             data = appmodel.get_application_detail(app_id, chn_id)
+            # print data
             if data:
-                if data['status'] is None:
+                if data[0]['status'] is None:
                     row = appmodel.set_applicaiton_status(status, app_id)
                     message = {
                         'retcode': 0,
@@ -186,11 +196,13 @@ class AMLogin(BaseHandler):
     @tornado.gen.coroutine
     def post(self):
         username = json.loads(self.request.body)['username']
+        # username = self.get_argument('username', None)
         if username is None:
             raise tornado.web.MissingArgumentError('username')
         # username = tornado.escape.json_decode(self.current_user)
 
         passwd = json.loads(self.request.body)['passwd']
+        # passwd = self.get_argument('passwd', None)
         if passwd is None:
             raise tornado.web.MissingArgumentError('passwd')
         # print passwd
@@ -199,8 +211,8 @@ class AMLogin(BaseHandler):
             db_conns = self.application.db_conns
             AMmodel = AccountManagerModel(db_conns['read'], db_conns['write'])
             data = AMmodel.login_am(username, passwd)
-
-            if not EncryptPassword(data['passwd']).auth_password(passwd):
+            # print data[0]['passwd']
+            if not EncryptPassword(data[0]['passwd']).auth_password(passwd):
                 message = {
                     'retcode': 4004,
                     'retmsg': 'wrong password, please check it'
@@ -209,11 +221,11 @@ class AMLogin(BaseHandler):
                 self.write(message)
             else:
 
-                if int(data['status']) == 1:
+                if int(data[0]['status']) == 1:
                     message = {
                         'retcode': 0,
                         'retdata': {
-                            'am_id': data['id'],
+                            'am_id': data[0]['id'],
                             'is_logined': 1,
                         },
                         'retmsg': 'success'
@@ -222,7 +234,7 @@ class AMLogin(BaseHandler):
                         row = AMmodel.set_login_time(username)
                         # print row
                         if row:
-                            self.set_current_user(data['id'])
+                            self.set_current_user(data[0]['id'])
                         self.write(message)
                     except Exception as e:
                         print e
@@ -236,12 +248,12 @@ class AMLogin(BaseHandler):
                         }
                     self.write(message)
         except Exception as e:
-            if e == 'list index out of range':
-                message = {
-                    'retcode': 4006,
-                    'retmsg': 'this user is not existed'
-                }
-                self.write(message)
+            print e
+            message = {
+                'retcode': 4006,
+                'retmsg': 'this user is not existed'
+            }
+            self.write(message)
 
 class AMChannelSignup(BaseHandler):
 
