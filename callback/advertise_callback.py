@@ -77,20 +77,20 @@ class AdvertiseCallback(tornado.web.RequestHandler):
         # 统计上游回调的安装和有效点击
         data = clickmodel.get_info_by_clickid(click_id)
         try:
-            install_row = installmodel.update_recv_install(data['offer_id'], data['app_id'])
-            click_row = installmodel.update_valid_click(data['offer_id'], data['app_id'])
+            install_row = installmodel.update_recv_install(data[0]['offer_id'], data[0]['app_id'])
+            click_row = installmodel.update_valid_click(data[0]['offer_id'], data[0]['app_id'])
             if not install_row and click_row:
                 self.write_error(500)
         except Exception as e:
             print e
             self.write_error(500)
         # 随机扣量验证
-        install_data = installmodel.get_post_recv_install(data['offer_id'], data['app_id'])
-        formula = (install_data['post_install'])/(install_data['recv_install'])
+        install_data = installmodel.get_post_recv_install(data[0]['offer_id'], data[0]['app_id'])
+        formula = (install_data[0]['post_install'])/(install_data[0]['recv_install'])
         # print formula
         # print install_data['post_install'], install_data['recv_install']
         # 创建下游异步回调信息
-        condition = appmodel.get_application_tranform(data['app_id'])['deduction']
+        condition = appmodel.get_application_tranform(data[0]['app_id'])['deduction']
         if formula > (1.0 - condition) or formula <= 0.0:
             # print 'did not callback'
             message = {
@@ -100,7 +100,7 @@ class AdvertiseCallback(tornado.web.RequestHandler):
             self.write(message)
         else:
             chn_component = []
-            app_callback_url = appmodel.get_app_callbackurl(data['app_id'])
+            app_callback_url = appmodel.get_app_callbackurl(data[0]['app_id'])
             if app_callback_url:
                 url = app_callback_url['callback_url']
                 if url:
@@ -110,17 +110,17 @@ class AdvertiseCallback(tornado.web.RequestHandler):
                     for component in component_list:
                         head_param = component.split('=')
                         if re.search(r'click', head_param[0]):
-                            param = head_param[0] + '=' + data['app_click_id']
+                            param = head_param[0] + '=' + data[0]['app_click_id']
                             chn_component.append(param)
                         elif re.search(r'revenue', head_param[0]):
-                            payout = offermodel.get_offer_by_id(data['offer_id'])
-                            param = head_param[0] + '=' + str(payout['payout'])
+                            payout = offermodel.get_offer_by_id(data[0]['offer_id'])
+                            param = head_param[0] + '=' + str(payout[0]['payout'])
                             chn_component.append(param)
                         elif re.search(r'app_id', head_param[0]):
-                            param = head_param[0] + '=' + data['app_id']
+                            param = head_param[0] + '=' + data[0]['app_id']
                             chn_component.append(param)
                         elif re.search(r'ad_id', head_param[0]):
-                            param = head_param[0] + '=' + data['offer_id']
+                            param = head_param[0] + '=' + data[0]['offer_id']
                             chn_component.append(param)
                         else:
                             param = head_param[0] + '=' + ''
@@ -133,7 +133,7 @@ class AdvertiseCallback(tornado.web.RequestHandler):
                         request = tornado.httpclient.HTTPRequest(chn_callback_url, "GET", headers)
                         response = yield client.fetch(request)
 
-                        post_row = installmodel.update_post_install(data['offer_id'], data['app_id'])
+                        post_row = installmodel.update_post_install(data[0]['offer_id'], data[0]['app_id'])
                         status_row = clickmodel.update_callback_status(response.code, click_id)
                         if status_row:
                             pass

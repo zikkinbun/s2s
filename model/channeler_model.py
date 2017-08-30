@@ -28,7 +28,7 @@ class ChannelModel(BaseDB):
             'chn_id': chn_id
         }
 
-        return self.select(table, fileds, condition_data)[0]
+        return self.select(table, fileds, condition_data)
 
     def set_channeler_status(self, status, chn_id):
         table = 'channeler'
@@ -54,7 +54,7 @@ class ChannelModel(BaseDB):
             'name': username
         }
 
-        return self.select(table, fields, condition_data)[0]
+        return self.select(table, fields, condition_data)
 
     def set_login_time(self, username):
         table = 'channeler'

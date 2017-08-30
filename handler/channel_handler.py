@@ -53,7 +53,7 @@ class ChannelStatus(object):
                 message = {
                     'retcode': 0,
                     'retdata': {
-                        'status': data['status']
+                        'status': data[0]['status']
                     },
                     'retmsg': 'success'
                 }
@@ -109,25 +109,25 @@ class ChannelerLogin(BaseHandler):
             data = channelmodel.get_login_chner(username, passwd)
             #  verify = EncryptPassword(data['passwd']).auth_password(passwd)
             #  print verify, type(data['status'])
-            if not EncryptPassword(data['passwd']).auth_password(passwd):
+            if not EncryptPassword(data[0]['passwd']).auth_password(passwd):
                  message = {
                     'retcode': 6002,
                     'retmsg': 'wrong password, please check it'
                  }
                  self.write(message)
             else:
-                if int(data['status']) == 1 or int(data['status']) == 0:
+                if int(data[0]['status']) == 1 or int(data[0]['status']) == 0:
                     message = {
                         'retcode': 0,
                         'retdata': {
-                            'chn_id': data['chn_id'],
+                            'chn_id': data[0]['chn_id'],
                         },
                         'retmsg': 'success'
                     }
                     try:
                         row = channelmodel.set_login_time(username)
                         if row:
-                            self.set_current_user(data['chn_id'])
+                            self.set_current_user(data[0]['chn_id'])
                         self.write(message)
                     except err.ProgrammingError as e:
                         print e

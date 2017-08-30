@@ -135,7 +135,13 @@ class BaseDB(object):
             result = self._conn_write.query(sql)
         else:
             result = self._conn_read.query(sql)
-        return result
+        # return result
+        if (len(result)) > 0:
+            # print 1
+            return result
+        else:
+            # print 2
+            return None
 
     def insert(self, table_name, data):
         items = ["INSERT IGNORE INTO %s(" % table_name]

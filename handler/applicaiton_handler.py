@@ -129,7 +129,7 @@ class getApplicationDetail(BaseHandler):
             if data:
                 message = {
                     'retcode': 0,
-                    'retdata': data,
+                    'retdata': data[0],
                     'retmsg': 'success'
                 }
                 self.write(message)
@@ -162,8 +162,8 @@ class getAppTokenUrl(BaseHandler):
                 message = {
                     'retcode': 0,
                     'retdata': {
-                        'callback_token': data['callback_token'],
-                        'callback_url': data['callback_url']
+                        'callback_token': data[0]['callback_token'],
+                        'callback_url': data[0]['callback_url']
                     },
                     'retmsg': 'success'
                 }
@@ -207,7 +207,7 @@ class UpdateAppCallbackUrl(BaseHandler):
             db_conns = self.application.db_conns
             appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
             data = appmodel.get_application_token_url(app_id, chn_id)
-            callback_token = data['callback_token']
+            callback_token = data[0]['callback_token']
             url = sign_api.sign_url(callback_url, callback_token)
             url_parse = urlparse(url)
             query = url_parse.query
@@ -346,7 +346,7 @@ class getAppIncome(BaseHandler):
             if data:
                 message = {
                     'retcode': 0,
-                    'retdata': data,
+                    'retdata': data[0],
                     'retmsg': 'success'
                 }
                 self.write(message)

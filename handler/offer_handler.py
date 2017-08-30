@@ -56,9 +56,9 @@ class OfferHandler(BaseHandler):
         try:
             appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
             data = appmodel.verify_app_sign(app_id, sign)
-            chn_id = data['chn_id']
-            sign_url = data['callback_url'] + '&sign=%s' % sign
-            verify_sign = sign_api.verifySinature(sign_url, data['callback_token'])
+            chn_id = data[0]['chn_id']
+            sign_url = data[0]['callback_url'] + '&sign=%s' % sign
+            verify_sign = sign_api.verifySinature(sign_url, data[0]['callback_token'])
             # base_url = data[0][2]
         except Exception as e:
             msg = {

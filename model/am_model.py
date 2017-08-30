@@ -29,7 +29,7 @@ class AccountManagerModel(BaseDB):
             'name': name
         }
 
-        return self.select(table, fields, condition_data)[0]
+        return self.select(table, fields, condition_data)
 
     def set_login_time(self, username):
 

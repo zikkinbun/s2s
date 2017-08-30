@@ -20,7 +20,7 @@ class ClickModel(BaseDB):
             'click_id': click_id
         }
 
-        return self.select(table, fileds, condition_data)[0]
+        return self.select(table, fileds, condition_data)
 
     def create_record(self, click_id, ad_id, app_id, app_click_id, offer_id):
         table = 'track_click'

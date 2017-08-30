@@ -33,7 +33,7 @@ class Advertises(object):
 
     def verifyPullstatus(self):
         data = self.advertermodel.get_pull_status(self.api_name)
-        is_pulled = data['is_pulled']
+        is_pulled = data[0]['is_pulled']
         if int(is_pulled) == 1 or is_pulled == '1':
             return True
         else:
@@ -139,7 +139,7 @@ class AdvertiseStatus(object):
         try:
             data = self.advermodel.get_device_info(ad_id)
             if data:
-                return data
+                return data[0]
             else:
                 msg = {
                     'retcode': 2003,
@@ -282,25 +282,37 @@ class Advertiser(BaseHandler):
     @tornado.gen.coroutine
     def post(self):
         api_name = json.loads(self.request.body)['api_name']
+        # api_name = self.get_argument('api_name', None)
         if not api_name:
             raise tornado.web.MissingArgumentError('api_name')
+
         name = json.loads(self.request.body)['name']
+        # name = self.get_argument('name', None)
         if not name:
             raise tornado.web.MissingArgumentError('name')
+
         resp_callback_url = json.loads(self.request.body)['resp_callback_url']
+        # resp_callback_url = self.get_argument('resp_callback_url', None)
         if not resp_callback_url:
             raise tornado.web.MissingArgumentError('resp_callback_url')
+
         resp_callback_token = json.loads(self.request.body)['resp_callback_token']
-        if not resp_callback_url:
+        # resp_callback_token = self.get_argument('resp_callback_token', None)
+        if not resp_callback_token:
             raise tornado.web.MissingArgumentError('resp_callback_token')
+            
         is_pulled = json.loads(self.request.body)['is_pulled'] # 控制定时拉取任务
+        # is_pulled = self.get_argument('is_pulled', None)
+        # print is_pulled
         if not is_pulled:
             raise tornado.web.MissingArgumentError('is_pulled')
+
 
         try:
             db_conns = self.application.db_conns
             advermodel = AdvertiserModel(db_conns['read'], db_conns['write'])
             data = advermodel.check_duplicate_advertiser(api_name)
+            # print data
             if data:
                 msg = {
                     'retcode': 2005,
@@ -323,6 +335,7 @@ class Advertiser(BaseHandler):
                     }
                     self.write(msg)
         except Exception as e:
+            # print e
             msg = {
                 'retcode': 2006,
                 'retmsg': 'databases oper error'
