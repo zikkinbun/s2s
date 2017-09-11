@@ -15,7 +15,7 @@ import torndb
 
 from callback.advertise_callback import AdvertiseCallback
 
-from handler.channel_handler import ChannelerLogin
+from handler.channel_handler import ChannelerLogin, countChnAppIncome
 from handler.am_handler import AMSginup, AMChannelOper, AMAppOper, AMLogin, AMChannelSignup, \
     AMListChannel, AMCreateOfferByUnion, AMCountAdIncome, AMIncome
 from handler.offer_handler import OfferHandler
@@ -68,6 +68,7 @@ class Application(tornado.web.Application):
             (r"/v1/count/getAppIncome", getAppIncome),
             (r"/v1/count/getAdIncome", AMCountAdIncome),
             (r"/v1/count/getAMIncome", AMIncome),
+            (r"/v1/count/getChnAppIncome", countChnAppIncome),
             (r"/v1/offline", OfferHandler),
             (r"/v1/click", AdvertiseCallback),
             (r"/v1/track", ClickUrlHandler),

@@ -1018,3 +1018,48 @@ traits:
                                     }
                                     "retmsg": "success",
                                 }
+
+    /count/getChnAppIncome:
+        description:  统计下游的收入
+        post:
+            queryParameters:
+                chn_id:
+                  type        : string
+                  description : chn_id
+                  required    : False
+            body:
+                application/json:
+                    example: |
+                        {
+                            "chn_id": 1
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": {
+                                        "detail": [
+                                            {
+                                                "app_id": "MCs1cQAF9mtXO2qJ",
+                                                "app_name": "Addstar",
+                                                "income": 41.4
+                                            },
+                                            {
+                                                "app_id": "ldgiaWqSrfGoE6B2",
+                                                "app_name": "Creatyyyyyy",
+                                                "income": 0
+                                            },
+                                            {
+                                                "app_id": "pHcF6ZQxLu82d9gm",
+                                                "app_name": "myworld",
+                                                "income": 9.3
+                                            }
+                                        ],
+                                        "total": 50.7
+                                    }
+                                    "retmsg": "success",
+                                }

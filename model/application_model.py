@@ -71,6 +71,15 @@ class ApplicationModel(BaseDB):
 
         return self.select(table, fileds, condition_data)
 
+    def list_appid_by_chnid(self, chn_id):
+        table = 'application'
+        fileds = ['app_id']
+        condition_data = {
+            'chn_id': chn_id
+        }
+
+        return self.select(table, fileds, condition_data)
+
     def list_application_all(self):
         table = 'application'
         fileds = ['app_id', 'app_name', 'app_secret', 'pkg_name', 'platform', 'status', 'chn_id', 'description', 'deduction', 'divide']
@@ -143,5 +152,13 @@ class ApplicationModel(BaseDB):
         fields = ['income']
         condition_data = {
             'app_id': app_id
+        }
+        return self.select(table, fields, condition_data)
+
+    def get_app_income_by_chnid(self, chn_id):
+        table = 'application'
+        fields = ['app_id', 'app_name', 'income']
+        condition_data = {
+            'chn_id': chn_id
         }
         return self.select(table, fields, condition_data)

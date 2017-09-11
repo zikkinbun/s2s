@@ -164,19 +164,15 @@ class AMAppOper(BaseHandler):
             data = appmodel.get_application_detail(app_id, chn_id)
             # print data
             if data:
-                if data[0]['status'] is None:
+                if data[0]['status'] == 0 or data[0]['status'] == '0' or data[0]['status'] == 1 or data[0]['status'] == '1':
                     row = appmodel.set_applicaiton_status(status, app_id)
                     message = {
                         'retcode': 0,
-                        'retmsg': 'APP active successfully'
+                        'retmsg': 'APP stauts update successfully'
                     }
                     self.write(message)
                 else:
-                    message = {
-                        'retcode': 4002,
-                        'retmsg': 'APP has already actived'
-                    }
-                    self.write(message)
+                    raise tornado.web.HTTPError(status_code=500, log_message='database oper error')
             else:
                 message = {
                         'retcode': 4003,
@@ -185,11 +181,7 @@ class AMAppOper(BaseHandler):
                 self.write(message)
 
         except Exception as e:
-            message = {
-                'retcode': 4003,
-                'retmsg': 'APP is not existed'
-            }
-            self.write(message)
+            raise tornado.web.HTTPError(status_code=500, log_message=e)
 
 class AMLogin(BaseHandler):
 
