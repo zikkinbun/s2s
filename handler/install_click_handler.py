@@ -5,6 +5,7 @@ import tornado.httpclient
 from base_handler import BaseHandler
 
 from model.install_click_model import InstallClickModel
+from model.application_model import ApplicationModel
 
 class getAppInstall(BaseHandler):
 
@@ -109,3 +110,18 @@ class getAppValidClick(BaseHandler):
                 self.write(message)
         except Exception as e:
             print e
+
+class getCurrentAppClickInstallIncome(BaseHandler):
+
+    def post(self):
+        if self.request.body == '{}':
+            pass
+        else:
+            chn_id = self.get_argument('chn_id', None)
+            # chn_id = json.loads(self.request.body)['chn_id']
+            try:
+                db_conns = self.application.db_conns
+                appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
+                app_list = appmodel.list_application_by_chnid()
+            except Exception as e:
+                print e

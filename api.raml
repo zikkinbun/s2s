@@ -962,35 +962,7 @@ traits:
                                     }
                                     "retmsg": "success",
                                 }
-
-    /count/getAdIncome:
-        description:  统计从该联盟获取的收入
-        post:
-            queryParameters:
-                ader_id:
-                  type        : string
-                  description : ader_id
-                  required    : true
-            body:
-                application/json:
-                    example: |
-                        {
-                            "ader_id": 1
-                        }
-            responses:
-                200:
-                    body:
-                        application/json:
-                            type: exist
-                            example: |
-                                {
-                                    "retcode": 0,
-                                    "retdata": {
-                                        "total": 145.1
-                                    }
-                                    "retmsg": "success",
-                                }
-
+                                
     /count/getAMIncome:
         description:  统计该AM的收入
         post:
@@ -1060,6 +1032,37 @@ traits:
                                             }
                                         ],
                                         "total": 50.7
+                                    }
+                                    "retmsg": "success",
+                                }
+
+    /count/getAderIncome:
+        description:  统计联盟的收入
+        post:
+            queryParameters:
+                ader_id:
+                  type        : string
+                  description : ader_id
+                  required    : False
+            body:
+                application/json:
+                    example: |
+                        {
+                            "ader_id": 1
+                        }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retdata": {
+                                        "id": 1,
+                                        "api_name": "Admix",
+                                        "name": "有米",
+                                        "income": "189.20"
                                     }
                                     "retmsg": "success",
                                 }

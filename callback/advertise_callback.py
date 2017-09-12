@@ -84,11 +84,13 @@ class AdvertiseCallback(tornado.web.RequestHandler):
         except Exception as e:
             print e
             self.write_error(500)
+
         # 随机扣量验证
         install_data = installmodel.get_post_recv_install(data[0]['offer_id'], data[0]['app_id'])
         formula = (install_data[0]['post_install'])/(install_data[0]['recv_install'])
         # print formula
         # print install_data['post_install'], install_data['recv_install']
+        
         # 创建下游异步回调信息
         condition = appmodel.get_application_tranform(data[0]['app_id'])['deduction']
         if formula > (1.0 - condition) or formula <= 0.0:

@@ -404,11 +404,13 @@ class AMIncome(BaseHandler):
     @tornado.gen.coroutine
     def post(self):
         am_id = self.get_argument('am_id', None)
+        # am_id = json.loads(self.request.body)['am_id']
         if am_id is None:
             raise tornado.web.MissingArgumentError('am_id')
 
         try:
             db_conns = self.application.db_conns
+
         except Exception as e:
             print e
             msg = {
