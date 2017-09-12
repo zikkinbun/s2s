@@ -156,6 +156,16 @@ class ApplicationModel(BaseDB):
         return self.select(table, fields, condition_data)
 
     def get_app_income_by_chnid(self, chn_id):
-        sql = 'SELECT app_id,app_name,income,(SELECT FORMAT(SUM(post_install),0) total FROM install_click_relation WHERE app_id=app_id) as post_install,(SELECT FORMAT(SUM(recv_install),0) total FROM install_click_relation WHERE app_id=app_id) as recv_install,(SELECT FORMAT(SUM(recv_click),0) total FROM install_click_relation WHERE app_id=app_id) as recv_click,(SELECT FORMAT(SUM(valid_click),0) total FROM install_click_relation WHERE app_id=app_id) as valid_click FROM application where chn_id=%s'
+        sql = 'SELECT app_id,app_name,income, (SELECT FORMAT(SUM(post_install),0) total FROM install_click_relation WHERE app_id=app_id) as post_install,(SELECT FORMAT(SUM(recv_install),0) total FROM install_click_relation WHERE app_id=app_id) as recv_install,(SELECT FORMAT(SUM(recv_click),0) total FROM install_click_relation WHERE app_id=app_id) as recv_click,(SELECT FORMAT(SUM(valid_click),0) total FROM install_click_relation WHERE app_id=app_id) as valid_click FROM application where chn_id=%s'
 
         return self._conn_read.query(sql, chn_id)
+
+    def get_app_income_install_click_by_appid(self, app_id):
+        sql = 'SELECT a.app_id,a.app_name,a.income,FORMAT(SUM(b.post_install),0) as post_install,FORMAT(SUM(b.recv_install),0) as recv_install,FORMAT(SUM(b.recv_click),0) as recv_click,FORMAT(SUM(b.valid_click),0) as valid_click FROM application a LEFT JOIN install_click_relation b ON a.app_id=b.app_id WHERE a.app_id=%s'
+
+        return self._conn_read.query(sql, app_id)
+
+    def updata_app_install(self, app_id):
+        sql = 'UPDATE application SET install=(select FORMAT(SUM(post_install),0) from install_click_relation where app_id=%s) WHERE app_id=%s'
+
+        return self._conn_write.execute_rowcount(sql, app_id, app_id)
