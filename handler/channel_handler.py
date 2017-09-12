@@ -2,11 +2,16 @@
 import tornado.web
 import tornado.httpclient
 import tornado.escape
+from tornado.web import HTTPError
+from tornado.concurrent import run_on_executor
+from concurrent.futures import ThreadPoolExecutor
 
 import sign_api
 from base_handler import BaseHandler
 from cookietoken_handler import EncryptPassword
 from model.channeler_model import ChannelModel
+from model.application_model import ApplicationModel
+from model.install_click_model import InstallClickModel
 
 from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
 
@@ -58,7 +63,7 @@ class ChannelStatus(object):
                     'retmsg': 'success'
                 }
                 return message
-        except err.ProgrammingError as e:
+        except Exception as e:
             print e
 
     def setStatus(self, status, chn_id):
@@ -70,7 +75,7 @@ class ChannelStatus(object):
                     'retmsg': 'success'
                 }
                 return msg
-        except err.ProgrammingError as e:
+        except Exception as e:
             return e
 
     def verifyStatusApp(self, chn_id, app_id):
@@ -137,10 +142,82 @@ class ChannelerLogin(BaseHandler):
                         'retmsg': 'login fail, the account occur some exceptions'
                     }
                     self.write(message)
-        except err.ProgrammingError as e:
+        except Exception as e:
             print e
 
 class ChannelerLogout(BaseHandler):
 
 	def get(self):
 		self.clear_current_user()
+
+class countChnAppIncome(BaseHandler):
+
+    @tornado.gen.coroutine
+    def post(self):
+        # chn_id = self.get_argument('chn_id', None)
+        # chn_id = json.loads(self.request.body)['chn_id']
+        db_conns = self.application.db_conns
+        channelmodel = ChannelModel(db_conns['read'], db_conns['write'])
+        appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
+        if self.request.body == '{}':
+        # if chn_id is None:
+            try:
+
+                chn_list = channelmodel.list_chnid()
+                chn_income = 0
+                msg = []
+                for chn in chn_list:
+                    chnid = chn['chn_id']
+                    # print chnid
+                    app_list = appmodel.get_app_income_by_chnid(chnid)
+                    # print app_list
+                    if app_list is not None:
+                        for app in app_list:
+                            app_id = app['app_id']
+                            chn_income += app['income']
+                        data = {
+                            'chn_id': chnid,
+                            'detail': app_list,
+                            'total_income': chn_income
+                            }
+                        msg.append(data)
+                    else:
+                        data = {
+                            'chn_id': chnid,
+                            'detail': None,
+                            'total': None
+                        }
+                        msg.append(data)
+                message = {
+                    'retcode': 0,
+                    'retdata': msg
+                }
+                self.write(message)
+            except Exception as e:
+                print e
+                raise HTTPError(status_code=500)
+        else:
+            chn_id = json.loads(self.request.body)['chn_id']
+            # chn_id = self.get_argument('chn_id', None)
+            try:
+                app_list = appmodel.list_appid_by_chnid(chn_id)
+                chn_income = 0
+                for app in app_list:
+                    # print app
+                    app_income = appmodel.get_application_income(app['app_id'])[0]['income']
+                    # print app_income
+                    chn_income += app_income
+
+                app_income_list = appmodel.get_app_income_by_chnid(chn_id)
+
+                message = {
+                    'retcode': 0,
+                    'retdata': {
+                        'detail': app_income_list,
+                        'total_income': chn_income
+                    }
+                }
+                self.write(message)
+            except Exception as e:
+                print e
+                raise HTTPError(status_code=500)

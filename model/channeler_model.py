@@ -77,3 +77,10 @@ class ChannelModel(BaseDB):
         }
 
         return self.select(table, fileds, condition_data)
+
+    def list_chnid(self):
+        table = 'channeler'
+
+        fileds = ['chn_id']
+
+        return self.select(table, fileds)

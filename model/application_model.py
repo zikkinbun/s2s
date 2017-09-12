@@ -71,6 +71,15 @@ class ApplicationModel(BaseDB):
 
         return self.select(table, fileds, condition_data)
 
+    def list_appid_by_chnid(self, chn_id):
+        table = 'application'
+        fileds = ['app_id']
+        condition_data = {
+            'chn_id': chn_id
+        }
+
+        return self.select(table, fileds, condition_data)
+
     def list_application_all(self):
         table = 'application'
         fileds = ['app_id', 'app_name', 'app_secret', 'pkg_name', 'platform', 'status', 'chn_id', 'description', 'deduction', 'divide']
@@ -145,3 +154,8 @@ class ApplicationModel(BaseDB):
             'app_id': app_id
         }
         return self.select(table, fields, condition_data)
+
+    def get_app_income_by_chnid(self, chn_id):
+        sql = 'SELECT app_id,app_name,income,(SELECT FORMAT(SUM(post_install),0) total FROM install_click_relation WHERE app_id=app_id) as post_install,(SELECT FORMAT(SUM(recv_install),0) total FROM install_click_relation WHERE app_id=app_id) as recv_install,(SELECT FORMAT(SUM(recv_click),0) total FROM install_click_relation WHERE app_id=app_id) as recv_click,(SELECT FORMAT(SUM(valid_click),0) total FROM install_click_relation WHERE app_id=app_id) as valid_click FROM application where chn_id=%s'
+
+        return self._conn_read.query(sql, chn_id)

@@ -185,8 +185,8 @@ class AdvertiseModel(BaseDB):
         return self.select(table, fields, condition_data)
 
     def count_all_advertise_income_by_id(self, ader_id):
-        sql = 'SELECT FORMAT(SUM(income),2) total FROM advertise WHERE ader_id=%s'
-        return self._conn_read.query(sql, ader_id)[0]
+        sql = 'SELECT id,api_name,name,(SELECT FORMAT(SUM(income),2) total FROM advertise WHERE ader_id=%s) as income FROM advertiser WHERE id=%s'
+        return self._conn_read.query(sql, ader_id, ader_id)
 
     def count_all_advertise_income(self):
         sql = 'SELECT FORMAT(SUM(income),2) total FROM advertise'

@@ -1,6 +1,7 @@
 # _*_ coding:utf-8_*_
 import tornado.web
 import tornado.httpclient
+from tornado.web import HTTPError
 
 from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
 from handler.base_handler import BaseHandler
@@ -300,7 +301,7 @@ class Advertiser(BaseHandler):
         # resp_callback_token = self.get_argument('resp_callback_token', None)
         if not resp_callback_token:
             raise tornado.web.MissingArgumentError('resp_callback_token')
-            
+
         is_pulled = json.loads(self.request.body)['is_pulled'] # 控制定时拉取任务
         # is_pulled = self.get_argument('is_pulled', None)
         # print is_pulled
@@ -367,3 +368,44 @@ class getAdvertiserALL(BaseHandler):
                 'retmsg': 'databases oper error'
             }
             self.write(msg)
+
+class getAdverIncome(BaseHandler):
+
+    def post(self):
+        db_conns = self.application.db_conns
+        admodel = AdvertiseModel(db_conns['read'], db_conns['write'])
+        adermodel = AdvertiserModel(db_conns['read'], db_conns['write'])
+
+        # ader_id = json.loads(self.request.body)['ader_id']
+        # ader_id = self.get_argument('ader_id', None)
+        if self.request.body == '{}':
+        # if ader_id is None:
+            try:
+                ader_data = []
+                ader_list = adermodel.get_advertiser()
+                for ader in ader_list:
+                    aderid = ader['id']
+                    advertise = admodel.count_all_advertise_income_by_id(aderid)[0]
+                    # print advertise
+                    ader_data.append(advertise)
+                message = {
+                    'retcode': 0,
+                    'retdata': ader_data
+                }
+                self.write(message)
+            except Exception as e:
+                print e
+                raise HTTPError(status_code=500)
+        else:
+            ader_id = json.loads(self.request.body)['ader_id']
+            # ader_id = self.get_argument('ader_id', None)
+            try:
+                advertise = admodel.count_all_advertise_income_by_id(ader_id)[0]
+                message = {
+                    'retcode': 0,
+                    'retdata': advertise
+                }
+                self.write(message)
+            except Exception as e:
+                print e
+                raise HTTPError(status_code=500)
