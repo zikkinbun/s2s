@@ -105,9 +105,9 @@ def main():
     http_server = tornado.httpserver.HTTPServer(Application())
     http_server.listen(tornado.options.options.port)
 
-    union_admix = Admix()
-    _func = functools.partial(union_admix.getAdxmiOffer('294daae457e8e335', 100), *["crontab"])
-    tornado_crontab.CronTabCallback(_func, "*/30 * * * *").start()
+    # union_admix = Admix()
+    # _func = functools.partial(union_admix.getAdxmiOffer('294daae457e8e335', 100), *["crontab"])
+    # tornado_crontab.CronTabCallback(_func, "*/30 * * * *").start()
     # start it up
     tornado.ioloop.IOLoop.instance().start()
 
