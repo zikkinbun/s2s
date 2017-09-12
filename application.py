@@ -4,6 +4,7 @@ import tornado.httpserver
 import tornado.ioloop
 import tornado.options
 import tornado.web
+import tornado_crontab
 
 from datetime import datetime
 import os
@@ -12,6 +13,7 @@ import time
 import json
 import base64
 import torndb
+import functools
 
 from callback.advertise_callback import AdvertiseCallback
 
@@ -21,11 +23,12 @@ from handler.am_handler import AMSginup, AMChannelOper, AMAppOper, AMLogin, AMCh
 from handler.offer_handler import OfferHandler
 from handler.click_handler import ClickUrlHandler
 from handler.install_click_handler import getAppInstall, getAppRecvInstall, getAppClick, getAppValidClick
-from handler.advertise_handler import Advertises, Advertiser, getAdvertiseById, getAdvertiseAll, getAdvertiseByGetPrice, getAdvertiserALL, getAdverIncome
+from handler.advertise_handler import Advertiser, getAdvertiseById, getAdvertiseAll, getAdvertiseByGetPrice, getAdvertiserALL, getAdverIncome
 from handler.rule_handler import RuleHandler, SelectRule
 from handler.cookietoken_handler import XSRFTokenHandler, AdminTokenHandler
 from handler.applicaiton_handler import CreateApplication, ListApplication, SetCallbackUrl, getApplicationDetail, \
     ListAllApp, getAppTokenUrl, UpdateAppCallbackUrl, SetDeductionPartition, getAppIncome
+from handler.admix_handler import getAdmix, Admix
 
 from db import setting
 
@@ -75,6 +78,7 @@ class Application(tornado.web.Application):
             (r"/v1/track", ClickUrlHandler),
             (r"/v1/token", XSRFTokenHandler),
             (r"/v1/getToken", AdminTokenHandler),
+            (r"/v1/getAdxmi", getAdmix),
             (r".*", PageNotFoundHandler)
         ]
         settings = {
@@ -101,6 +105,9 @@ def main():
     http_server = tornado.httpserver.HTTPServer(Application())
     http_server.listen(tornado.options.options.port)
 
+    union_admix = Admix()
+    _func = functools.partial(union_admix.getAdxmiOffer('294daae457e8e335', 100), *["crontab"])
+    tornado_crontab.CronTabCallback(_func, "*/30 * * * *").start()
     # start it up
     tornado.ioloop.IOLoop.instance().start()
 

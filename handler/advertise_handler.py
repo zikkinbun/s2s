@@ -18,95 +18,6 @@ import random
 import string
 import requests
 
-class Advertises(object):
-
-    """
-        对接上游 API,拉取 OFFER 下的广告信息
-    """
-
-    def __init__(self):
-        self.db_conns = {}
-        self.db_conns['read'] = TornDBReadConnector()
-        self.db_conns['write'] = TornDBWriteConnector()
-        self.advermodel = AdvertiseModel(self.db_conns['read'], self.db_conns['write'])
-        self.advertermodel = AdvertiserModel(self.db_conns['read'], self.db_conns['write'])
-        self.api_name = 'Admix'
-
-    def verifyPullstatus(self):
-        data = self.advertermodel.get_pull_status(self.api_name)
-        is_pulled = data[0]['is_pulled']
-        if int(is_pulled) == 1 or is_pulled == '1':
-            return True
-        else:
-            return False
-
-    def setStatus(self, api_name, is_pulled):
-        try:
-            row = self.advertermodel.set_pull_status(self.api_name, is_pulled)
-            if row:
-                message = {
-                    'retcode': 0,
-                    'retmsg': 'update status success'
-                }
-                return message
-            else:
-                message = {
-                    'retcode': 2006,
-                    'retmsg': 'databases operate error'
-                }
-
-        except Exception as e:
-            print e
-
-    def getAdxmiOffer(self, app_id, page_size):
-        datas = None
-        page = 1
-        url = 'http://ad.api.yyapi.net/v2/offline'
-        default_params = {
-            'app_id': app_id,
-            'page_size': page_size,
-            'page': page
-        }
-        if self.verifyPullstatus():
-            r = requests.get(url, default_params)
-            if r.status_code == '200' or r.status_code == 200:
-                datas = json.loads(r.text)
-                if datas['offers'] == [] or datas['offers'] == '[]':
-                    self.setStatus(self.api_name, 0)
-                    msg = {
-                        'retcode': 2001,
-                        'retmsg':"This advertiser's API is closed."
-                    }
-                    return msg
-                else:
-                    for data in datas['offers']:
-                        ad_id = ''.join(random.sample(string.digits, 8))
-                        ader_id = 1
-
-                        device = data[u'mandatory_device']
-                        new_device = self.advermodel.create_device_info(ad_id, device)
-                        new_advertise = self.advermodel.create_Admix_advertise(ad_id, ader_id, data)
-
-                    page_range = int(datas['total'])/int(datas['page_size']) + 1
-                    next_page = page + 1
-                    for i in range(next_page ,page_range):
-                        params = {
-                            'app_id': app_id,
-                            'page_size': page_size,
-                            'page': i
-                        }
-                        # print params
-                        r = requests.get(url, params)
-                        if r.status_code == '200' or r.status_code == 200:
-                            datas = json.loads(r.text)
-                            # print i
-                            for data in datas['offers']:
-                                ad_id = ''.join(random.sample(string.digits, 8))
-                                ader_id = 1
-                                device = data[u'mandatory_device']
-                                new_device = self.advermodel.create_device_info(ad_id, device)
-                                new_advertise = self.advermodel.create_Admix_advertise(ad_id, ader_id, data)
-
 class AdvertiseStatus(object):
     """
         广告状态操作
@@ -153,6 +64,7 @@ class AdvertiseStatus(object):
                 'retmsg': 'this advetise have no device info'
             }
             return msg
+
 
 class getAdvertiseById(BaseHandler):
 
@@ -377,9 +289,9 @@ class getAdverIncome(BaseHandler):
         adermodel = AdvertiserModel(db_conns['read'], db_conns['write'])
 
         # ader_id = json.loads(self.request.body)['ader_id']
-        # ader_id = self.get_argument('ader_id', None)
-        if self.request.body == '{}':
-        # if ader_id is None:
+        ader_id = self.get_argument('ader_id', None)
+        # if self.request.body == '{}':
+        if ader_id is None:
             try:
                 ader_data = []
                 ader_list = adermodel.get_advertiser()
@@ -397,8 +309,8 @@ class getAdverIncome(BaseHandler):
                 print e
                 raise HTTPError(status_code=500)
         else:
-            ader_id = json.loads(self.request.body)['ader_id']
-            # ader_id = self.get_argument('ader_id', None)
+            # ader_id = json.loads(self.request.body)['ader_id']
+            ader_id = self.get_argument('ader_id', None)
             try:
                 advertise = admodel.count_all_advertise_income_by_id(ader_id)[0]
                 message = {

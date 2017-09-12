@@ -166,18 +166,24 @@ class countChnAppIncome(BaseHandler):
                 chn_list = channelmodel.list_chnid()
                 chn_income = 0
                 msg = []
+
                 for chn in chn_list:
                     chnid = chn['chn_id']
                     # print chnid
-                    app_list = appmodel.get_app_income_by_chnid(chnid)
+                    app_list = appmodel.list_appid_by_chnid(chnid)
                     # print app_list
                     if app_list is not None:
+                        app_datas = []
                         for app in app_list:
                             app_id = app['app_id']
-                            chn_income += app['income']
+                            app_data = appmodel.get_app_income_install_click_by_appid(app_id)[0]
+                            # print app_data
+                            chn_income += app_data['income']
+                            app_datas.append(app_data)
+                        # print app_datas
                         data = {
                             'chn_id': chnid,
-                            'detail': app_list,
+                            'detail': app_datas,
                             'total_income': chn_income
                             }
                         msg.append(data)
@@ -202,18 +208,20 @@ class countChnAppIncome(BaseHandler):
             try:
                 app_list = appmodel.list_appid_by_chnid(chn_id)
                 chn_income = 0
+                msg = []
                 for app in app_list:
                     # print app
-                    app_income = appmodel.get_application_income(app['app_id'])[0]['income']
-                    # print app_income
+                    app_data = appmodel.get_app_income_install_click_by_appid(app['app_id'])[0]
+                    app_income = app_data['income']
+                    # print app_data
                     chn_income += app_income
-
-                app_income_list = appmodel.get_app_income_by_chnid(chn_id)
+                    msg.append(app_data)
+                # app_income_list = appmodel.get_app_income_by_chnid(chn_id)
 
                 message = {
                     'retcode': 0,
                     'retdata': {
-                        'detail': app_income_list,
+                        'detail': msg,
                         'total_income': chn_income
                     }
                 }

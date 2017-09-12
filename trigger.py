@@ -1,5 +1,6 @@
 # _*_ coding:utf-8_*_
-from handler.advertise_handler import Advertises, Advertiser, AdvertiseStatus
+from handler.advertise_handler import Advertiser, AdvertiseStatus
+from handler.admix_handler import Admix
 from handler.offer_handler import AdvertiseTransOffer, OfferHandler
 from handler.rule_handler import RuleHandler, SelectRule, SpecailRule
 from threading import Thread
@@ -8,7 +9,7 @@ from threading import Thread
 if __name__ == '__main__':
     # test = getOffer.delay()
     # tasks.getOffer()
-    adxmi = Advertises()
+    adxmi = Admix()
     # adxmi.verifyPullstatus()
     adxmi.getAdxmiOffer('294daae457e8e335', 100)
     # t = Thread(target=adxmi.getAdxmiOffer, args=('294daae457e8e335', 100))
