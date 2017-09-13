@@ -6,19 +6,13 @@ from tornado.web import HTTPError
 from tornado.concurrent import run_on_executor
 from concurrent.futures import ThreadPoolExecutor
 
-import sign_api
 from base_handler import BaseHandler
 from cookietoken_handler import EncryptPassword
 from model.channeler_model import ChannelModel
 from model.application_model import ApplicationModel
-from model.install_click_model import InstallClickModel
 
 from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
 
-from urlparse import urlparse
-from datetime import datetime
-import base64
-import os
 import json
 import random
 import string

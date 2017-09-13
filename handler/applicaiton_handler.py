@@ -6,10 +6,8 @@ from model.application_model import ApplicationModel
 from base_handler import BaseHandler
 import sign_api
 
-from datetime import datetime
 from urlparse import urlparse
 import os
-import re
 import json
 import random
 import string

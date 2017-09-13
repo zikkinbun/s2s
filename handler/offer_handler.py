@@ -3,24 +3,13 @@ import tornado.web
 import tornado.httpclient
 
 from model.application_model import ApplicationModel
-from model.advertise_model import AdvertiseModel
 from model.offer_model import OfferModel
 from model.channeler_model import ChannelModel
-from model.rule_model import RuleModel
 
 from base_handler import BaseHandler
-from click_handler import CreateClickUrl
-from rule_handler import SpecailRule
 
-from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
 import sign_api
-
-from datetime import datetime
-import os
-import re
 import json
-import random
-import string
 
 
 class OfferHandler(BaseHandler):
@@ -144,79 +133,5 @@ class ListAllOffer(BaseHandler):
                 self.write(message)
             else:
                 self.write_error(500)
-        except Exception as e:
-            print e
-
-class AdvertiseTransOffer(object):
-
-    def __init__(self):
-        self.data = None
-        self.db_conns = {}
-        self.db_conns['read'] = TornDBReadConnector()
-        self.db_conns['write'] = TornDBWriteConnector()
-        self.rulemodel = RuleModel(self.db_conns['read'], self.db_conns['write'])
-        self.offermodel = OfferModel(self.db_conns['read'], self.db_conns['write'])
-        self.advermodel = AdvertiseModel(self.db_conns['read'], self.db_conns['write'])
-
-    def getAdvertiseByGetPrice(self, key, value):
-        try:
-            data = self.advermodel.get_advertise_by_get_price(key, value)
-            if data:
-                self.data = data
-                message = {
-                    'retcode': 0,
-                    'retmsg': 'catch advertise success'
-                }
-                return message
-            else:
-                message = {
-                    'retcode': 3006,
-                    'retmsg': 'have no this OFFER'
-                }
-                return message
-        except Exception as e:
-            print e
-
-    def getAdvertiseByAderID(self, ader_id):
-        try:
-            data = self.advermodel.get_advertise_by_aderid(ader_id)
-            # print data
-            if data:
-                self.data = data
-                message = {
-                    'retcode': 0,
-                    'retmsg': 'catch advertise success'
-                }
-                return message
-            else:
-                message = {
-                    'retcode': 3006,
-                    'retmsg': 'have no this OFFER'
-                }
-                return message
-        except Exception as e:
-            print e
-
-    def tranOffer(self, app_id, divide):
-
-        for data in self.data:
-            # print data
-            if self.checkDuplication(app_id, data['ad_id']):
-                continue
-            else:
-                offer_id = ''.join(random.sample(string.ascii_letters + string.digits, 8))
-                pid = random.randint(0,10)
-                _url = CreateClickUrl(app_id, offer_id, pid)
-                click_url = _url.createUrl()
-                row = self.offermodel.trans_offer(offer_id, app_id, click_url, divide, data)
-
-    def checkDuplication(self, app_id, ad_id):
-        try:
-            data = self.offermodel.check_duplicate_offer(app_id, ad_id)
-            # print data
-            if data:
-                return True
-            else:
-                return False
         except Exception as e:
             print e

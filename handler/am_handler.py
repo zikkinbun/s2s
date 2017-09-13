@@ -1,21 +1,22 @@
 # _*_ coding:utf-8_*_
 import tornado.web
 import tornado.httpclient
+from tornado.concurrent import run_on_executor
+from concurrent.futures import ThreadPoolExecutor
 
 from base_handler import BaseHandler
 from cookietoken_handler import EncryptPassword
-from offer_handler import AdvertiseTransOffer
 from channel_handler import ChannelStatus
+from click_handler import CreateClickUrl
 
 from model.application_model import ApplicationModel
 from model.advertise_model import AdvertiseModel
 from model.am_model import AccountManagerModel
 from model.channeler_model import ChannelModel
+from model.offer_model import OfferModel
 
-from datetime import datetime
-from urlparse import urlparse
-from urllib import unquote_plus
-import os
+from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
+
 import json
 import random
 import string
@@ -83,12 +84,12 @@ class AMCreateOfferByUnion(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        # ader_id = self.get_argument('ader_id', None)
-        ader_id = json.loads(self.request.body)['ader_id']
+        ader_id = self.get_argument('ader_id', None)
+        # ader_id = json.loads(self.request.body)['ader_id']
         if ader_id is None:
             raise tornado.web.MissingArgumentError('ader_id')
-        # app_id = self.get_argument('app_id', None)
-        app_id = json.loads(self.request.body)['app_id']
+        app_id = self.get_argument('app_id', None)
+        # app_id = json.loads(self.request.body)['app_id']
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
         try:
@@ -104,23 +105,18 @@ class AMCreateOfferByUnion(BaseHandler):
                 self.write(message)
             else:
                 try:
-                    AT = AdvertiseTransOffer()
-                    catch_advertise = AT.getAdvertiseByAderID(ader_id)
+                    # AT = AdvertiseTransOffer()
+                    transform_advertise = yield tornado.gen.Task(self.tranOffer, ader_id, app_id, checkout_data[0]['divide'])
+                    # catch_advertise = AT.getAdvertiseByAderID(ader_id)
                     # print catch_advertise['retcode']
-                    if catch_advertise['retcode'] == 0 or catch_advertise['retcode'] == '0':
+                    # if catch_advertise['retcode'] == 0 or catch_advertise['retcode'] == '0':
                         # print checkout_data[0]['divide']
-                        msg = AT.tranOffer(app_id, checkout_data[0]['divide'])
-                        message = {
-                            'retcode': 0,
-                            'retmsg': 'success to create offer'
-                        }
-                        self.write(message)
-                    else:
-                        message = {
-                            'retcode': 4009,
-                            'retmsg': 'catch advertise failed'
-                        }
-                        self.write(message)
+                        # msg = AT.tranOffer(app_id, checkout_data[0]['divide'])
+                    message = {
+                        'retcode': 0,
+                        'retmsg': 'success to create offer'
+                    }
+                    self.write(message)
                 except Exception as e:
                     print e
                     msg = {
@@ -135,6 +131,31 @@ class AMCreateOfferByUnion(BaseHandler):
                 'retmsg': 'databases operate error'
             }
             self.write(msg)
+
+    def db_conntor(self):
+        db_conns = {}
+        db_conns['read'] = TornDBReadConnector()
+        db_conns['write'] = TornDBWriteConnector()
+        return db_conns
+
+    @tornado.gen.coroutine
+    def tranOffer(self, ader_id, app_id, divide):
+        db_conns = self.db_conntor()
+        offermodel = OfferModel(db_conns['read'], db_conns['write'])
+        advermodel = AdvertiseModel(db_conns['read'], db_conns['write'])
+
+        datas = advermodel.get_advertise_by_aderid(ader_id)
+        for data in datas:
+            # print data
+            check = offermodel.check_duplicate_offer(app_id, data['ad_id'])
+            if check:
+                continue
+            else:
+                offer_id = ''.join(random.sample(string.ascii_letters + string.digits, 8))
+                pid = random.randint(0,10)
+                _url = CreateClickUrl(app_id, offer_id, pid)
+                click_url = _url.createUrl()
+                row = offermodel.trans_offer(offer_id, app_id, click_url, divide, data)
 
 
 class AMAppOper(BaseHandler):

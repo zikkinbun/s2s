@@ -2,14 +2,13 @@
 import tornado.web
 import tornado.httpclient
 
-import sign_api
 from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
+
 from base_handler import BaseHandler
 from model.click_model import ClickModel
 from model.install_click_model import InstallClickModel
 from model.offer_model import OfferModel
 
-from datetime import datetime
 import base64
 import re
 import os
