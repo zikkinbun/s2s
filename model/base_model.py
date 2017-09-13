@@ -191,4 +191,4 @@ class BaseDB(object):
         condition_str = ''.join(condition_list)
         sql += condition_str
 
-        return self._conn_write.execute_rowcount(sql)
+        return self._conn_write.execute(sql)
