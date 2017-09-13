@@ -3,7 +3,6 @@ from __future__ import division
 import tornado.web
 import tornado.httpclient
 
-import sign_api
 from model.application_model import ApplicationModel
 from model.advertise_model import AdvertiseModel
 from model.click_model import ClickModel
@@ -11,12 +10,7 @@ from model.offer_model import OfferModel
 from model.install_click_model import InstallClickModel
 
 from urlparse import urlparse
-from datetime import datetime
-import base64
-import random
-import string
 import json
-import os
 import re
 
 class AdvertiseCallback(tornado.web.RequestHandler):
@@ -90,7 +84,7 @@ class AdvertiseCallback(tornado.web.RequestHandler):
         formula = (install_data[0]['post_install'])/(install_data[0]['recv_install'])
         # print formula
         # print install_data['post_install'], install_data['recv_install']
-        
+
         # 创建下游异步回调信息
         condition = appmodel.get_application_tranform(data[0]['app_id'])['deduction']
         if formula > (1.0 - condition) or formula <= 0.0:
