@@ -84,12 +84,12 @@ class AMCreateOfferByUnion(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        ader_id = self.get_argument('ader_id', None)
-        # ader_id = json.loads(self.request.body)['ader_id']
+        # ader_id = self.get_argument('ader_id', None)
+        ader_id = json.loads(self.request.body)['ader_id']
         if ader_id is None:
             raise tornado.web.MissingArgumentError('ader_id')
-        app_id = self.get_argument('app_id', None)
-        # app_id = json.loads(self.request.body)['app_id']
+        # app_id = self.get_argument('app_id', None)
+        app_id = json.loads(self.request.body)['app_id']
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
         try:
