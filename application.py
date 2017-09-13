@@ -78,7 +78,7 @@ class Application(tornado.web.Application):
             (r"/v1/track", ClickUrlHandler),
             (r"/v1/token", XSRFTokenHandler),
             (r"/v1/getToken", AdminTokenHandler),
-            (r"/v1/getAdxmi", getAdmix),
+            (r"/v1/getAdmix", getAdmix),
             (r".*", PageNotFoundHandler)
         ]
         settings = {

@@ -29,12 +29,12 @@ class getAdmix(BaseHandler):
             'page_size': page_size,
             'page': page
         }
-        if Adxmi().verifyPullstatus():
+        if Admix().verifyPullstatus():
             r = yield tornado.gen.Task(self.asyncRequest, url, default_params)
             if r.status_code == '200' or r.status_code == 200:
                 datas = r.json()
                 if datas['offers'] == [] or datas['offers'] == '[]':
-                    Adxmi().setStatus('Admix', 0)
+                    Admix().setStatus('Admix', 0)
                     msg = {
                         'retcode': 2001,
                         'retmsg':"This advertiser's API is closed."
