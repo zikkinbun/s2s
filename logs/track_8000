@@ -1,0 +1,210 @@
+[2017-09-18 12:07:12,985] ERROR applicaiton_handler.py:post: [line:126] ErrorStack:
+Type: <type 'exceptions.TypeError'>
+Value: <tornado.httputil.HTTPHeaders object at 0x00000001154d31d8> is not JSON serializable
+Traceback (most recent call last):
+  File "/Users/benson/Projects/S2S/utils/logs_utils.py", line 35, in logging_request_header
+    header_msg = json.dumps(handler.request.headers).decode('unicode_escape')
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/__init__.py", line 250, in dumps
+    return _default_encoder.encode(obj)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 217, in encode
+    self.__encode(o, markers, builder, 0)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 263, in __encode
+    res = self.default(o)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 200, in default
+    raise TypeError(repr(o) + " is not JSON serializable")
+TypeError: <tornado.httputil.HTTPHeaders object at 0x00000001154d31d8> is not JSON serializable
+[2017-09-18 12:07:12,994] DEBUG applicaiton_handler.py:post: [line:127] RequestBody:
+[2017-09-18 12:07:13,006] ERROR application.py:log_request: [line:184] HTTPResult:500 POST /v1/app/listAll (127.0.0.1) 23.51ms
+[2017-09-18 12:07:53,022] ERROR applicaiton_handler.py:post: [line:126] ErrorStack:
+Type: <type 'exceptions.TypeError'>
+Value: <tornado.httputil.HTTPHeaders object at 0x000000011573ea30> is not JSON serializable
+Traceback (most recent call last):
+  File "/Users/benson/Projects/S2S/utils/logs_utils.py", line 35, in logging_request_header
+    header_msg = json.dumps(handler.request.headers).decode('unicode_escape')
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/__init__.py", line 250, in dumps
+    return _default_encoder.encode(obj)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 217, in encode
+    self.__encode(o, markers, builder, 0)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 263, in __encode
+    res = self.default(o)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 200, in default
+    raise TypeError(repr(o) + " is not JSON serializable")
+TypeError: <tornado.httputil.HTTPHeaders object at 0x000000011573ea30> is not JSON serializable
+[2017-09-18 12:07:53,023] DEBUG applicaiton_handler.py:post: [line:127] RequestBody:
+[2017-09-18 12:07:53,024] ERROR application.py:log_request: [line:184] HTTPResult:500 POST /v1/app/listAll (127.0.0.1) 2.82ms
+[2017-09-18 14:05:52,130] ERROR applicaiton_handler.py:post: [line:126] ErrorStack:
+Type: <type 'exceptions.TypeError'>
+Value: <tornado.httputil.HTTPHeaders object at 0x0000000115668758> is not JSON serializable
+Traceback (most recent call last):
+  File "/Users/benson/Projects/S2S/utils/logs_utils.py", line 35, in logging_request_header
+    header_msg = json.dumps(handler.request.headers).decode('unicode_escape')
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/__init__.py", line 250, in dumps
+    return _default_encoder.encode(obj)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 217, in encode
+    self.__encode(o, markers, builder, 0)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 263, in __encode
+    res = self.default(o)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 200, in default
+    raise TypeError(repr(o) + " is not JSON serializable")
+TypeError: <tornado.httputil.HTTPHeaders object at 0x0000000115668758> is not JSON serializable
+[2017-09-18 14:05:52,132] DEBUG applicaiton_handler.py:post: [line:127] RequestBody:
+[2017-09-18 14:05:52,134] ERROR application.py:log_request: [line:184] HTTPResult:500 POST /v1/app/listAll (127.0.0.1) 6.09ms
+[2017-09-18 14:13:18,935] ERROR applicaiton_handler.py:post: [line:126] ErrorStack:
+Type: <type 'exceptions.TypeError'>
+Value: <tornado.httputil.HTTPHeaders object at 0x0000000115dfcb10> is not JSON serializable
+Traceback (most recent call last):
+  File "/Users/benson/Projects/S2S/utils/logs_utils.py", line 35, in logging_request_header
+    header_msg = json.dumps(handler.request.headers).decode('unicode_escape')
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/__init__.py", line 250, in dumps
+    return _default_encoder.encode(obj)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 217, in encode
+    self.__encode(o, markers, builder, 0)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 263, in __encode
+    res = self.default(o)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 200, in default
+    raise TypeError(repr(o) + " is not JSON serializable")
+TypeError: <tornado.httputil.HTTPHeaders object at 0x0000000115dfcb10> is not JSON serializable
+[2017-09-18 14:13:18,940] DEBUG applicaiton_handler.py:post: [line:127] RequestBody:
+[2017-09-18 14:13:18,942] ERROR application.py:log_request: [line:184] HTTPResult:500 POST /v1/app/listAll (127.0.0.1) 9.04ms
+[2017-09-18 14:14:04,803] ERROR applicaiton_handler.py:post: [line:126] ErrorStack:
+Type: <type 'exceptions.TypeError'>
+Value: <tornado.httputil.HTTPHeaders object at 0x0000000115272560> is not JSON serializable
+Traceback (most recent call last):
+  File "/Users/benson/Projects/S2S/utils/logs_utils.py", line 35, in logging_request_header
+    header_msg = json.dumps(handler.request.headers).decode('unicode_escape')
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/__init__.py", line 250, in dumps
+    return _default_encoder.encode(obj)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 217, in encode
+    self.__encode(o, markers, builder, 0)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 263, in __encode
+    res = self.default(o)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 200, in default
+    raise TypeError(repr(o) + " is not JSON serializable")
+TypeError: <tornado.httputil.HTTPHeaders object at 0x0000000115272560> is not JSON serializable
+[2017-09-18 14:14:04,804] DEBUG applicaiton_handler.py:post: [line:127] RequestBody:
+[2017-09-18 14:14:04,806] ERROR application.py:log_request: [line:184] HTTPResult:500 POST /v1/app/listAll (127.0.0.1) 3.98ms
+[2017-09-18 14:14:23,315] ERROR applicaiton_handler.py:post: [line:126] ErrorStack:
+Type: <type 'exceptions.TypeError'>
+Value: <tornado.httputil.HTTPHeaders object at 0x000000011446e090> is not JSON serializable
+Traceback (most recent call last):
+  File "/Users/benson/Projects/S2S/utils/logs_utils.py", line 35, in logging_request_header
+    header_msg = json.dumps(handler.request.headers).decode('unicode_escape')
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/__init__.py", line 250, in dumps
+    return _default_encoder.encode(obj)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 217, in encode
+    self.__encode(o, markers, builder, 0)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 263, in __encode
+    res = self.default(o)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 200, in default
+    raise TypeError(repr(o) + " is not JSON serializable")
+TypeError: <tornado.httputil.HTTPHeaders object at 0x000000011446e090> is not JSON serializable
+[2017-09-18 14:14:23,317] DEBUG applicaiton_handler.py:post: [line:127] RequestBody:
+[2017-09-18 14:14:23,319] ERROR application.py:log_request: [line:184] HTTPResult:500 POST /v1/app/listAll (127.0.0.1) 5.25ms
+[2017-09-18 14:14:35,848] ERROR applicaiton_handler.py:post: [line:126] ErrorStack:
+Type: <type 'exceptions.TypeError'>
+Value: <tornado.httputil.HTTPHeaders object at 0x0000000114239d00> is not JSON serializable
+Traceback (most recent call last):
+  File "/Users/benson/Projects/S2S/utils/logs_utils.py", line 35, in logging_request_header
+    header_msg = json.dumps(handler.request.headers).decode('unicode_escape')
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/__init__.py", line 250, in dumps
+    return _default_encoder.encode(obj)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 217, in encode
+    self.__encode(o, markers, builder, 0)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 263, in __encode
+    res = self.default(o)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 200, in default
+    raise TypeError(repr(o) + " is not JSON serializable")
+TypeError: <tornado.httputil.HTTPHeaders object at 0x0000000114239d00> is not JSON serializable
+[2017-09-18 14:14:35,851] DEBUG applicaiton_handler.py:post: [line:127] RequestBody:ader_id=1
+[2017-09-18 14:14:35,855] ERROR application.py:log_request: [line:184] HTTPResult:500 POST /v1/app/listAll (127.0.0.1) 7.71ms
+[2017-09-18 14:15:39,110] ERROR applicaiton_handler.py:post: [line:126] ErrorStack:
+Type: <type 'exceptions.TypeError'>
+Value: <tornado.httputil.HTTPHeaders object at 0x00000001120fec98> is not JSON serializable
+Traceback (most recent call last):
+  File "/Users/benson/Projects/S2S/utils/logs_utils.py", line 36, in logging_request_header
+    header_msg = json.dumps(handler.request.headers).decode('unicode_escape')
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/__init__.py", line 250, in dumps
+    return _default_encoder.encode(obj)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 217, in encode
+    self.__encode(o, markers, builder, 0)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 263, in __encode
+    res = self.default(o)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 200, in default
+    raise TypeError(repr(o) + " is not JSON serializable")
+TypeError: <tornado.httputil.HTTPHeaders object at 0x00000001120fec98> is not JSON serializable
+[2017-09-18 14:15:39,113] DEBUG applicaiton_handler.py:post: [line:127] RequestBody:ader_id=1
+[2017-09-18 14:15:39,147] ERROR application.py:log_request: [line:184] HTTPResult:500 POST /v1/app/listAll (127.0.0.1) 39.14ms
+[2017-09-18 14:16:01,421] ERROR applicaiton_handler.py:post: [line:126] ErrorStack:
+Type: <type 'exceptions.TypeError'>
+Value: <tornado.httputil.HTTPHeaders object at 0x0000000111f006b0> is not JSON serializable
+Traceback (most recent call last):
+  File "/Users/benson/Projects/S2S/utils/logs_utils.py", line 36, in logging_request_header
+    header_msg = json.dumps(handler.request.headers).decode('unicode_escape')
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/__init__.py", line 250, in dumps
+    return _default_encoder.encode(obj)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 217, in encode
+    self.__encode(o, markers, builder, 0)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 263, in __encode
+    res = self.default(o)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 200, in default
+    raise TypeError(repr(o) + " is not JSON serializable")
+TypeError: <tornado.httputil.HTTPHeaders object at 0x0000000111f006b0> is not JSON serializable
+[2017-09-18 14:16:01,422] DEBUG applicaiton_handler.py:post: [line:127] RequestBody:------WebKitFormBoundarytRXuADDYSmh6YApG--
+[2017-09-18 14:16:01,424] ERROR application.py:log_request: [line:184] HTTPResult:500 POST /v1/app/listAll (127.0.0.1) 3.38ms
+[2017-09-18 14:18:35,762] ERROR applicaiton_handler.py:post: [line:126] ErrorStack:
+Type: <type 'exceptions.TypeError'>
+Value: <tornado.httputil.HTTPHeaders object at 0x0000000109ecb9b8> is not JSON serializable
+Traceback (most recent call last):
+  File "/Users/benson/Projects/S2S/utils/logs_utils.py", line 37, in logging_request_header
+    header_msg = json.dumps(handler.request.headers).decode('unicode_escape')
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/__init__.py", line 250, in dumps
+    return _default_encoder.encode(obj)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 217, in encode
+    self.__encode(o, markers, builder, 0)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 263, in __encode
+    res = self.default(o)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 200, in default
+    raise TypeError(repr(o) + " is not JSON serializable")
+TypeError: <tornado.httputil.HTTPHeaders object at 0x0000000109ecb9b8> is not JSON serializable
+[2017-09-18 14:18:35,768] DEBUG applicaiton_handler.py:post: [line:127] RequestBody:
+[2017-09-18 14:18:35,772] ERROR application.py:log_request: [line:184] HTTPResult:500 POST /v1/app/listAll (127.0.0.1) 12.33ms
+[2017-09-18 14:57:07,015] ERROR applicaiton_handler.py:post: [line:126] ErrorStack:
+Type: <type 'exceptions.TypeError'>
+Value: <tornado.httputil.HTTPHeaders object at 0x000000010d249590> is not JSON serializable
+Traceback (most recent call last):
+  File "/Users/benson/Projects/S2S/utils/logs_utils.py", line 37, in logging_request_header
+    header_msg = json.dumps(handler.request.headers).decode('unicode_escape')
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/__init__.py", line 250, in dumps
+    return _default_encoder.encode(obj)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 217, in encode
+    self.__encode(o, markers, builder, 0)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 263, in __encode
+    res = self.default(o)
+  File "/usr/local/Cellar/pypy/5.8.0/libexec/lib-python/2.7/json/encoder.py", line 200, in default
+    raise TypeError(repr(o) + " is not JSON serializable")
+TypeError: <tornado.httputil.HTTPHeaders object at 0x000000010d249590> is not JSON serializable
+[2017-09-18 14:57:07,023] DEBUG applicaiton_handler.py:post: [line:127] RequestBody:
+[2017-09-18 14:57:07,062] ERROR application.py:log_request: [line:184] HTTPResult:500 POST /v1/app/listAll (127.0.0.1) 49.81ms
+[2017-09-18 15:08:11,040] DEBUG applicaiton_handler.py:post: [line:126] RequestHeader:{"_dict": {"Host": "127.0.0.1:8000", "Connection": "keep-alive", "Content-Length": "0", "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36", "Postman-Token": "441cec1b-4cb8-9962-0e14-b0f3dabb2d0c", "Cache-Control": "no-cache", "Origin": "chrome-extension://aicmkgpgakddgnaphhhpliifpcfhicfo", "X-Postman-Interceptor-Id": "0bc56066-c019-2bf9-7778-dcee9f8db69a", "Cmdid": "2", "Content-Type": "application/x-www-form-urlencoded", "Accept": "*/*", "Accept-Encoding": "gzip, deflate, br", "Accept-Language": "zh-CN,zh;q=0.8", "Cookie": "user_id="2|1:0|10:1505108610|7:user_id|4:MQ==|9b137190cd1dcec315365d17b6d8b0bafb0343abe13b84b7f96a99cd8fc8afb3""}, "_as_list": {"Host": ["127.0.0.1:8000"], "Connection": ["keep-alive"], "Content-Length": ["0"], "User-Agent": ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"], "Postman-Token": ["441cec1b-4cb8-9962-0e14-b0f3dabb2d0c"], "Cache-Control": ["no-cache"], "Origin": ["chrome-extension://aicmkgpgakddgnaphhhpliifpcfhicfo"], "X-Postman-Interceptor-Id": ["0bc56066-c019-2bf9-7778-dcee9f8db69a"], "Cmdid": ["2"], "Content-Type": ["application/x-www-form-urlencoded"], "Accept": ["*/*"], "Accept-Encoding": ["gzip, deflate, br"], "Accept-Language": ["zh-CN,zh;q=0.8"], "Cookie": ["user_id="2|1:0|10:1505108610|7:user_id|4:MQ==|9b137190cd1dcec315365d17b6d8b0bafb0343abe13b84b7f96a99cd8fc8afb3""]}, "_last_key": "Cookie"}
+[2017-09-18 15:08:11,041] DEBUG applicaiton_handler.py:post: [line:127] RequestBody:
+[2017-09-18 15:08:11,050] ERROR application.py:log_request: [line:184] HTTPResult:500 POST /v1/app/listAll (127.0.0.1) 14.01ms
+[2017-09-18 15:14:26,694] DEBUG applicaiton_handler.py:post: [line:127] RequestHeader:{"_dict": {"Host": "127.0.0.1:8000", "Connection": "keep-alive", "Content-Length": "0", "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36", "Postman-Token": "0468f020-a3c2-81c0-a99e-a8e35aeca470", "Cache-Control": "no-cache", "Origin": "chrome-extension://aicmkgpgakddgnaphhhpliifpcfhicfo", "X-Postman-Interceptor-Id": "23d85cd5-5870-df4c-b815-b259fe9fcd91", "Cmdid": "2", "Content-Type": "application/x-www-form-urlencoded", "Accept": "*/*", "Accept-Encoding": "gzip, deflate, br", "Accept-Language": "zh-CN,zh;q=0.8", "Cookie": "user_id="2|1:0|10:1505108610|7:user_id|4:MQ==|9b137190cd1dcec315365d17b6d8b0bafb0343abe13b84b7f96a99cd8fc8afb3""}, "_as_list": {"Host": ["127.0.0.1:8000"], "Connection": ["keep-alive"], "Content-Length": ["0"], "User-Agent": ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"], "Postman-Token": ["0468f020-a3c2-81c0-a99e-a8e35aeca470"], "Cache-Control": ["no-cache"], "Origin": ["chrome-extension://aicmkgpgakddgnaphhhpliifpcfhicfo"], "X-Postman-Interceptor-Id": ["23d85cd5-5870-df4c-b815-b259fe9fcd91"], "Cmdid": ["2"], "Content-Type": ["application/x-www-form-urlencoded"], "Accept": ["*/*"], "Accept-Encoding": ["gzip, deflate, br"], "Accept-Language": ["zh-CN,zh;q=0.8"], "Cookie": ["user_id="2|1:0|10:1505108610|7:user_id|4:MQ==|9b137190cd1dcec315365d17b6d8b0bafb0343abe13b84b7f96a99cd8fc8afb3""]}, "_last_key": "Cookie"}
+[2017-09-18 15:14:26,695] DEBUG applicaiton_handler.py:post: [line:128] RequestBody:
+[2017-09-18 15:14:26,699] ERROR application.py:log_request: [line:184] HTTPResult:500 POST /v1/app/listAll (127.0.0.1) 10.32ms
+[2017-09-18 15:20:49,746] DEBUG applicaiton_handler.py:post: [line:128] RequestHeader:{"_dict": {"Host": "127.0.0.1:8000", "Connection": "keep-alive", "Content-Length": "0", "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36", "Postman-Token": "2d1e348c-054c-b918-2b84-50d769937dcd", "Cache-Control": "no-cache", "Origin": "chrome-extension://aicmkgpgakddgnaphhhpliifpcfhicfo", "X-Postman-Interceptor-Id": "7f022c4b-daf1-2b0b-484c-077fe6cb20a4", "Cmdid": "2", "Content-Type": "application/x-www-form-urlencoded", "Accept": "*/*", "Accept-Encoding": "gzip, deflate, br", "Accept-Language": "zh-CN,zh;q=0.8", "Cookie": "user_id="2|1:0|10:1505108610|7:user_id|4:MQ==|9b137190cd1dcec315365d17b6d8b0bafb0343abe13b84b7f96a99cd8fc8afb3""}, "_as_list": {"Host": ["127.0.0.1:8000"], "Connection": ["keep-alive"], "Content-Length": ["0"], "User-Agent": ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"], "Postman-Token": ["2d1e348c-054c-b918-2b84-50d769937dcd"], "Cache-Control": ["no-cache"], "Origin": ["chrome-extension://aicmkgpgakddgnaphhhpliifpcfhicfo"], "X-Postman-Interceptor-Id": ["7f022c4b-daf1-2b0b-484c-077fe6cb20a4"], "Cmdid": ["2"], "Content-Type": ["application/x-www-form-urlencoded"], "Accept": ["*/*"], "Accept-Encoding": ["gzip, deflate, br"], "Accept-Language": ["zh-CN,zh;q=0.8"], "Cookie": ["user_id="2|1:0|10:1505108610|7:user_id|4:MQ==|9b137190cd1dcec315365d17b6d8b0bafb0343abe13b84b7f96a99cd8fc8afb3""]}, "_last_key": "Cookie"}
+[2017-09-18 15:20:49,747] DEBUG applicaiton_handler.py:post: [line:129] RequestBody:
+[2017-09-18 15:20:49,754] ERROR application.py:log_request: [line:184] HTTPResult:500 POST /v1/app/listAll (127.0.0.1) 11.15ms
+[2017-09-18 15:21:34,660] DEBUG applicaiton_handler.py:post: [line:128] RequestHeader:{"_dict": {"Host": "127.0.0.1:8000", "Connection": "keep-alive", "Content-Length": "0", "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36", "Postman-Token": "ca34cda8-2094-fb48-fa4d-f535076590b8", "Cache-Control": "no-cache", "Origin": "chrome-extension://aicmkgpgakddgnaphhhpliifpcfhicfo", "X-Postman-Interceptor-Id": "55f11ca0-0a07-0ae5-1a72-66ea6d176a62", "Cmdid": "2", "Content-Type": "application/x-www-form-urlencoded", "Accept": "*/*", "Accept-Encoding": "gzip, deflate, br", "Accept-Language": "zh-CN,zh;q=0.8", "Cookie": "user_id="2|1:0|10:1505108610|7:user_id|4:MQ==|9b137190cd1dcec315365d17b6d8b0bafb0343abe13b84b7f96a99cd8fc8afb3""}, "_as_list": {"Host": ["127.0.0.1:8000"], "Connection": ["keep-alive"], "Content-Length": ["0"], "User-Agent": ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"], "Postman-Token": ["ca34cda8-2094-fb48-fa4d-f535076590b8"], "Cache-Control": ["no-cache"], "Origin": ["chrome-extension://aicmkgpgakddgnaphhhpliifpcfhicfo"], "X-Postman-Interceptor-Id": ["55f11ca0-0a07-0ae5-1a72-66ea6d176a62"], "Cmdid": ["2"], "Content-Type": ["application/x-www-form-urlencoded"], "Accept": ["*/*"], "Accept-Encoding": ["gzip, deflate, br"], "Accept-Language": ["zh-CN,zh;q=0.8"], "Cookie": ["user_id="2|1:0|10:1505108610|7:user_id|4:MQ==|9b137190cd1dcec315365d17b6d8b0bafb0343abe13b84b7f96a99cd8fc8afb3""]}, "_last_key": "Cookie"}
+[2017-09-18 15:21:34,662] DEBUG applicaiton_handler.py:post: [line:129] RequestBody:
+[2017-09-18 15:21:34,664] ERROR application.py:log_request: [line:184] HTTPResult:500 POST /v1/app/listAll (127.0.0.1) 4.89ms
+[2017-09-18 15:26:01,739] DEBUG applicaiton_handler.py:post: [line:128] RequestHeader:{"_dict": {"Host": "127.0.0.1:8000", "Connection": "keep-alive", "Content-Length": "0", "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36", "Postman-Token": "2cc6db7e-91af-8b45-6d7d-e6e80238a78e", "Cache-Control": "no-cache", "Origin": "chrome-extension://aicmkgpgakddgnaphhhpliifpcfhicfo", "X-Postman-Interceptor-Id": "b5d78d6c-7421-3245-2c13-dea37eceeb27", "Cmdid": "2", "Content-Type": "application/x-www-form-urlencoded", "Accept": "*/*", "Accept-Encoding": "gzip, deflate, br", "Accept-Language": "zh-CN,zh;q=0.8", "Cookie": "user_id="2|1:0|10:1505108610|7:user_id|4:MQ==|9b137190cd1dcec315365d17b6d8b0bafb0343abe13b84b7f96a99cd8fc8afb3""}, "_as_list": {"Host": ["127.0.0.1:8000"], "Connection": ["keep-alive"], "Content-Length": ["0"], "User-Agent": ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"], "Postman-Token": ["2cc6db7e-91af-8b45-6d7d-e6e80238a78e"], "Cache-Control": ["no-cache"], "Origin": ["chrome-extension://aicmkgpgakddgnaphhhpliifpcfhicfo"], "X-Postman-Interceptor-Id": ["b5d78d6c-7421-3245-2c13-dea37eceeb27"], "Cmdid": ["2"], "Content-Type": ["application/x-www-form-urlencoded"], "Accept": ["*/*"], "Accept-Encoding": ["gzip, deflate, br"], "Accept-Language": ["zh-CN,zh;q=0.8"], "Cookie": ["user_id="2|1:0|10:1505108610|7:user_id|4:MQ==|9b137190cd1dcec315365d17b6d8b0bafb0343abe13b84b7f96a99cd8fc8afb3""]}, "_last_key": "Cookie"}
+[2017-09-18 15:26:01,740] DEBUG applicaiton_handler.py:post: [line:129] RequestBody:
+[2017-09-18 15:26:01,746] ERROR application.py:log_request: [line:184] HTTPResult:500 POST /v1/app/listAll (127.0.0.1) 9.35ms
+[2017-09-18 15:28:05,521] DEBUG applicaiton_handler.py:post: [line:129] RequestHeader:{"_dict": {"Host": "127.0.0.1:8000", "Connection": "keep-alive", "Content-Length": "0", "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36", "Postman-Token": "957cc4bb-3892-0dfa-2e89-7cac276af253", "Cache-Control": "no-cache", "Origin": "chrome-extension://aicmkgpgakddgnaphhhpliifpcfhicfo", "X-Postman-Interceptor-Id": "ace454c6-355e-41ea-d1a2-630d89f65ea2", "Cmdid": "2", "Content-Type": "application/x-www-form-urlencoded", "Accept": "*/*", "Accept-Encoding": "gzip, deflate, br", "Accept-Language": "zh-CN,zh;q=0.8", "Cookie": "user_id="2|1:0|10:1505108610|7:user_id|4:MQ==|9b137190cd1dcec315365d17b6d8b0bafb0343abe13b84b7f96a99cd8fc8afb3""}, "_as_list": {"Host": ["127.0.0.1:8000"], "Connection": ["keep-alive"], "Content-Length": ["0"], "User-Agent": ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"], "Postman-Token": ["957cc4bb-3892-0dfa-2e89-7cac276af253"], "Cache-Control": ["no-cache"], "Origin": ["chrome-extension://aicmkgpgakddgnaphhhpliifpcfhicfo"], "X-Postman-Interceptor-Id": ["ace454c6-355e-41ea-d1a2-630d89f65ea2"], "Cmdid": ["2"], "Content-Type": ["application/x-www-form-urlencoded"], "Accept": ["*/*"], "Accept-Encoding": ["gzip, deflate, br"], "Accept-Language": ["zh-CN,zh;q=0.8"], "Cookie": ["user_id="2|1:0|10:1505108610|7:user_id|4:MQ==|9b137190cd1dcec315365d17b6d8b0bafb0343abe13b84b7f96a99cd8fc8afb3""]}, "_last_key": "Cookie"}
+[2017-09-18 15:28:05,527] DEBUG applicaiton_handler.py:post: [line:130] RequestBody:
+[2017-09-18 15:28:05,529] DEBUG applicaiton_handler.py:post: [line:161] ResponseMsg:{"code": 3, "message": "JSON解析失败", "timestamp": 0, "cmdid": 2}
+[2017-09-18 15:28:05,531] INFO application.py:log_request: [line:184] HTTPResult:200 POST /v1/app/listAll (127.0.0.1) 12.97ms
+[2017-09-18 15:28:19,019] DEBUG applicaiton_handler.py:post: [line:129] RequestHeader:{"_dict": {"Host": "127.0.0.1:8000", "Connection": "keep-alive", "Content-Length": "0", "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36", "Postman-Token": "809b5132-adcc-faf3-4437-10e9e1162f7a", "Cache-Control": "no-cache", "Origin": "chrome-extension://aicmkgpgakddgnaphhhpliifpcfhicfo", "X-Postman-Interceptor-Id": "606f12c1-53ea-7541-6a6f-f85e85e4aad2", "Cmdid": "2", "Content-Type": "application/x-www-form-urlencoded", "Accept": "*/*", "Accept-Encoding": "gzip, deflate, br", "Accept-Language": "zh-CN,zh;q=0.8", "Cookie": "user_id="2|1:0|10:1505108610|7:user_id|4:MQ==|9b137190cd1dcec315365d17b6d8b0bafb0343abe13b84b7f96a99cd8fc8afb3""}, "_as_list": {"Host": ["127.0.0.1:8000"], "Connection": ["keep-alive"], "Content-Length": ["0"], "User-Agent": ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"], "Postman-Token": ["809b5132-adcc-faf3-4437-10e9e1162f7a"], "Cache-Control": ["no-cache"], "Origin": ["chrome-extension://aicmkgpgakddgnaphhhpliifpcfhicfo"], "X-Postman-Interceptor-Id": ["606f12c1-53ea-7541-6a6f-f85e85e4aad2"], "Cmdid": ["2"], "Content-Type": ["application/x-www-form-urlencoded"], "Accept": ["*/*"], "Accept-Encoding": ["gzip, deflate, br"], "Accept-Language": ["zh-CN,zh;q=0.8"], "Cookie": ["user_id="2|1:0|10:1505108610|7:user_id|4:MQ==|9b137190cd1dcec315365d17b6d8b0bafb0343abe13b84b7f96a99cd8fc8afb3""]}, "_last_key": "Cookie"}
+[2017-09-18 15:28:19,020] DEBUG applicaiton_handler.py:post: [line:130] RequestBody:
+[2017-09-18 15:28:19,020] DEBUG applicaiton_handler.py:post: [line:161] ResponseMsg:{"code": 3, "message": "JSON解析失败", "timestamp": 0, "cmdid": 2}
+[2017-09-18 15:28:19,021] INFO application.py:log_request: [line:184] HTTPResult:200 POST /v1/app/listAll (127.0.0.1) 2.89ms

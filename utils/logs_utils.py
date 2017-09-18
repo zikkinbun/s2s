@@ -32,7 +32,9 @@ class Tracker(object):
         '''
 
         try:
-            header_msg = json.dumps(handler.request.headers).decode('unicode_escape')
+            # print handler.request.headers.__dict__
+            # print type(handler.request.headers)
+            header_msg = json.dumps(handler.request.headers.__dict__).decode('unicode_escape')
             self.logger.debug(self._assemble_msg('RequestHeader', header_msg))
         except:
             self.trace_error()
@@ -44,7 +46,7 @@ class Tracker(object):
 
         try:
             # TODO: if protocol buffer is used, body_msg has to change
-            
+
             body_msg = handler.request.body.decode('unicode_escape').replace('\n', '')
             self.logger.debug(self._assemble_msg('RequestBody', body_msg))
         except:

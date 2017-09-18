@@ -4,14 +4,20 @@ import tornado.httpclient
 
 from model.application_model import ApplicationModel
 from base_handler import BaseHandler
-import sign_api
-
 from urlparse import urlparse
+from utils.protocol_utils import ResponseBuilder
+from utils.common_utils import ComplexEncoder
+from utils.errors import BaseError, CommonError
+from utils.exception import BaseException, DBException, ParamException
+from utils import verify_utils
+
 import os
+import urls
 import json
 import random
 import string
 import base64
+import sign_api
 
 class CreateApplication(BaseHandler):
 
@@ -87,27 +93,117 @@ class ListApplication(BaseHandler):
 
 class ListAllApp(BaseHandler):
 
+    def __init__(self, *request, **kwargs):
+        super(ListAllApp, self).__init__(request[0], request[1])
+        self.set_header("Content-Type", "application/json")
+        self.tracker = self.application.tracker
+        self.sys_logger = self.application.sys_logger
+        self.cmdid = 0
+        self.timestamp = 0
+        self.params = dict()
+        self.response = dict()
+
+
     @tornado.gen.coroutine
     def post(self):
+        # try:
+            # db_conns = self.application.db_conns
+            # appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
+            # data = appmodel.list_application_all()
+            # if data:
+            #     message = {
+            #         'retcode': 0,
+            #         'retdata': data,
+            #         'retmsg': 'success'
+            #     }
+            #     self.write(message)
+            # else:
+            #     self.write_error(500)
+        # except Exception as e:
+        #     message = {
+        #         'retcode': 7002,
+        #         'retmsg': 'databases operate error'
+        #     }
+        #     self.write(message)
         try:
-            db_conns = self.application.db_conns
-            appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
-            data = appmodel.list_application_all()
-            if data:
-                message = {
-                    'retcode': 0,
-                    'retdata': data,
-                    'retmsg': 'success'
-                }
-                self.write(message)
-            else:
-                self.write_error(500)
-        except Exception as e:
-            message = {
-                'retcode': 7002,
-                'retmsg': 'databases operate error'
-            }
-            self.write(message)
+            self.tracker.logging_request_header(self)
+            self.tracker.logging_request_body(self)
+            self._parse_request()
+
+            # 分发 processor
+            processor = urls.processor_mapping.get(self.cmdid)
+            if not processor:
+                # 协议不存在
+                raise BaseException(BaseError.ERROR_COMMON_CMD_NOT_EXISTS)
+            # 协议处理
+            if processor[1]:
+                # 内部调用的协议
+                raise BaseException(BaseError.ERROR_COMMON_PROTOCOL_FOR_INTERNAL_ONLY)
+            processor = processor[0]
+            data = yield processor(self).process()
+
+            # 成功
+            self.res = ResponseBuilder.build_success(self, data)
+        except BaseException, e:
+            # 根据捕获的UFOException返回错误信息
+            self.res = ResponseBuilder.build_error(self, e)
+        except DBException, e:
+            # 如果是底层未处理的DBException, 在这里转化为UFOException
+            self.tracker.trace_error()
+            e = BaseException(BaseError.ERROR_COMMON_DATABASE_EXCEPTION)
+            self.res = ResponseBuilder.build_error(self, e)
+        except Exception, e:
+            self.tracker.trace_error()
+            e = BaseException(BaseError.ERROR_COMMON_UNKNOWN)
+            self.res = ResponseBuilder.build_error(self, e)
+
+        # 记录响应
+        self.tracker.logging_response(self)
+
+        # 响应
+        self.write(json.dumps(self.res, cls=ComplexEncoder))
+        self.finish()
+        # return
+
+    def _parse_request(self):
+        '''
+        解析请求参数
+        '''
+
+        # 从header中解析参数
+        try:
+            self.cmdid = int(self.request.headers.get('cmdid', 0))
+        except:
+            raise ParamException('cmdid')
+
+        try:
+            self.timestamp = long(self.request.headers.get('timestamp', 0))
+        except:
+            raise ParamException('timestamp')
+
+        # json解析
+        try:
+            json_body = json.loads(self.request.body)
+        except:
+            raise BaseException(BaseError.ERROR_COMMON_PARSE_JSON_FAILED)
+
+        # 参数校验
+        self.userid = json_body.get('userid')
+        if not verify_utils.is_int(self.userid):
+            raise ParamException('userid')
+
+        self.userkey = json_body.get('userkey')
+        if not verify_utils.is_string(self.userkey):
+            raise ParamException('userkey')
+
+        self.params = json_body.get('params')
+        if not verify_utils.is_dict(self.params):
+            raise ParamException('params')
+
+    def _log(self):
+        '''
+        '''
+        self.application.log_request(self)
 
 class getApplicationDetail(BaseHandler):
 

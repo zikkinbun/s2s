@@ -82,14 +82,16 @@ class AMChannelOper(BaseHandler):
 
 class AMCreateOfferByUnion(BaseHandler):
 
+    executor = ThreadPoolExecutor(5)
+
     @tornado.gen.coroutine
     def post(self):
-        # ader_id = self.get_argument('ader_id', None)
-        ader_id = json.loads(self.request.body)['ader_id']
+        ader_id = self.get_argument('ader_id', None)
+        # ader_id = json.loads(self.request.body)['ader_id']
         if ader_id is None:
             raise tornado.web.MissingArgumentError('ader_id')
-        # app_id = self.get_argument('app_id', None)
-        app_id = json.loads(self.request.body)['app_id']
+        app_id = self.get_argument('app_id', None)
+        # app_id = json.loads(self.request.body)['app_id']
         if app_id is None:
             raise tornado.web.MissingArgumentError('app_id')
         try:
@@ -105,13 +107,8 @@ class AMCreateOfferByUnion(BaseHandler):
                 self.write(message)
             else:
                 try:
-                    # AT = AdvertiseTransOffer()
-                    transform_advertise = yield tornado.gen.Task(self.tranOffer, ader_id, app_id, checkout_data[0]['divide'])
-                    # catch_advertise = AT.getAdvertiseByAderID(ader_id)
-                    # print catch_advertise['retcode']
-                    # if catch_advertise['retcode'] == 0 or catch_advertise['retcode'] == '0':
-                        # print checkout_data[0]['divide']
-                        # msg = AT.tranOffer(app_id, checkout_data[0]['divide'])
+                    # transform_advertise = yield tornado.gen.Task(self.tranOffer, ader_id, app_id, checkout_data[0]['divide'])
+                    transform_advertise = yield self.tranOffer(ader_id, app_id, checkout_data[0]['divide'])
                     message = {
                         'retcode': 0,
                         'retmsg': 'success to create offer'
@@ -139,6 +136,7 @@ class AMCreateOfferByUnion(BaseHandler):
         return db_conns
 
     @tornado.gen.coroutine
+    @run_on_executor
     def tranOffer(self, ader_id, app_id, divide):
         db_conns = self.db_conntor()
         offermodel = OfferModel(db_conns['read'], db_conns['write'])
