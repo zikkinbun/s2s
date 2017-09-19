@@ -68,5 +68,8 @@ def processor(cmdid, is_internal=False):
     '''
     def _module_dec(cls):
         processor_mapping[cmdid] = cls, is_internal
+        # print cls
+        # print is_internal
         return cls
+    # print _module_dec
     return _module_dec

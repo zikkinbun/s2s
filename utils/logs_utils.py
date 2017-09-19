@@ -34,7 +34,7 @@ class Tracker(object):
         try:
             # print handler.request.headers.__dict__
             # print type(handler.request.headers)
-            header_msg = json.dumps(handler.request.headers.__dict__).decode('unicode_escape')
+            header_msg = json.dumps((handler.request.headers.__dict__)['_dict']).decode('unicode_escape')
             self.logger.debug(self._assemble_msg('RequestHeader', header_msg))
         except:
             self.trace_error()

@@ -22,9 +22,9 @@ class BaseProcessor(object):
         self.application = handler.application
         self.params = handler.params
         self.cmdid = handler.cmdid
-        self.userid = handler.userid
-        self.userkey = handler.userkey
-        self.timestamp = handler.timestamp
+        # self.userid = handler.userid
+        # self.userkey = handler.userkey
+        # self.timestamp = handler.timestamp
 
         # 当前时间戳(秒)
         self.NTIME = int(time.time())

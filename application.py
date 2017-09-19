@@ -191,8 +191,8 @@ def main():
     port = options.port
     initlog(port)
 
-    signal.signal(signal.SIGINT, shutdown_handler)
-    signal.signal(signal.SIGTERM, shutdown_handler)
+    # signal.signal(signal.SIGINT, shutdown_handler)
+    # signal.signal(signal.SIGTERM, shutdown_handler)
 
     _http_server_app = Application()
     http_server = tornado.httpserver.HTTPServer(_http_server_app)

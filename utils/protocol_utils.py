@@ -19,12 +19,12 @@ class ResponseBuilder(object):
             A json string
         '''
         print e
-        print handler
+        # print handler
         res = {}
-        res['code'] = e.code
-        res['message'] = e.message
-        res['timestamp'] = handler.timestamp
-        res['cmdid'] = handler.cmdid
+        res['retcode'] = e.code
+        res['retmsg'] = e.message
+        # res['timestamp'] = handler.timestamp
+        # res['retcmdid'] = handler.cmdid
         res.update(e.ext)
 
         return res
@@ -40,13 +40,13 @@ class ResponseBuilder(object):
         Returns:
             A json string
         '''
-        print data
-        print handler
+        # print data
+        # print handler
         res = {}
-        res['code'] = BaseError.SUCCESS
-        res['message'] = BaseError.get_message(res['code'])
-        res['timestamp'] = handler.timestamp
-        res['cmdid'] = handler.cmdid
-        res['data'] = data if data is not None else {}
+        res['retcode'] = BaseError.SUCCESS
+        res['retmsg'] = BaseError.get_message(res['retcode'])
+        # res['timestamp'] = handler.timestamp
+        # res['retcmdid'] = handler.cmdid
+        res['retdata'] = data if data is not None else {}
 
         return res
