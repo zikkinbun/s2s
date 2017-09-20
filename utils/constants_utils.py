@@ -7,7 +7,7 @@ class BaseConstant(object):
     # 协议号
     CMD_LOGIN = 1
 
-    # 应用列表
+    # 应用相关协议
     LIST_APP_ALL = 2
     LIST_APP_BY_CHNID = 3
     CREATE_APP = 4
@@ -17,3 +17,11 @@ class BaseConstant(object):
     SET_APP_CALLBACKURL = 8
     SET_DP = 9
     GET_APP_INCOME = 10
+
+    # 广告相关协议
+    GET_AD_BY_ID = 11
+    GET_AD_BY_GETPRICE = 12
+    GET_AD_ALL = 13
+    CREATE_ADER = 14
+    GET_ADER = 15
+    GET_ADER_INCOME = 16

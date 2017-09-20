@@ -17,9 +17,10 @@ class CommonError(object):
 
     ERROR_COMMON_CMD_NOT_EXISTS = 10
     ERROR_COMMON_DATABASE_EXCEPTION = 11
-    ERROR_USER_NOT_EXIST=12
-    ERROR_PASSWORD_ERROR=14
+    ERROR_USER_NOT_EXIST = 12
+    ERROR_PASSWORD_ERROR = 14
     ERROR_COMMON_NO_RECORD_EXISTS = 15
+    ERROR_ADER_ALREADY_EXIST = 16
     ERROR_COMMON_NOT_ENOUGH_CANDY = 900
 
     ERROR_COMMON_UNKNOWN = 1000
@@ -41,6 +42,7 @@ class CommonError(object):
         ERROR_PASSWORD_ERROR:'用户名或密码错误',
 
         ERROR_COMMON_NO_RECORD_EXISTS: '记录不存在',
+        ERROR_ADER_ALREADY_EXIST: '广告主已经存在'
 }
 
 class BaseError(CommonError):
@@ -62,7 +64,7 @@ class BaseError(CommonError):
     message = {
         ERROR_RONG_REQUEST_ERROR:'融云请求错误'
     }
-    
+
     message.update(CommonError.common_message)
 
 
