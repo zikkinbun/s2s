@@ -11,3 +11,9 @@ class BaseConstant(object):
     LIST_APP_ALL = 2
     LIST_APP_BY_CHNID = 3
     CREATE_APP = 4
+    GET_APP_DETAIL = 5
+    GET_APP_TOKENURL = 6
+    UPDATE_APP_CALLBACKURL = 7
+    SET_APP_CALLBACKURL = 8
+    SET_DP = 9
+    GET_APP_INCOME = 10

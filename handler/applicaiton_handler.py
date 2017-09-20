@@ -81,254 +81,132 @@ class ListAllApp(BaseHandler):
 
 class getApplicationDetail(BaseHandler):
 
-    @tornado.gen.coroutine
-    def post(self):
-        # print self.request.body
-        app_id = json.loads(self.request.body)['app_id']
-        if app_id is None:
-            raise tornado.web.MissingArgumentError('app_id')
-        chn_id = json.loads(self.request.body)['chn_id']
-        if chn_id is None:
-            raise tornado.web.MissingArgumentError('chn_id')
+    def __init__(self, *request, **kwargs):
+        super(getApplicationDetail, self).__init__(request[0], request[1])
+        self.cmdid = 5
 
+    def _parse_request(self):
+        # json解析
         try:
-            db_conns = self.application.db_conns
-            appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
-            data = appmodel.get_application_detail(app_id, chn_id)
-            if data:
-                message = {
-                    'retcode': 0,
-                    'retdata': data[0],
-                    'retmsg': 'success'
-                }
-                self.write(message)
-            else:
-                self.write_error(500)
-        except Exception as e:
-            message = {
-                'retcode': 7002,
-                'retmsg': 'databases operate error'
-            }
-            self.write(message)
+            json_body = json.loads(self.request.body)
+            # print json_body
+        except:
+            raise BaseException(BaseError.ERROR_COMMON_PARSE_JSON_FAILED)
+
+        # 设定参数字典
+        self.params['app_id'] = json_body.get('app_id')
+        self.params['chn_id'] = json_body.get('chn_id')
+        # print self.params
+        if not verify_utils.is_dict(self.params):
+            raise ParamException('params')
 
 class getAppTokenUrl(BaseHandler):
 
-    @tornado.gen.coroutine
-    def post(self):
-        app_id = json.loads(self.request.body)['app_id']
-        # app_id = self.get_argument('app_id', None)
-        if app_id is None:
-            raise tornado.web.MissingArgumentError('app_id')
-        chn_id = json.loads(self.request.body)['chn_id']
-        # chn_id = self.get_argument('chn_id', None)
-        if chn_id is None:
-            raise tornado.web.MissingArgumentError('chn_id')
+    def __init__(self, *request, **kwargs):
+        super(getAppTokenUrl, self).__init__(request[0], request[1])
+        self.cmdid = 6
+
+    def _parse_request(self):
+        # json解析
         try:
-            db_conns = self.application.db_conns
-            appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
-            data = appmodel.get_application_token_url(app_id, chn_id)
-            if data:
-                message = {
-                    'retcode': 0,
-                    'retdata': {
-                        'callback_token': data[0]['callback_token'],
-                        'callback_url': data[0]['callback_url']
-                    },
-                    'retmsg': 'success'
-                }
-                self.write(message)
-            else:
-                message = {
-                    'retcode': 7002,
-                    'retdata': {
-                        'callback_token': None,
-                        'callback_url': None
-                    },
-                    'retmsg': 'data is none, please reset the url'
-                }
-                self.write(message)
-        except Exception as e:
-            message = {
-                'retcode': 7002,
-                'retdata': {
-                    'callback_token': None,
-                    'callback_url': None
-                },
-                'retmsg': 'data is none, please reset the url'
-            }
-            self.write(message)
+            json_body = json.loads(self.request.body)
+            # print json_body
+        except:
+            raise BaseException(BaseError.ERROR_COMMON_PARSE_JSON_FAILED)
+
+        # 设定参数字典
+        self.params['app_id'] = json_body.get('app_id')
+        self.params['chn_id'] = json_body.get('chn_id')
+        # print self.params
+        if not verify_utils.is_dict(self.params):
+            raise ParamException('params')
 
 class UpdateAppCallbackUrl(BaseHandler):
-
-    @tornado.gen.coroutine
-    def post(self):
-        sign = None
-        app_id = json.loads(self.request.body)['app_id']
-        if app_id is None:
-            raise tornado.web.MissingArgumentError('app_id')
-        chn_id = json.loads(self.request.body)['chn_id']
-        if chn_id is None:
-            raise tornado.web.MissingArgumentError('chn_id')
-        callback_url = json.loads(self.request.body)['callback_url']
-        if callback_url is None:
-            raise tornado.web.MissingArgumentError('callback_url')
-        try:
-            db_conns = self.application.db_conns
-            appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
-            data = appmodel.get_application_token_url(app_id, chn_id)
-            callback_token = data[0]['callback_token']
-            url = sign_api.sign_url(callback_url, callback_token)
-            url_parse = urlparse(url)
-            query = url_parse.query
-            query_array = query.split('&')
-            for group in query_array:
-                k, v = group.split('=')
-                if k == 'sign':
-                    sign = v
-
-            row = appmodel.set_application_detail(callback_url, callback_token, sign, app_id, chn_id)
-            if row:
-                message = {
-                    'retcode': 0,
-                    'retmsg': 'success'
-                }
-                self.write(message)
-            else:
-                self.write_error(500)
-        except Exception as e:
-            message = {
-                'retcode': 7002,
-                'retmsg': 'databases operate error'
-            }
-            self.write(message)
-
-class SetCallbackUrl(BaseHandler):
 
     """
         callback_url = http://your_host/your_script?click_id={user_id}&sub_source_id={chn}&ip={ip}
     """
 
-    @tornado.gen.coroutine
-    def post(self):
-        sign = None
-        chn_id = json.loads(self.request.body)['chn_id']
-        # chn_id = self.get_argument('chn_id', None)
-        if chn_id is None:
-            raise tornado.web.MissingArgumentError('chn_id')
+    def __init__(self, *request, **kwargs):
+        super(UpdateAppCallbackUrl, self).__init__(request[0], request[1])
+        self.cmdid = 7
 
-        app_id = json.loads(self.request.body)['app_id']
-        # app_id = self.get_argument('app_id', None)
-        if app_id is None:
-            raise tornado.web.MissingArgumentError('app_id')
-        callback_url = json.loads(self.request.body)['callback_url']
-        # callback_url = self.get_argument('callback_url', None)
-        if callback_url is None:
-            raise tornado.web.MissingArgumentError('callback_url')
-        callback_token = base64.b64encode(os.urandom(24)) # 包括 app_secret和用户 token
-
-        url = sign_api.sign_url(callback_url, callback_token)
-        # print url
-        url_parse = urlparse(url)
-        query = url_parse.query
-        query_array = query.split('&')
-        for group in query_array:
-            k, v = group.split('=')
-            if k == 'sign':
-                sign = v
-
+    def _parse_request(self):
+        # json解析
         try:
-            db_conns = self.application.db_conns
-            appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
-            data = appmodel.set_application_detail(callback_url, callback_token, sign, app_id, chn_id)
-            # print data
-            message = {
-                'retcode': 0,
-                'retdata': {
-                    'AppSign': sign,
-                },
-                'retmsg': 'success'
-            }
-            self.write(message)
-        except Exception as e:
-            message = {
-                'retcode': 7002,
-                'retmsg': 'databases operate error'
-            }
-            self.write(message)
+            json_body = json.loads(self.request.body)
+            # print json_body
+        except:
+            raise BaseException(BaseError.ERROR_COMMON_PARSE_JSON_FAILED)
+
+        # 设定参数字典
+        self.params['app_id'] = json_body.get('app_id')
+        self.params['chn_id'] = json_body.get('chn_id')
+        self.params['callback_url'] = json_body.get('callback_url')
+        # print self.params
+        if not verify_utils.is_dict(self.params):
+            raise ParamException('params')
+
+class SetCallbackUrl(BaseHandler):
+
+    def __init__(self, *request, **kwargs):
+        super(SetCallbackUrl, self).__init__(request[0], request[1])
+        self.cmdid = 8
+
+    def _parse_request(self):
+        # json解析
+        try:
+            json_body = json.loads(self.request.body)
+            # print json_body
+        except:
+            raise BaseException(BaseError.ERROR_COMMON_PARSE_JSON_FAILED)
+
+        # 设定参数字典
+        self.params['app_id'] = json_body.get('app_id')
+        self.params['chn_id'] = json_body.get('chn_id')
+        self.params['callback_url'] = json_body.get('callback_url')
+        # print self.params
+        if not verify_utils.is_dict(self.params):
+            raise ParamException('params')
 
 class SetDeductionPartition(BaseHandler):
 
-    @tornado.gen.coroutine
-    def post(self):
-        # app_id = self.get_argument('app_id', None)
-        app_id = json.loads(self.request.body)['app_id']
-        if app_id is None:
-            raise tornado.web.MissingArgumentError('app_id')
+    def __init__(self, *request, **kwargs):
+        super(SetDeductionPartition, self).__init__(request[0], request[1])
+        self.cmdid = 9
 
-        # deduction = self.get_argument('deduction', None)
-        deduction = json.loads(self.request.body)['deduction']
-        if deduction is None:
-            raise tornado.web.MissingArgumentError('deduction')
-
-        # divide = self.get_argument('divide', None)
-        divide = json.loads(self.request.body)['divide']
-        if divide is None:
-            raise tornado.web.MissingArgumentError('divide')
-
+    def _parse_request(self):
+        # json解析
         try:
-            db_conns = self.application.db_conns
-            appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
-            row = appmodel.set_applicaiton_tranform(app_id, deduction, divide)
-            if row:
-                message = {
-                    'retcode': 0,
-                    'retmsg': 'success'
-                }
-                self.write(message)
-            else:
-                message = {
-                    'retcode': 7002,
-                    'retmsg': 'databases operate error'
-                }
-                self.write(message)
-        except Exception as e:
-            # print e
-            message = {
-                'retcode': 7002,
-                'retmsg': 'databases operate error'
-            }
-            self.write(message)
+            json_body = json.loads(self.request.body)
+            # print json_body
+        except:
+            raise BaseException(BaseError.ERROR_COMMON_PARSE_JSON_FAILED)
+
+        # 设定参数字典
+        self.params['app_id'] = json_body.get('app_id')
+        self.params['deduction'] = json_body.get('deduction')
+        self.params['divide'] = json_body.get('divide')
+        # print self.params
+        if not verify_utils.is_dict(self.params):
+            raise ParamException('params')
 
 class getAppIncome(BaseHandler):
 
-    @tornado.gen.coroutine
-    def post(self):
-        # app_id = self.get_argument('app_id', None)
-        app_id = json.loads(self.request.body)['app_id']
-        if app_id is None:
-            raise tornado.web.MissingArgumentError('app_id')
+    def __init__(self, *request, **kwargs):
+        super(getAppIncome, self).__init__(request[0], request[1])
+        self.cmdid = 10
 
+    def _parse_request(self):
+        # json解析
         try:
-            db_conns = self.application.db_conns
-            appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
-            data = appmodel.get_application_income(app_id)
-            if data:
-                message = {
-                    'retcode': 0,
-                    'retdata': data[0],
-                    'retmsg': 'success'
-                }
-                self.write(message)
-            else:
-                message = {
-                    'retcode': 7002,
-                    'retmsg': 'databases operate error'
-                }
-                self.write(message)
-        except Exception as e:
-            # print e
-            message = {
-                'retcode': 7002,
-                'retmsg': 'databases operate error'
-            }
-            self.write(message)
+            json_body = json.loads(self.request.body)
+            # print json_body
+        except:
+            raise BaseException(BaseError.ERROR_COMMON_PARSE_JSON_FAILED)
+
+        # 设定参数字典
+        self.params['app_id'] = json_body.get('app_id')
+        # print self.params
+        if not verify_utils.is_dict(self.params):
+            raise ParamException('params')

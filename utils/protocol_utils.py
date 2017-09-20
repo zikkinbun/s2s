@@ -18,7 +18,7 @@ class ResponseBuilder(object):
         Returns:
             A json string
         '''
-        print e
+        # print e
         # print handler
         res = {}
         res['retcode'] = e.code
