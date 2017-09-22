@@ -2,64 +2,14 @@
 import tornado.web
 import tornado.httpclient
 
-from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
 from handler.base_handler import BaseHandler
 from utils.protocol_utils import ResponseBuilder
 from utils.common_utils import ComplexEncoder
 from utils.errors import BaseError, CommonError
 from utils.exception import BaseException, DBException, ParamException
 from utils import verify_utils
-from model.advertise_model import AdvertiseModel, AdvertiserModel
 
 import json
-
-class AdvertiseStatus(object):
-    """
-        广告状态操作
-    """
-
-    def __init__(self):
-        self.db_conns = {}
-        self.db_conns['read'] = TornDBReadConnector()
-        self.db_conns['write'] = TornDBWriteConnector()
-        self.advermodel = AdvertiseModel(self.db_conns['read'], self.db_conns['write'])
-
-    def getAdvertise(self, ad_id):
-        try:
-            data = self.advermodel.get_advertise_by_adid(ad_id)
-            if data:
-                return data
-            else:
-                msg = {
-                    'retcode': 2002,
-                    'retmsg': 'this advertise is not existed'
-                }
-                return msg
-        except Exception as e:
-            msg = {
-                'retcode': 2002,
-                'retmsg': 'this advertise is not existed'
-            }
-            return msg
-
-    def getDeviceInfo(self, ad_id):
-        try:
-            data = self.advermodel.get_device_info(ad_id)
-            if data:
-                return data[0]
-            else:
-                msg = {
-                    'retcode': 2003,
-                    'retmsg': 'this advetise have no device info'
-                }
-                return msg
-        except Exception as e:
-            msg = {
-                'retcode': 2003,
-                'retmsg': 'this advetise have no device info'
-            }
-            return msg
-
 
 class getAdvertiseById(BaseHandler):
 

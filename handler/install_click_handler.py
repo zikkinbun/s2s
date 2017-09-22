@@ -3,9 +3,11 @@ import tornado.web
 import tornado.httpclient
 
 from base_handler import BaseHandler
-
-from model.install_click_model import InstallClickModel
-from model.application_model import ApplicationModel
+from utils.protocol_utils import ResponseBuilder
+from utils.common_utils import ComplexEncoder
+from utils.errors import BaseError, CommonError
+from utils.exception import BaseException, DBException, ParamException
+from utils import verify_utils
 
 class getAppInstall(BaseHandler):
 
