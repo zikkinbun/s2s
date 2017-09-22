@@ -25,6 +25,7 @@ class BaseProcessor(object):
         # self.userid = handler.userid
         # self.userkey = handler.userkey
         # self.timestamp = handler.timestamp
+        # self.token = handler.xrsf_token
 
         # 当前时间戳(秒)
         self.NTIME = int(time.time())

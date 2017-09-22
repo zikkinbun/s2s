@@ -25,3 +25,32 @@ class BaseConstant(object):
     CREATE_ADER = 14
     GET_ADER = 15
     GET_ADER_INCOME = 16
+
+    # 下游相关协议
+    CHN_LOGIN = 17
+    GET_CHN_INCOME = 18
+
+    # OFFER相关协议
+    CHN_GET_OFFER = 19
+    LIST_OFFER_ALL = 20
+
+    # AM操作相关协议
+    AM_SGINUP = 21
+    AM_CHN_OPER = 22
+    AM_APP_OPER = 23
+    AM_LOGIN = 24
+    AM_CHN_SIGNUP = 25
+    AM_LIST_CHN = 26
+    AM_LIST = 27
+    AM_COUNT_ADER_INCOME = 28
+    AM_CREATE_OFFER = 29
+
+    # 点击操作相关操作
+    CLICK_URL_BACK = 30
+
+    # 安装数相关操作
+    GET_APP_INSTALL = 31
+    GET_APP_RECV_INSTALL = 32
+    GET_APP_CLICK = 33
+    GET_APP_VALID_CLICK = 34
+    GET_CURRENT_APP_CLICK_INSTALL_INCOME = 35

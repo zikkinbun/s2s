@@ -20,10 +20,17 @@ class CommonError(object):
     ERROR_USER_NOT_EXIST = 12
     ERROR_PASSWORD_ERROR = 14
     ERROR_COMMON_NO_RECORD_EXISTS = 15
-    ERROR_ADER_ALREADY_EXIST = 16
     ERROR_COMMON_NOT_ENOUGH_CANDY = 900
 
     ERROR_COMMON_UNKNOWN = 1000
+
+    ERROR_ADER_ALREADY_EXIST = 101
+    ERROR_APP_NOT_EXIST = 102
+    ERROR_APP_VERIFY_NOT_PASS = 103
+    ERROR_CHN_VERIFY_NOT_PASS = 104
+    ERROR_DP_NOT_SETTING = 105
+    ERROR_USERAGENT_NOT_MOBILE = 106
+
 
     common_message = {
         SUCCESS: 'success',
@@ -42,7 +49,12 @@ class CommonError(object):
         ERROR_PASSWORD_ERROR:'用户名或密码错误',
 
         ERROR_COMMON_NO_RECORD_EXISTS: '记录不存在',
-        ERROR_ADER_ALREADY_EXIST: '广告主已经存在'
+        ERROR_ADER_ALREADY_EXIST: '广告主已经存在',
+        ERROR_APP_NOT_EXIST: 'APP不存在',
+        ERROR_APP_VERIFY_NOT_PASS: 'APP未通过审核',
+        ERROR_CHN_VERIFY_NOT_PASS: '下游账号未通过审核',
+        ERROR_DP_NOT_SETTING: '扣量未设置',
+        ERROR_USERAGENT_NOT_MOBILE: '不是移动端访问'
 }
 
 class BaseError(CommonError):

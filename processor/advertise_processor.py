@@ -116,11 +116,11 @@ class getAdvertiseAll(BaseProcessor):
         process protocol
         '''
         row = None
-        duplicate = self.advermodel.check_duplicate_advertiser(self.params['api_name'])
+        duplicate = self.adermodel.check_duplicate_advertiser(self.params['api_name'])
         if duplicate:
             raise BaseException(BaseError.ERROR_ADER_ALREADY_EXIST)
         else:
-            row = self.advermodel.set_advertiser(self.params['api_name'], self.params['name'], self.params['resp_callback_url'], self.params['resp_callback_token'], self.params['is_pulled'])
+            row = self.adermodel.set_advertiser(self.params['api_name'], self.params['name'], self.params['resp_callback_url'], self.params['resp_callback_token'], self.params['is_pulled'])
 
         return_data = row
         return return_data
@@ -145,7 +145,7 @@ class getAdvertiserALL(BaseProcessor):
         process protocol
         '''
 
-        data = self.advermodel.get_advertiser()
+        data = self.adermodel.get_advertiser()
 
         retdata = {
             'union': data
@@ -157,7 +157,7 @@ class getAdvertiserALL(BaseProcessor):
 @urls.processor(BaseConstant.GET_ADER_INCOME)
 class getAdverIncome(BaseProcessor):
     '''
-        获取所有广告主
+        获取所有广告主收入
     '''
 
     def __init__(self, handler):
@@ -179,11 +179,11 @@ class getAdverIncome(BaseProcessor):
             ader_list = self.adermodel.get_advertiser()
             for ader in ader_list:
                 aderid = ader['id']
-                advertise = self.admodel.count_all_advertise_income_by_id(aderid)[0]
+                advertise = self.advermodel.count_all_advertise_income_by_id(aderid)[0]
                 ader_data.append(advertise)
             return_data = retdata
             return return_data
         else:
-            advertise = admodel.count_all_advertise_income_by_id(ader_id)[0]
+            advertise = self.advermodel.count_all_advertise_income_by_id(ader_id)[0]
             return_data = advertise
             return return_data

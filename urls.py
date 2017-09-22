@@ -10,7 +10,6 @@ from handler.offer_handler import OfferHandler
 from handler.click_handler import ClickUrlHandler
 from handler.install_click_handler import getAppInstall, getAppRecvInstall, getAppClick, getAppValidClick
 from handler.advertise_handler import Advertiser, getAdvertiseById, getAdvertiseAll, getAdvertiseByGetPrice, getAdvertiserALL, getAdverIncome
-from handler.rule_handler import RuleHandler, SelectRule
 from handler.cookietoken_handler import XSRFTokenHandler, AdminTokenHandler
 from handler.applicaiton_handler import CreateApplication, ListApplication, SetCallbackUrl, getApplicationDetail, \
     ListAllApp, getAppTokenUrl, UpdateAppCallbackUrl, SetDeductionPartition, getAppIncome

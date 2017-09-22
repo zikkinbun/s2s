@@ -2,7 +2,6 @@
 import tornado.web
 import tornado.httpclient
 
-from model.application_model import ApplicationModel
 from base_handler import BaseHandler
 from urlparse import urlparse
 from utils.protocol_utils import ResponseBuilder
