@@ -26,20 +26,6 @@ from logging import config as logging_config
 from utils.logs_utils import Tracker
 from db import db_setting
 
-from callback.advertise_callback import AdvertiseCallback
-from handler.channel_handler import ChannelerLogin, countChnAppIncome
-from handler.am_handler import AMSginup, AMChannelOper, AMAppOper, AMLogin, AMChannelSignup, \
-    AMListChannel, AMCreateOfferByUnion, AMCountAdIncome, AMIncome
-from handler.offer_handler import OfferHandler
-from handler.click_handler import ClickUrlHandler
-from handler.install_click_handler import getAppInstall, getAppRecvInstall, getAppClick, getAppValidClick
-from handler.advertise_handler import Advertiser, getAdvertiseById, getAdvertiseAll, getAdvertiseByGetPrice, getAdvertiserALL, getAdverIncome
-from handler.rule_handler import RuleHandler, SelectRule
-from handler.cookietoken_handler import XSRFTokenHandler, AdminTokenHandler
-from handler.applicaiton_handler import CreateApplication, ListApplication, SetCallbackUrl, getApplicationDetail, \
-    ListAllApp, getAppTokenUrl, UpdateAppCallbackUrl, SetDeductionPartition, getAppIncome
-from handler.admix_handler import getAdmix, Admix
-
 define("port", default=8000, help="run on the given port", type=int)
 _http_server_app = None
 

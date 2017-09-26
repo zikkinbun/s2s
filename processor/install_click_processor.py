@@ -6,7 +6,9 @@ from utils.constants_utils import BaseConstant
 from utils.errors import BaseError, CommonError
 from utils.exception import BaseException, DBException, ParamException
 
-@urls.processor(BaseConstant.GET_CHN_INCOME)
+import urls
+
+@urls.processor(BaseConstant.GET_APP_INSTALL)
 class getAppInstall(BaseProcessor):
 
     def __init__(self, handler):

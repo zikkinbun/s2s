@@ -46,12 +46,3 @@ class BaseProcessor(object):
         self.clickmodel = ClickModel(db_conns['read'], db_conns['write'])
         self.installclickmodel = InstallClickModel(db_conns['read'], db_conns['write'])
         self.offermodel = OfferModel(db_conns['read'], db_conns['write'])
-
-        # 参数校验
-        self._verify_params()
-
-    def _verify_params(self):
-        '''
-        to be override if needed
-        '''
-        pass

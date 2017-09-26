@@ -2,6 +2,7 @@
 from tornado import gen
 
 from utils.constants_utils import BaseConstant
+from utils.errors import BaseError
 from processor.base_processor import BaseProcessor
 from handler.cookietoken_handler import EncryptPassword
 import os
@@ -40,8 +41,8 @@ class ChannelerLogin(BaseProcessor):
                     'chn_id': data[0]['chn_id'],
                 }
                 row = self.chnmodel.set_login_time(self.params['username'])
-                if row:
-                    self.set_current_user(data[0]['chn_id'])
+                # if row:
+                #     self.set_current_user(data[0]['chn_id'])
                 return_data = retdata
                 return return_data
 
@@ -107,5 +108,5 @@ class countChnAppIncome(BaseProcessor):
                 'detail': msg,
                 'total_income': chn_income
             }
-            return_data = msg
+            return_data = data
             return return_data

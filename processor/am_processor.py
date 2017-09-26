@@ -8,6 +8,7 @@ from utils.constants_utils import BaseConstant
 from utils.errors import BaseError, CommonError
 from utils.exception import BaseException, DBException, ParamException
 from handler.cookietoken_handler import EncryptPassword
+from handler.click_handler import CreateClickUrl
 
 import os
 import urls
@@ -64,7 +65,7 @@ class AMAPPOPER(BaseProcessor):
         chn_id = self.params['chn_id']
         status = self.params['status']
 
-        data = appmodel.get_application_detail(app_id, chn_id)
+        data = self.appmodel.get_application_detail(app_id, chn_id)
         if data:
             if data[0]['status'] == 0 or data[0]['status'] == '0' or data[0]['status'] == 1 or data[0]['status'] == '1':
                 row = self.appmodel.set_applicaiton_status(status, app_id)
@@ -104,8 +105,8 @@ class AMLogin(BaseProcessor):
                     'is_logined': 1,
                 }
                 row = self.ammodel.set_login_time(self.params['username'])
-                if row:
-                    self.set_current_user(data[0]['id'])
+                # if row:
+                #     self.set_current_user(data[0]['id'])
                 return_data = retdata
                 return return_data
             else:
@@ -137,7 +138,7 @@ class AMChannelSignup(BaseProcessor):
         status = 1 # verifing
         chn_id = ''.join(random.sample(string.ascii_letters + string.digits, 8))
         _passwd = EncryptPassword(self.params['passwd'])._hash_password(self.params['passwd'])
-        data = self.chnmodel.signup_chaneler(self.params['username'], _passwd, self.params['email'], self.params['status'], self.params['chn_id'], self.params['am_id'])
+        data = self.chnmodel.signup_chaneler(self.params['username'], _passwd, self.params['email'], self.params['status'], chn_id, self.params['am_id'])
         retdata = {
             'chn_id': chn_id
         }
@@ -163,7 +164,7 @@ class AMListChannel(BaseProcessor):
         '''
         process protocol
         '''
-        am_id = self.params(['am_id'])
+        am_id = self.params['am_id']
         data = self.chnmodel.list_channeler(int(am_id))
         return_data = data
         return return_data
@@ -215,7 +216,7 @@ class AMCountAdIncome(BaseProcessor):
         return_data = data
         return return_data
 
-@urls.processor(BaseConstant.AM_COUNT_ADER_INCOME)
+@urls.processor(BaseConstant.AM_CREATE_OFFER)
 class AMCreateOfferByUnion(BaseProcessor):
 
     executor = ThreadPoolExecutor(5)
@@ -233,8 +234,8 @@ class AMCreateOfferByUnion(BaseProcessor):
         '''
         process protocol
         '''
-        ader_id = self.params(['ader_id'])
-        app_id = self.params(['app_id'])
+        ader_id = self.params['ader_id']
+        app_id = self.params['app_id']
 
         checkout_data = self.appmodel.get_application_tranform(app_id)
         if not checkout_data[0]['divide']:
@@ -247,14 +248,17 @@ class AMCreateOfferByUnion(BaseProcessor):
     def tranOffer(self, ader_id, app_id, divide):
 
         datas = self.advermodel.get_advertise_by_aderid(ader_id)
+        # print datas
         for data in datas:
             # print data
             check = self.offermodel.check_duplicate_offer(app_id, data['ad_id'])
-            if check:
-                continue
-            else:
+            # print check
+            if check is None:
                 offer_id = ''.join(random.sample(string.ascii_letters + string.digits, 8))
                 pid = random.randint(0,10)
                 _url = CreateClickUrl(app_id, offer_id, pid)
                 click_url = _url.createUrl()
+                # print click_url
                 row = self.offermodel.trans_offer(offer_id, app_id, click_url, divide, data)
+            else:
+                continue

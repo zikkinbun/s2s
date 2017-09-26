@@ -25,6 +25,7 @@ class BaseConstant(object):
     CREATE_ADER = 14
     GET_ADER = 15
     GET_ADER_INCOME = 16
+    UPDATE_ADER_STATUS = 38
 
     # 下游相关协议
     CHN_LOGIN = 17
@@ -54,3 +55,7 @@ class BaseConstant(object):
     GET_APP_CLICK = 33
     GET_APP_VALID_CLICK = 34
     GET_CURRENT_APP_CLICK_INSTALL_INCOME = 35
+
+    # TOKEN操作
+    SET_TOKEN = 36
+    GET_TOKEN = 37

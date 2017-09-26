@@ -27,10 +27,10 @@ class OfferHandler(BaseProcessor):
 
         global  chn_id
 
-        app_id = self.params(['app_id'])
-        sign = self.params(['accesskey'])
-        page = self.params(['page'])
-        page_size = self.params(['page_size'])
+        app_id = self.params.get('app_id')
+        sign = self.params.get('accesskey')
+        page = self.params.get('page')
+        page_size = self.params.get('page_size')
 
         if self._verify_sign(app_id, sign) and self._verify_app_status(app_id):
             data = self.offermodel.get_offer_by_app(app_id, sign, page_size, page)

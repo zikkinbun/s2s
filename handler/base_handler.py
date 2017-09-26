@@ -6,7 +6,7 @@ from utils.common_utils import ComplexEncoder
 from utils.errors import BaseError, CommonError
 from utils.exception import BaseException, DBException, ParamException
 from utils import verify_utils
-
+from handler.admin_handler import getToken
 import urls
 import json
 
@@ -17,6 +17,8 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_header("Content-Type", "application/json")
         self.tracker = self.application.tracker
         self.sys_logger = self.application.sys_logger
+        self.Token = None
+        self.tag = None
         self.params = dict()
         self.res = dict()
 
@@ -38,6 +40,8 @@ class BaseHandler(tornado.web.RequestHandler):
         try:
             self.tracker.logging_request_header(self)
             self.tracker.logging_request_body(self)
+
+            self.token_verify() # 验证头部签名
             self._parse_request()
             # 分发 processor
             processor = urls.processor_mapping.get(self.cmdid)
@@ -80,6 +84,8 @@ class BaseHandler(tornado.web.RequestHandler):
         try:
             self.tracker.logging_request_header(self)
             self.tracker.logging_request_body(self)
+
+            self.token_verify() # 验证头部签名
             self._parse_request()
             # 分发 processor
             processor = urls.processor_mapping.get(self.cmdid)
@@ -120,6 +126,21 @@ class BaseHandler(tornado.web.RequestHandler):
         '''
         '''
         self.application.log_request(self)
+
+    def token_verify(self):
+
+        self.Token = self.request.headers.get('X-XSRFToken')
+        if not self.Token:
+            raise ParamException('X-XSRFToken')
+        self.tag = self.request.headers.get('tag')
+        if not self.tag:
+            raise ParamException('params')
+        verify = getToken()
+        # print self.Token, self.tag
+        data = verify.get_token(self.Token, self.tag)
+        if not data:
+            raise BaseException(BaseError.ERROR_COMMON_ACCESS_DENIED)
+
 
     def request_redirect(self, url):
         '''

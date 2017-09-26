@@ -14,9 +14,9 @@ var options = {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
     }
 };
-var req = http.request(options,function(res){
+var req = http.request(options, function(res){
     res.setEncoding('utf8');
-    res.on('data',function(chunk){
+    res.on('data', function(chunk){
         var returnData = JSON.parse(chunk);
         console.log(returnDataata);
     });

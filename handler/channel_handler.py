@@ -34,57 +34,6 @@ class SignupChaneler(BaseHandler):
         _passwd = EncryptPassword(passwd)._hash_password(passwd)
         print _passwd
 
-
-
-class ChannelStatus(object):
-
-    def __init__(self):
-        self.db_conns = {}
-        self.db_conns['read'] = TornDBReadConnector()
-        self.db_conns['write'] = TornDBWriteConnector()
-        self.channelmodel = ChannelModel(db_conns['read'], db_conns['write'])
-
-    def getStatus(self, chn_id):
-        try:
-            data = self.channelmodel.get_channeler_status(chn_id)
-            if data:
-                message = {
-                    'retcode': 0,
-                    'retdata': {
-                        'status': data[0]['status']
-                    },
-                    'retmsg': 'success'
-                }
-                return message
-        except Exception as e:
-            print e
-
-    def setStatus(self, status, chn_id):
-        try:
-            row = self.channelmodel.set_channeler_status(status, chn_id)
-            if row:
-                msg = {
-                    'retcode': 0,
-                    'retmsg': 'success'
-                }
-                return msg
-        except Exception as e:
-            return e
-
-    def verifyStatusApp(self, chn_id, app_id):
-        """
-            验证当前下游的状态和 APP 是否可用
-        """
-        try:
-            data = self.channelmodel.verify_app_status(chn_id, app_id)
-            # print data
-            if int(data['chn_status']) == 1 and int(data['app_status']) == 1:
-                return True
-            else:
-                return False
-        except err.ProgrammingError as e:
-            print e
-
 class ChannelerLogin(BaseHandler):
 
     def __init__(self, *request, **kwargs):

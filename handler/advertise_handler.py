@@ -70,7 +70,7 @@ class getAdvertiseAll(BaseHandler):
 
         # 设定参数字典
         self.params['page_size'] = json_body.get('page_size')
-        self.params['index'] = json_body.get('index')
+        self.params['index'] = json_body.get('page')
         # print self.params
         if not verify_utils.is_dict(self.params):
             raise ParamException('params')
@@ -108,10 +108,13 @@ class getAdvertiserALL(BaseHandler):
         super(getAdvertiserALL, self).__init__(request[0], request[1])
         self.cmdid = 15
 
+    def _parse_request(self):
+        pass
+
 class getAdverIncome(BaseHandler):
 
     def __init__(self, *request, **kwargs):
-        super(Advertiser, self).__init__(request[0], request[1])
+        super(getAdverIncome, self).__init__(request[0], request[1])
         self.cmdid = 16
 
     def _parse_request(self):
@@ -131,3 +134,24 @@ class getAdverIncome(BaseHandler):
             # print self.params
             if not verify_utils.is_dict(self.params):
                 raise ParamException('params')
+
+class UpdateAdverStatus(BaseHandler):
+
+    def __init__(self, *request, **kwargs):
+        super(UpdateAdverStatus, self).__init__(request[0], request[1])
+        self.cmdid = 38
+
+    def _parse_request(self):
+        # json解析
+        try:
+            json_body = json.loads(self.request.body)
+            # print json_body
+        except:
+            raise BaseException(BaseError.ERROR_COMMON_PARSE_JSON_FAILED)
+
+        # 设定参数字典
+        self.params['api_name'] = json_body.get('api_name')
+        self.params['is_pulled'] = json_body.get('is_pulled')
+        # print self.params
+        if not verify_utils.is_dict(self.params):
+            raise ParamException('params')

@@ -77,7 +77,6 @@ class ListAllApp(BaseHandler):
     def _parse_request(self):
         pass
 
-
 class getApplicationDetail(BaseHandler):
 
     def __init__(self, *request, **kwargs):

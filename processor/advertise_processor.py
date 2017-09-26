@@ -85,8 +85,9 @@ class getAdvertiseAll(BaseProcessor):
         '''
         process protocol
         '''
-
-        data = self.advermodel.get_advertise_all(int(self.params['page_size']), int(self.params['index']))
+        page_size = self.params['page_size']
+        index = self.params['index']
+        data = self.advermodel.get_advertise_all(int(page_size), int(index))
         total = self.advermodel.get_total_count_all()
         retdata = {
             'total': total['COUNT(*)'],
@@ -187,3 +188,23 @@ class getAdverIncome(BaseProcessor):
             advertise = self.advermodel.count_all_advertise_income_by_id(ader_id)[0]
             return_data = advertise
             return return_data
+
+@urls.processor(BaseConstant.UPDATE_ADER_STATUS)
+class UpdateAdverStatus(BaseProcessor):
+
+    def __init__(self, handler):
+        '''
+        Constructor
+        '''
+        BaseProcessor.__init__(self, handler)
+
+        # define member variables here
+
+    @gen.coroutine
+    def process(self):
+        api_name = self.params['api_name']
+        is_pulled = self.params['is_pulled']
+        row = self.adermodel.set_pull_status(api_name, is_pulled)
+
+        return_data = row
+        return return_data

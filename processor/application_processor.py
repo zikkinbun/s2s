@@ -218,7 +218,12 @@ class SetCallbackUrl(BaseProcessor):
                 sign = v
 
         row = self.appmodel.set_application_detail(self.params['callback_url'], callback_token, sign, self.params['app_id'], self.params['chn_id'])
-        return_data = 0
+
+        retdata = {
+            # 'callback_url': callback_url,
+            'callback_token': callback_token
+        }
+        return_data = retdata
         return return_data
 
 @urls.processor(BaseConstant.SET_DP)

@@ -71,8 +71,8 @@ class AMCreateOfferByUnion(BaseHandler):
             raise BaseException(BaseError.ERROR_COMMON_PARSE_JSON_FAILED)
 
         # 设定参数字典
-        self.params['status'] = json_body.get('ader_id')
-        self.params['chn_id'] = json_body.get('app_id')
+        self.params['ader_id'] = json_body.get('ader_id')
+        self.params['app_id'] = json_body.get('app_id')
         # print self.params
         if not verify_utils.is_dict(self.params):
             raise ParamException('params')
