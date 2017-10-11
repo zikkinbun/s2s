@@ -44,7 +44,7 @@ class ChannelModel(BaseDB):
     def verify_app_status(self, chn_id, app_id):
         sql = 'select a.status as chn_status, b.status as app_status from channeler a, application b where a.chn_id=%s and b.chn_id=%s and b.app_id=%s'
 
-        return self._conn_read.query(sql, chn_id, chn_id, app_id)[0]
+        return self._conn_read.query(sql, chn_id, chn_id, app_id)
 
     def get_login_chner(self, username, passwd):
         table = 'channeler'

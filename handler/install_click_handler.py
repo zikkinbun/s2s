@@ -3,125 +3,88 @@ import tornado.web
 import tornado.httpclient
 
 from base_handler import BaseHandler
-
-from model.install_click_model import InstallClickModel
-from model.application_model import ApplicationModel
+from utils.protocol_utils import ResponseBuilder
+from utils.common_utils import ComplexEncoder
+from utils.errors import BaseError, CommonError
+from utils.exception import BaseException, DBException, ParamException
+from utils import verify_utils
 
 class getAppInstall(BaseHandler):
 
-    @tornado.gen.coroutine
-    def post(self):
+    def __init__(self, *request, **kwargs):
+        super(getAppInstall, self).__init__(request[0], request[1])
+        self.cmdid = 31
 
-        # app_id = self.get_argument('app_id', None)
-        app_id = json.loads(self.request.body)['app_id']
-        if app_id is None:
-            raise tornado.web.MissingArgumentError('app_id')
-
-        db_conns = self.application.db_conns
+    def _parse_request(self):
+        # json解析
         try:
-            installmodel = InstallClickModel(db_conns['read'], db_conns['write'])
-            data = installmodel.count_post_install(app_id)
-            if data:
-                message = {
-                 'retcode': 0,
-                 'retdata': {
-                    'installed': data['total']
-                 },
-                 'retmsg': 'success'
-                }
-                self.write(message)
-        except Exception as e:
-            print e
+            json_body = json.loads(self.request.body)
+            # print json_body
+        except:
+            raise BaseException(BaseError.ERROR_COMMON_PARSE_JSON_FAILED)
+
+        # 设定参数字典
+        self.params['app_id'] = json_body.get('app_id')
+        # print self.params
+        if not verify_utils.is_dict(self.params):
+            raise ParamException('params')
 
 class getAppRecvInstall(BaseHandler):
 
-    @tornado.gen.coroutine
-    def post(self):
+    def __init__(self, *request, **kwargs):
+        super(getAppRecvInstall, self).__init__(request[0], request[1])
+        self.cmdid = 32
 
-        # app_id = self.get_argument('app_id', None)
-        app_id = json.loads(self.request.body)['app_id']
-        if app_id is None:
-            raise tornado.web.MissingArgumentError('app_id')
-
-        db_conns = self.application.db_conns
+    def _parse_request(self):
+        # json解析
         try:
-            installmodel = InstallClickModel(db_conns['read'], db_conns['write'])
-            data = installmodel.count_recv_install(app_id)
-            if data:
-                message = {
-                 'retcode': 0,
-                 'retdata': {
-                    'recv': data['total']
-                 },
-                 'retmsg': 'success'
-                }
-                self.write(message)
-        except Exception as e:
-            print e
+            json_body = json.loads(self.request.body)
+            # print json_body
+        except:
+            raise BaseException(BaseError.ERROR_COMMON_PARSE_JSON_FAILED)
+
+        # 设定参数字典
+        self.params['app_id'] = json_body.get('app_id')
+        # print self.params
+        if not verify_utils.is_dict(self.params):
+            raise ParamException('params')
 
 class getAppClick(BaseHandler):
 
-    @tornado.gen.coroutine
-    def post(self):
+    def __init__(self, *request, **kwargs):
+        super(getAppClick, self).__init__(request[0], request[1])
+        self.cmdid = 33
 
-        # app_id = self.get_argument('app_id', None)
-        app_id = json.loads(self.request.body)['app_id']
-        if app_id is None:
-            raise tornado.web.MissingArgumentError('app_id')
-
-        db_conns = self.application.db_conns
+    def _parse_request(self):
+        # json解析
         try:
-            installmodel = InstallClickModel(db_conns['read'], db_conns['write'])
-            data = installmodel.count_recv_click(app_id)
-            if data:
-                message = {
-                 'retcode': 0,
-                 'retdata': {
-                    'click': data['total']
-                 },
-                 'retmsg': 'success'
-                }
-                self.write(message)
-        except Exception as e:
-            print e
+            json_body = json.loads(self.request.body)
+            # print json_body
+        except:
+            raise BaseException(BaseError.ERROR_COMMON_PARSE_JSON_FAILED)
+
+        # 设定参数字典
+        self.params['app_id'] = json_body.get('app_id')
+        # print self.params
+        if not verify_utils.is_dict(self.params):
+            raise ParamException('params')
 
 class getAppValidClick(BaseHandler):
 
-    @tornado.gen.coroutine
-    def post(self):
+    def __init__(self, *request, **kwargs):
+        super(getAppValidClick, self).__init__(request[0], request[1])
+        self.cmdid = 34
 
-        # app_id = self.get_argument('app_id', None)
-        app_id = json.loads(self.request.body)['app_id']
-        if app_id is None:
-            raise tornado.web.MissingArgumentError('app_id')
-
-        db_conns = self.application.db_conns
+    def _parse_request(self):
+        # json解析
         try:
-            installmodel = InstallClickModel(db_conns['read'], db_conns['write'])
-            data = installmodel.count_valid_click(app_id)
-            if data:
-                message = {
-                 'retcode': 0,
-                 'retdata': {
-                    'valid': data['total']
-                 },
-                 'retmsg': 'success'
-                }
-                self.write(message)
-        except Exception as e:
-            print e
+            json_body = json.loads(self.request.body)
+            # print json_body
+        except:
+            raise BaseException(BaseError.ERROR_COMMON_PARSE_JSON_FAILED)
 
-class getCurrentAppClickInstallIncome(BaseHandler):
-
-    def post(self):
-        if self.request.body == '{}':
-            pass
-        else:
-            chn_id = self.get_argument('chn_id', None)
-            # chn_id = json.loads(self.request.body)['chn_id']
-            try:
-                db_conns = self.application.db_conns
-                appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
-                app_list = appmodel.list_application_by_chnid()
-            except Exception as e:
-                print e
+        # 设定参数字典
+        self.params['app_id'] = json_body.get('app_id')
+        # print self.params
+        if not verify_utils.is_dict(self.params):
+            raise ParamException('params')

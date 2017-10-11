@@ -2,12 +2,12 @@
 import tornado.web
 import tornado.httpclient
 
-from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
-
 from base_handler import BaseHandler
-from model.click_model import ClickModel
-from model.install_click_model import InstallClickModel
-from model.offer_model import OfferModel
+from utils.protocol_utils import ResponseBuilder
+from utils.common_utils import ComplexEncoder
+from utils.errors import BaseError, CommonError
+from utils.exception import BaseException, DBException, ParamException
+from utils import verify_utils
 
 import base64
 import re
@@ -21,138 +21,35 @@ class ClickUrlHandler(BaseHandler):
         可以从下游通过的我们 offer提供的trackinglink做统计，或者我们自己生成 click
     """
 
-    @tornado.gen.coroutine
-    def get(self):
-        req_os = self.request.headers
-        if re.search(ur'(iPhone)', str(req_os)) or re.search(ur'(Android)', str(req_os)):
-            # offer库发出的offer_id为下游的ad_id
-            # offer_id = self.get_argument('ad_id', None)
-            offer_id = json.loads(self.request.body)['offer_id']
-            if offer_id is None:
-                raise tornado.web.MissingArgumentError('offer_id')
+    def __init__(self, *request, **kwargs):
+        super(ClickUrlHandler, self).__init__(request[0], request[1])
+        self.cmdid = 30
 
-            # app_id = self.get_argument('app_id', None)
-            app_id = json.loads(self.request.body)['app_id']
-            if app_id is None:
-                raise tornado.web.MissingArgumentError('app_id')
+    def _parse_request(self):
 
-            # app_click_id = self.get_argument('click_id', None)
-            app_click_id = json.loads(self.request.body)['app_click_id']
-            if app_click_id is None:
-                raise tornado.web.MissingArgumentError('click_id')
-
-            pid = json.loads(self.request.body)['pid']
-            # pid = self.get_argument('pid', None)
-            if pid is None:
-                raise tornado.web.MissingArgumentError('pid')
-
-            db_conns = self.application.db_conns
-            install_click_model = InstallClickModel(db_conns['read'], db_conns['write'])
-            offer_model = OfferModel(db_conns['read'], db_conns['write'])
-            is_existed = clickHandler().checkUnique(app_click_id)
-            if is_existed['retcode'] == 0 or is_existed['retcode'] == '0':
-                click_id = base64.b64encode(os.urandom(12))
-                trackinglink, ad_id = clickHandler().getTrackUrl(offer_id)
-                clickHandler().clickRecord(click_id, ad_id, app_id, app_click_id, offer_id)
-
-                ad_id = offer_model.get_offer_by_id(offer_id)[0]['advertise_id']
-                row_init = install_click_model.set_install_click(offer_id, ad_id, app_id)
-                row_update = install_click_model.update_recv_click(offer_id, app_id)
-                track_link = trackinglink + '&user_id=%s' % click_id
-                self.redirect(track_link)
-            else:
-                message = {
-                    'code': 5001,
-                    'msg': 'please do not commit the same click_id again'
-                }
-                self.write(message)
-        else:
-            message = {
-                'code': 5002,
-                'msg': 'You are not using the mobile broswer'
-            }
-            self.write(message)
-
-class clickHandler(object):
-
-    def __init__(self):
-        self.db_conns = {}
-        self.db_conns['read'] = TornDBReadConnector()
-        self.db_conns['write'] = TornDBWriteConnector()
-        self.clickmodel = ClickModel(self.db_conns['read'], self.db_conns['write'])
-
-    def checkUnique(self, app_click_id):
-
+        # headers 匹配
         try:
-            data = self.clickmodel.check_duplication(app_click_id)
-            if data and len(data) > 1:
-                message = {
-                    'retcode': 5004,
-                    'retmsg': 'this click is not unique'
-                }
-                return message
-            elif data and len(data) == 1:
-                message = {
-                    'retcode': 0,
-                    'retmsg': 'this click is unique'
-                }
-                return message
+            headers = self.request.headers
+            if re.search(ur'(iPhone)', str(headers)) or re.search(ur'(Android)', str(headers)):
+                # json解析
+                try:
+                    json_body = json.loads(self.request.body)
+                    # print json_body
+                except:
+                    raise BaseException(BaseError.ERROR_COMMON_PARSE_JSON_FAILED)
+
+                # 设定参数字典
+                self.params['offer_id'] = json_body.get('offer_id')
+                self.params['app_id'] = json_body.get('app_id')
+                self.params['app_click_id'] = json_body.get('app_click_id')
+                self.params['pid'] = json_body.get('pid')
+                # print self.params
+                if not verify_utils.is_dict(self.params):
+                    raise ParamException('params')
             else:
-                message = {
-                    'retcode': 5005,
-                    'retmsg': 'error'
-                }
-                return message
-        except Exception as e:
-            message = {
-                'retcode': 0,
-                'retmsg': 'this click is not existed'
-            }
-            return message
-
-    def getClickId(self, app_click_id):
-
-        try:
-            data = self.clickmodel.get_clickid(app_click_id)
-            if data:
-                click_id = data[0]['click_id']
-                if click_id:
-                    return click_id
-                else:
-                    return None
-            else:
-                return None
-        except Exception as e:
-            print e
-
-    def getTrackUrl(self, offer_id):
-
-        try:
-            data = self.clickmodel.get_trackurl(offer_id)
-            # print data
-            if data:
-                track_url = data['track_url']
-                ad_id = data['ad_id']
-                return track_url, ad_id
-            else:
-                return None
-        except Exception as e:
-            print e
-
-
-    def clickRecord(self, click_id, ad_id, app_id, app_click_id, offer_id):
-
-        try:
-            row = self.clickmodel.create_record(click_id, ad_id, app_id, app_click_id, offer_id)
-            if row:
-                message = {
-                    'retcode': 0,
-                    'retmsg': 'success'
-                }
-                return message
-        except Exception as e:
-            print e
-
+                raise BaseException(BaseError.ERROR_USERAGENT_NOT_MOBILE)
+        except:
+            raise BaseException(BaseError.ERROR_COMMON_UNKNOWN)
 
 class CreateClickUrl(object):
 

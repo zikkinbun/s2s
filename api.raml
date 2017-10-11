@@ -74,47 +74,7 @@ traits:
                                 {
                                     "xxxxxxxxxxx"
                                 }
-    /chn/signup:
-        description: 下游注册
-        post:
-            queryParameters:
-                username:
-                    type        : string
-                    description : 用户名
-                    required    : true
-                passwd:
-                    type        : string
-                    description : 密码
-                    required    : true
-                email:
-                    type        : string
-                    description : 邮箱
-                    required    : true
-                contact:
-                    type        : string
-                    description : 联系方式
-                    required    : true
-            body:
-                application/json:
-                    example: |
-                        {
-                            "username": "mao",
-                            "passwd": "mao",
-                            "email": "mao@mao.com",
-                            "contact": "15988888888"
-                        }
-            responses:
-                200:
-                    body:
-                        application/json:
-                            example: |
-                                {
-                                    'retcode': 0,
-                                    'retdata': {
-                                        'chn_id': 'xxxxxxx'
-                                    },
-                                    'retmsg': 'success'
-                                }
+
     /chn/login:
         description: 下游登录验证
         post:
@@ -525,7 +485,7 @@ traits:
                                 }
 
 
-    /am/createchn:
+    /am/createChn:
         description:  创建下游账号
         post:
             queryParameters:
@@ -561,11 +521,11 @@ traits:
                             type: exist
                             example: |
                                 {
-                                        "retcode": 0,
-                                        "retdata": {
-                                            'chn_id': 'xxxxx'
-                                        },
-                                        "retmsg": "success",
+                                    "retcode": 0,
+                                    "retdata": {
+                                        'chn_id': 'xxxxx'
+                                    },
+                                    "retmsg": "success",
                                 }
 
     /am/createAder:
@@ -708,6 +668,36 @@ traits:
                                 {
                                     "retcode": 0,
                                     "retmsg": "success to create offer",
+                                }
+
+    /am/updateAderStatus:
+        description:  更新上游的拉取状态
+        post:
+            queryParameters:
+                is_pulled:
+                    type        : int
+                    description : is_pulled
+                    required    : true
+                api_name:
+                    type        : string
+                    description : api_name
+                    required    : true
+            body:
+                application/json:
+                example: |
+                    {
+                        "is_pulled": 1,
+                        "api_name": "Admix"
+                    }
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: exist
+                            example: |
+                                {
+                                    "retcode": 0,
+                                    "retmsg": "success",
                                 }
     /ad/getAdById:
         description:  获取该联盟下的所有广告
@@ -962,7 +952,7 @@ traits:
                                     }
                                     "retmsg": "success",
                                 }
-                                
+
     /count/getAMIncome:
         description:  统计该AM的收入
         post:

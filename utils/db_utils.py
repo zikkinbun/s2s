@@ -1,6 +1,6 @@
 # _*_ coding:utf-8_*_
 from functools import wraps
-from db import setting
+from db import db_setting
 import torndb
 
 class TornDBReadConnector(object):
@@ -9,7 +9,11 @@ class TornDBReadConnector(object):
     '''
 
     def __init__(self):
+<<<<<<< HEAD
         self.read_conn = torndb.Connection(setting.RELEASE['s2s']['read']['host'], setting.RELEASE['s2s']['read']['database'], setting.RELEASE['s2s']['read']['user'], setting.RELEASE['s2s']['read']['password'])
+=======
+        self.read_conn = torndb.Connection(db_setting.DEV['s2s']['read']['host'], db_setting.DEV['s2s']['read']['database'], db_setting.DEV['s2s']['read']['user'], db_setting.DEV['s2s']['read']['password'])
+>>>>>>> master
 
     def __enter__(self):
         '''
@@ -36,7 +40,11 @@ class TornDBWriteConnector(object):
     '''
 
     def __init__(self):
+<<<<<<< HEAD
         self.write_conn = torndb.Connection(setting.RELEASE['s2s']['write']['host'], setting.RELEASE['s2s']['write']['database'], setting.RELEASE['s2s']['write']['user'], setting.RELEASE['s2s']['write']['password'])
+=======
+        self.write_conn = torndb.Connection(db_setting.DEV['s2s']['write']['host'], db_setting.DEV['s2s']['write']['database'], db_setting.DEV['s2s']['write']['user'], db_setting.DEV['s2s']['write']['password'])
+>>>>>>> master
 
     def __enter__(self):
         '''

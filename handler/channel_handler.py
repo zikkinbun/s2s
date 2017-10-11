@@ -1,17 +1,16 @@
 # _*_ coding:utf-8_*_
 import tornado.web
 import tornado.httpclient
-import tornado.escape
-from tornado.web import HTTPError
 from tornado.concurrent import run_on_executor
 from concurrent.futures import ThreadPoolExecutor
 
 from base_handler import BaseHandler
+from utils.protocol_utils import ResponseBuilder
+from utils.common_utils import ComplexEncoder
+from utils.errors import BaseError, CommonError
+from utils.exception import BaseException, DBException, ParamException
+from utils import verify_utils
 from cookietoken_handler import EncryptPassword
-from model.channeler_model import ChannelModel
-from model.application_model import ApplicationModel
-
-from utils.db_utils import TornDBReadConnector, TornDBWriteConnector
 
 import json
 import random
@@ -35,109 +34,26 @@ class SignupChaneler(BaseHandler):
         _passwd = EncryptPassword(passwd)._hash_password(passwd)
         print _passwd
 
-
-
-class ChannelStatus(object):
-
-    def __init__(self):
-        self.db_conns = {}
-        self.db_conns['read'] = TornDBReadConnector()
-        self.db_conns['write'] = TornDBWriteConnector()
-        self.channelmodel = ChannelModel(db_conns['read'], db_conns['write'])
-
-    def getStatus(self, chn_id):
-        try:
-            data = self.channelmodel.get_channeler_status(chn_id)
-            if data:
-                message = {
-                    'retcode': 0,
-                    'retdata': {
-                        'status': data[0]['status']
-                    },
-                    'retmsg': 'success'
-                }
-                return message
-        except Exception as e:
-            print e
-
-    def setStatus(self, status, chn_id):
-        try:
-            row = self.__getattribute__channelmodel.set_channeler_status(status, chn_id)
-            if row:
-                msg = {
-                    'retcode': 0,
-                    'retmsg': 'success'
-                }
-                return msg
-        except Exception as e:
-            return e
-
-    def verifyStatusApp(self, chn_id, app_id):
-        """
-            验证当前下游的状态和 APP 是否可用
-        """
-        try:
-            data = self.channelmodel.verify_app_status(chn_id, app_id)
-            # print data
-            if int(data['chn_status']) == 1 and int(data['app_status']) == 1:
-                return True
-            else:
-                return False
-        except err.ProgrammingError as e:
-            print e
-
-
 class ChannelerLogin(BaseHandler):
 
-    @tornado.gen.coroutine
-    def post(self):
-        username = json.loads(self.request.body)['username']
-        # username = self.get_argument('username', None)
-        if username is None:
-            raise tornado.web.MissingArgumentError('username')
-        # chn_id = tornado.escape.json_decode(self.get_current_user)
+    def __init__(self, *request, **kwargs):
+        super(ChannelerLogin, self).__init__(request[0], request[1])
+        self.cmdid = 17
 
-        passwd = json.loads(self.request.body)['passwd']
-        # passwd = self.get_argument('passwd', None)
-        if passwd is None:
-            raise tornado.web.MissingArgumentError('passwd')
-
+    def _parse_request(self):
+        # json解析
         try:
-            db_conns = self.application.db_conns
-            channelmodel = ChannelModel(db_conns['read'], db_conns['write'])
-            data = channelmodel.get_login_chner(username, passwd)
-            #  verify = EncryptPassword(data['passwd']).auth_password(passwd)
-            #  print verify, type(data['status'])
-            if not EncryptPassword(data[0]['passwd']).auth_password(passwd):
-                 message = {
-                    'retcode': 6002,
-                    'retmsg': 'wrong password, please check it'
-                 }
-                 self.write(message)
-            else:
-                if int(data[0]['status']) == 1 or int(data[0]['status']) == 0:
-                    message = {
-                        'retcode': 0,
-                        'retdata': {
-                            'chn_id': data[0]['chn_id'],
-                        },
-                        'retmsg': 'success'
-                    }
-                    try:
-                        row = channelmodel.set_login_time(username)
-                        if row:
-                            self.set_current_user(data[0]['chn_id'])
-                        self.write(message)
-                    except err.ProgrammingError as e:
-                        print e
-                else:
-                    message = {
-                        'retcode': 6003,
-                        'retmsg': 'login fail, the account occur some exceptions'
-                    }
-                    self.write(message)
-        except Exception as e:
-            print e
+            json_body = json.loads(self.request.body)
+            # print json_body
+        except:
+            raise BaseException(BaseError.ERROR_COMMON_PARSE_JSON_FAILED)
+
+        # 设定参数字典
+        self.params['username'] = json_body.get('username')
+        self.params['passwd'] = json_body.get('passwd')
+        # print self.params
+        if not verify_utils.is_dict(self.params):
+            raise ParamException('params')
 
 class ChannelerLogout(BaseHandler):
 
@@ -146,80 +62,24 @@ class ChannelerLogout(BaseHandler):
 
 class countChnAppIncome(BaseHandler):
 
-    @tornado.gen.coroutine
-    def post(self):
-        # chn_id = self.get_argument('chn_id', None)
-        # chn_id = json.loads(self.request.body)['chn_id']
-        db_conns = self.application.db_conns
-        channelmodel = ChannelModel(db_conns['read'], db_conns['write'])
-        appmodel = ApplicationModel(db_conns['read'], db_conns['write'])
+    def __init__(self, *request, **kwargs):
+        super(countChnAppIncome, self).__init__(request[0], request[1])
+        self.cmdid = 18
+
+    def _parse_request(self):
+        # json解析
         if self.request.body == '{}':
-        # if chn_id is None:
-            try:
-
-                chn_list = channelmodel.list_chnid()
-                chn_income = 0
-                msg = []
-
-                for chn in chn_list:
-                    chnid = chn['chn_id']
-                    # print chnid
-                    app_list = appmodel.list_appid_by_chnid(chnid)
-                    # print app_list
-                    if app_list is not None:
-                        app_datas = []
-                        for app in app_list:
-                            app_id = app['app_id']
-                            app_data = appmodel.get_app_income_install_click_by_appid(app_id)[0]
-                            # print app_data
-                            chn_income += app_data['income']
-                            app_datas.append(app_data)
-                        # print app_datas
-                        data = {
-                            'chn_id': chnid,
-                            'detail': app_datas,
-                            'total_income': chn_income
-                            }
-                        msg.append(data)
-                    else:
-                        data = {
-                            'chn_id': chnid,
-                            'detail': None,
-                            'total': None
-                        }
-                        msg.append(data)
-                message = {
-                    'retcode': 0,
-                    'retdata': msg
-                }
-                self.write(message)
-            except Exception as e:
-                print e
-                raise HTTPError(status_code=500)
+            self.params['chn_id'] = 'all'
         else:
-            chn_id = json.loads(self.request.body)['chn_id']
-            # chn_id = self.get_argument('chn_id', None)
             try:
-                app_list = appmodel.list_appid_by_chnid(chn_id)
-                chn_income = 0
-                msg = []
-                for app in app_list:
-                    # print app
-                    app_data = appmodel.get_app_income_install_click_by_appid(app['app_id'])[0]
-                    app_income = app_data['income']
-                    # print app_data
-                    chn_income += app_income
-                    msg.append(app_data)
-                # app_income_list = appmodel.get_app_income_by_chnid(chn_id)
+                json_body = json.loads(self.request.body)
+                # print json_body
+            except:
+                raise BaseException(BaseError.ERROR_COMMON_PARSE_JSON_FAILED)
 
-                message = {
-                    'retcode': 0,
-                    'retdata': {
-                        'detail': msg,
-                        'total_income': chn_income
-                    }
-                }
-                self.write(message)
-            except Exception as e:
-                print e
-                raise HTTPError(status_code=500)
+                # 设定参数字典
+            self.params['chn_id'] = json_body.get('chn_id')
+
+            # print self.params
+            if not verify_utils.is_dict(self.params):
+                raise ParamException('params')

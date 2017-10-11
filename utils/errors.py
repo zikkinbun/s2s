@@ -1,27 +1,5 @@
 # _*_ coding:utf-8_*_
 
-class BaseError(CommonError):
-    '''
-    本模块从11001-11999
-    为了防止错误码重复, 按人分配区域
-    cj: 1-200
-    shenhong: 200-400
-    yuheng: 400-600
-    yuanyuan: 600-800
-    chenliang: 800-999
-    '''
-
-
-    # code
-
-    ERROR_RONG_REQUEST_ERROR=11201
-
-    message.update(CommonError.common_message)
-
-
-    @staticmethod
-    def get_message(code):
-        return BaseError.message.get(code)
 
 class CommonError(object):
     '''
@@ -39,12 +17,20 @@ class CommonError(object):
 
     ERROR_COMMON_CMD_NOT_EXISTS = 10
     ERROR_COMMON_DATABASE_EXCEPTION = 11
-    ERROR_USER_NOT_EXIST=12
-    ERROR_PASSWORD_ERROR=14
+    ERROR_USER_NOT_EXIST = 12
+    ERROR_PASSWORD_ERROR = 14
     ERROR_COMMON_NO_RECORD_EXISTS = 15
     ERROR_COMMON_NOT_ENOUGH_CANDY = 900
 
     ERROR_COMMON_UNKNOWN = 1000
+
+    ERROR_ADER_ALREADY_EXIST = 101
+    ERROR_APP_NOT_EXIST = 102
+    ERROR_APP_VERIFY_NOT_PASS = 103
+    ERROR_CHN_VERIFY_NOT_PASS = 104
+    ERROR_DP_NOT_SETTING = 105
+    ERROR_USERAGENT_NOT_MOBILE = 106
+
 
     common_message = {
         SUCCESS: 'success',
@@ -63,4 +49,37 @@ class CommonError(object):
         ERROR_PASSWORD_ERROR:'用户名或密码错误',
 
         ERROR_COMMON_NO_RECORD_EXISTS: '记录不存在',
+        ERROR_ADER_ALREADY_EXIST: '广告主已经存在',
+        ERROR_APP_NOT_EXIST: 'APP不存在',
+        ERROR_APP_VERIFY_NOT_PASS: 'APP未通过审核',
+        ERROR_CHN_VERIFY_NOT_PASS: '下游账号未通过审核',
+        ERROR_DP_NOT_SETTING: '扣量未设置',
+        ERROR_USERAGENT_NOT_MOBILE: '不是移动端访问'
 }
+
+class BaseError(CommonError):
+    '''
+    本模块从11001-11999
+    为了防止错误码重复, 按人分配区域
+    cj: 1-200
+    shenhong: 200-400
+    yuheng: 400-600
+    yuanyuan: 600-800
+    chenliang: 800-999
+    '''
+
+
+    # code
+
+    ERROR_RONG_REQUEST_ERROR=11201
+
+    message = {
+        ERROR_RONG_REQUEST_ERROR:'融云请求错误'
+    }
+
+    message.update(CommonError.common_message)
+
+
+    @staticmethod
+    def get_message(code):
+        return BaseError.message.get(code)

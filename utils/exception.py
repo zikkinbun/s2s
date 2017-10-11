@@ -31,3 +31,4 @@ class DBException(Exception):
     数据库异常类, 该异常属于底层数据库操作异常, 和业务逻辑无关.
     在业务层(processor)中捕获该异常后需要转化为UFOException
     '''
+    pass
